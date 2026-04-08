@@ -8,7 +8,7 @@ updated: 2026-04-08
 
 **Version:** Draft  
 **Date:** 2026-04-08  
-**Audience:** All AYEHEAR_* personas
+**Audience:** All AYEHEAR\_\* personas
 
 ---
 
@@ -28,16 +28,16 @@ AYE Hear is a Windows desktop application for **local, offline-first meeting tra
 
 ## 🏗️ Architecture at a Glance (ADR-0001)
 
-| Component | Tech | Why |
-|-----------|------|-----|
-| **Desktop App** | PySide6 (Qt6) | Native Windows feel, thread-safe audio |
-| **Audio Input** | WASAPI via sounddevice | Standard Windows microphone |
-| **Speech Segmentation** | Silero VAD + Pyannote | Filters noise, detects speaker changes |
-| **Speaker ID** | Pyannote embeddings + cosine matching | Pre-meeting enrollment, confidence-scored |
-| **Transcription** | Faster-Whisper | Fast, offline, CPU/GPU adaptive |
-| **Protocol Engine** | Local LLM via Ollama | 7B–13B model, real-time extracts decisions/tasks |
-| **Storage** | SQLite | Local meeting history, speaker profiles |
-| **Export** | Markdown, DOCX, PDF | User-friendly final output |
+| Component               | Tech                                  | Why                                                                            |
+| ----------------------- | ------------------------------------- | ------------------------------------------------------------------------------ |
+| **Desktop App**         | PySide6 (Qt6)                         | Native Windows feel, thread-safe audio                                         |
+| **Audio Input**         | WASAPI via sounddevice                | Standard Windows microphone                                                    |
+| **Speech Segmentation** | Silero VAD + Pyannote                 | Filters noise, detects speaker changes                                         |
+| **Speaker ID**          | Pyannote embeddings + cosine matching | Pre-meeting enrollment, confidence-scored                                      |
+| **Transcription**       | Faster-Whisper                        | Fast, offline, CPU/GPU adaptive                                                |
+| **Protocol Engine**     | Local LLM via Ollama                  | 7B–13B model, real-time extracts decisions/tasks                               |
+| **Storage**             | PostgreSQL                            | Canonical storage for meeting history, speaker profiles and protocol revisions |
+| **Export**              | Markdown, DOCX, PDF                   | User-friendly final output                                                     |
 
 ---
 
@@ -90,7 +90,7 @@ AYE Hear is a Windows desktop application for **local, offline-first meeting tra
 - ✅ Live transcription
 - ✅ Real-time protocol generation (decisions, tasks, open items)
 - ✅ Export (MD, DOCX, PDF)
-- ✅ Meeting history (local SQLite)
+- ✅ Meeting history (local PostgreSQL)
 - ✅ Manual speaker correction
 - ✅ CPU & GPU adaptive (auto-profile at startup)
 
@@ -117,13 +117,13 @@ AYE Hear is a Windows desktop application for **local, offline-first meeting tra
 
 ## 👥 Roles (Agents)
 
-| Role | Owner | Focus |
-|------|-------|-------|
-| AYEHEAR_ARCHITECT | Lead | Architecture, ADRs, design governance |
-| AYEHEAR_DEVELOPER | Team | Implementation, testing, code quality |
-| AYEHEAR_DEVOPS | Infra | CI/CD, Windows installer, build pipeline |
-| AYEHEAR_QA | Quality | Test strategy, quality gates, acceptance |
-| AYEHEAR_SECURITY | Security | Privacy, encryption, GDPR, offline-first validation |
+| Role              | Owner    | Focus                                               |
+| ----------------- | -------- | --------------------------------------------------- |
+| AYEHEAR_ARCHITECT | Lead     | Architecture, ADRs, design governance               |
+| AYEHEAR_DEVELOPER | Team     | Implementation, testing, code quality               |
+| AYEHEAR_DEVOPS    | Infra    | CI/CD, Windows installer, build pipeline            |
+| AYEHEAR_QA        | Quality  | Test strategy, quality gates, acceptance            |
+| AYEHEAR_SECURITY  | Security | Privacy, encryption, GDPR, offline-first validation |
 
 ---
 
@@ -139,7 +139,7 @@ AYE Hear is a Windows desktop application for **local, offline-first meeting tra
 ## 🔒 Privacy & Compliance
 
 - **Audio:** Remains on user's machine; never transmitted
-- **Speaker Profiles:** SQLite encrypted (v1 baseline, v1.x enhanced)
+- **Speaker Profiles:** Stored in local PostgreSQL with repository-governed protection requirements
 - **Protocol Artifacts:** Local files only (Markdown, DOCX, PDF)
 - **GDPR:** Users own all data; delete on-demand via local file removal
 - **Telemetry:** None by default; opt-in analytics for V2+
@@ -156,7 +156,7 @@ VAD:              Silero VAD
 Diarization:      Pyannote.audio
 Transcription:    Faster-Whisper
 LLM:              Ollama (7B–13B)
-Storage:          SQLite
+Storage:          PostgreSQL
 Export:           python-docx, reportlab (PDF)
 Build:            PyInstaller + NSIS
 CI/CD:            GitHub Actions (planned)
@@ -167,26 +167,31 @@ CI/CD:            GitHub Actions (planned)
 ## 🎓 Getting Started by Role
 
 ### 👨‍💼 AYEHEAR_ARCHITECT
+
 1. Read this document
 2. Review [docs/adr/](docs/adr/) – Understand core decisions
 3. Define design approval process for PRs
 
 ### 👨‍💻 AYEHEAR_DEVELOPER
+
 1. Read this document
 2. Setup: [docs/quick-refs/DEVELOPMENT_SETUP_QUICKREF.md](docs/quick-refs/DEVELOPMENT_SETUP_QUICKREF.md)
 3. Start with Phase 1: `Get-Task -Role AYEHEAR_DEVELOPER`
 
 ### 🔒 AYEHEAR_SECURITY
+
 1. Read this document + [docs/adr/0001 thru 0005](docs/adr/)
 2. Define security checklist (offline-first, encryption, credential handling)
 3. Review every PR touching audio, storage, or speaker data
 
 ### 🧪 AYEHEAR_QA
+
 1. Read this document + [docs/governance/QUALITY_GATES.md](docs/governance/QUALITY_GATES.md)
 2. Set up test hardware (CPU-only laptop + GPU laptop)
 3. Create test plan for speaker identification (confidence thresholds)
 
 ### 🚀 AYEHEAR_DEVOPS
+
 1. Read this document + [docs/adr/0002](docs/adr/0002-windows-desktop-app-stack.md)
 2. Design CI/CD pipeline (GitHub Actions)
 3. Create NSIS installer script
