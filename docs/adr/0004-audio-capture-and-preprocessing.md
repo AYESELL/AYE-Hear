@@ -1,5 +1,5 @@
 ---
-status: draft
+status: accepted
 context_date: 2026-04-08
 decision_owner: AYEHEAR_ARCHITECT
 ---
@@ -54,6 +54,6 @@ Implement audio capture using **WASAPI default device** with adaptive preprocess
 
 ---
 
-**Status:** Draft  
+**Status:** Accepted  
 **Owner:** AYEHEAR_ARCHITECT  
 **Updated:** 2026-04-08

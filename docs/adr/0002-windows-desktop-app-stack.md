@@ -1,5 +1,5 @@
 ---
-status: draft
+status: accepted
 context_date: 2026-04-08
 decision_owner: AYEHEAR_ARCHITECT
 ---
@@ -11,6 +11,7 @@ decision_owner: AYEHEAR_ARCHITECT
 AYE Hear requires a desktop GUI that integrates tightly with local audio capture, background processing (transcription, diarization), and real-time UI updates.
 
 Stack tradeoffs:
+
 - **Electron:** Cross-platform but heavy; audio integration challenging
 - **Qt/PySide6:** Native look & feel, tight OS integration, good audio support
 - **WinForms/.NET:** Windows-only but proven; heavy framework
@@ -38,6 +39,7 @@ Build AYE Hear using **Python 3.11+ backend + PySide6 (Qt) for desktop UI**, wit
    - Automatic updates via custom launcher script (V2+)
 
 4. **Project Structure:**
+
    ```
    src/
    ├── ayehear/
@@ -56,7 +58,7 @@ Build AYE Hear using **Python 3.11+ backend + PySide6 (Qt) for desktop UI**, wit
    │   │   ├── segment.py
    │   │   ├── speaker.py
    │   ├── storage/
-   │   │   ├── sqlite_driver.py       (SQLite local DB)
+   │   │   ├── postgres_store.py      (PostgreSQL persistence layer)
    │   └── utils/
    │       ├── config.py
    │       ├── logging.py
@@ -72,22 +74,25 @@ Build AYE Hear using **Python 3.11+ backend + PySide6 (Qt) for desktop UI**, wit
    - `sounddevice` or `pyaudio` – Audio input
    - `numpy`, `scipy` – Signal processing
    - `ollama` (client library) – Local LLM
-   - `sqlalchemy` + `sqlalchemy-utils` – ORM for SQLite
+   - `sqlalchemy` + `psycopg[binary]` – PostgreSQL access layer
 
 ## Consequences
 
 **Positive:**
+
 - Pythonic codebase aligns with AYE KNOW team
 - PySide6 handles real-time UI updates smoothly
 - WASAPI integration via sounddevice + PySide6 audio
 - Single-language stack simplifies deployment
 
 **Negative:**
+
 - Python app size: ~400-600 MB (with bundled models)
 - Slower startup (Python interpreter + cold model load)
 - Platform-limited to Windows (would need Qt for Mac/Linux)
 
 **Mitigations:**
+
 - Lazy-load heavy models (Whisper, Ollama) after splash screen
 - Pre-cache models at install time
 - Incremental startup telemetry
@@ -111,6 +116,6 @@ Build AYE Hear using **Python 3.11+ backend + PySide6 (Qt) for desktop UI**, wit
 
 ---
 
-**Status:** Draft  
+**Status:** Accepted  
 **Owner:** AYEHEAR_ARCHITECT  
 **Updated:** 2026-04-08

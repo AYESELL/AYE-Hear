@@ -1,5 +1,5 @@
 ---
-status: draft
+status: accepted
 context_date: 2026-04-08
 decision_owner: AYEHEAR_ARCHITECT
 ---
@@ -79,6 +79,6 @@ AYE Hear will be architected as an **offline-first Windows desktop application**
 
 ---
 
-**Status:** Draft  
+**Status:** Accepted  
 **Owner:** AYEHEAR_ARCHITECT  
 **Updated:** 2026-04-08
