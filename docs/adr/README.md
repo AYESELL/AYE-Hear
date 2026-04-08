@@ -1,5 +1,5 @@
 ---
-status: draft
+status: active
 context_date: 2026-04-08
 decision_owner: AYEHEAR_ARCHITECT
 ---
@@ -12,11 +12,18 @@ This directory contains all significant architecture decisions for the AYE Hear 
 
 | # | Title | Status | Owner |
 |---|-------|--------|-------|
-| 0001 | AYE Hear Product Architecture | Draft | AYEHEAR_ARCHITECT |
-| 0002 | Windows Desktop App Stack (PySide6 + Python) | Draft | AYEHEAR_ARCHITECT |
-| 0003 | Speaker Identification & Diarization Pipeline | Draft | AYEHEAR_ARCHITECT |
-| 0004 | Audio Capture & Preprocessing (WASAPI) | Draft | AYEHEAR_ARCHITECT |
-| 0005 | Meeting Protocol Engine & LLM Integration | Draft | AYEHEAR_ARCHITECT |
+| 0001 | AYE Hear Product Architecture | Accepted | AYEHEAR_ARCHITECT |
+| 0002 | Windows Desktop App Stack (PySide6 + Python) | Accepted | AYEHEAR_ARCHITECT |
+| 0003 | Speaker Identification & Diarization Pipeline | Accepted | AYEHEAR_ARCHITECT |
+| 0004 | Audio Capture & Preprocessing (WASAPI) | Accepted | AYEHEAR_ARCHITECT |
+| 0005 | Meeting Protocol Engine & LLM Integration | Accepted | AYEHEAR_ARCHITECT |
+| 0006 | PostgreSQL Local Deployment Model on Windows | Accepted | AYEHEAR_ARCHITECT |
+| 0007 | Persistence Contract and Lifecycle | Accepted | AYEHEAR_ARCHITECT |
+| 0008 | Hardware Profiles and Acceleration Strategy | Accepted | AYEHEAR_ARCHITECT |
+
+## Supporting Architecture Documents
+
+- [docs/architecture/SYSTEM_BOUNDARIES.md](../architecture/SYSTEM_BOUNDARIES.md) – subsystem responsibilities, ownership and runtime boundaries
 
 ## How to Create a New ADR
 
