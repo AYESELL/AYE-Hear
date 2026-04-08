@@ -162,7 +162,7 @@ Complete-Task -Id HEAR-001
 **Offline-First Pledge:**
 - No audio transmission externally
 - No telemetry by default
-- Local SQLite storage only
+- Local PostgreSQL storage only
 - GDPR-compliant (users own data)
 
 **AI Governance:**
