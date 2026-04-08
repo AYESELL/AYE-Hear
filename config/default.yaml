@@ -1,0 +1,26 @@
+app:
+  name: AYE Hear
+  environment: development
+  autosave_interval_seconds: 30
+
+audio:
+  sample_rate_hz: 16000
+  channels: 1
+  frame_size: 512
+  use_windows_default_input: true
+
+speaker_identification:
+  enrollment_seconds: 8
+  high_confidence_threshold: 0.85
+  medium_confidence_threshold: 0.65
+
+protocol:
+  update_interval_seconds: 45
+  minimum_confidence: 0.65
+  meeting_modes:
+    - internal
+    - external
+
+models:
+  whisper_profile: balanced
+  ollama_model: mistral:7b

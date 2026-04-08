@@ -1,0 +1,22 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+*.spec
+*.pyc
+*.pyo
+*.pyd
+*.log
+.coverage
+coverage.xml
+htmlcov/
+.idea/
+.vscode/*.code-snippets
+
+# Local runtime artifacts
+data/
+exports/
+models/

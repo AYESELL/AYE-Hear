@@ -1,0 +1,63 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aye-hear"
+version = "0.1.0"
+description = "Offline-first Windows desktop app for meeting transcription and protocol generation."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Proprietary" }
+authors = [
+  { name = "AYE Hear Team" }
+]
+dependencies = [
+  "PySide6>=6.8,<7.0",
+  "faster-whisper>=1.1.0",
+  "sounddevice>=0.5.1",
+  "numpy>=2.2.0",
+  "pydantic>=2.10.0",
+  "PyYAML>=6.0.2",
+  "psycopg[binary]>=3.2.6",
+  "SQLAlchemy>=2.0.39",
+  "python-docx>=1.1.2",
+  "reportlab>=4.2.5",
+]
+
+[project.optional-dependencies]
+ml = [
+  "pyannote.audio>=3.3.2",
+  "silero-vad>=5.1.2",
+  "ollama>=0.4.7",
+]
+dev = [
+  "pytest>=8.3.4",
+  "pytest-cov>=6.0.0",
+  "ruff>=0.11.4",
+  "mypy>=1.15.0",
+]
+
+[project.scripts]
+aye-hear = "ayehear.__main__:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
