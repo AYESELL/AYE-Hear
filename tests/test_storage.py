@@ -198,6 +198,27 @@ def test_migration_directory_order_is_deterministic() -> None:
     assert names[0].startswith("001"), "First migration must be 001"
 
 
+def test_acceptance_significant_tests_do_not_depend_on_sqlite() -> None:
+    """Regression guard for HEAR-023: acceptance-significant tests stay PostgreSQL-only."""
+    tests_dir = Path(__file__).resolve().parent
+    forbidden_patterns = (
+        "sqlite://",
+        "sqlite:///",
+        "sqlite+pysqlite",
+        "import sqlite3",
+        "from sqlite3",
+    )
+
+    for test_file in tests_dir.glob("test_*.py"):
+        if test_file.name == Path(__file__).name:
+            continue
+        content = test_file.read_text(encoding="utf-8").lower()
+        for pattern in forbidden_patterns:
+            assert pattern not in content, (
+                f"Unexpected SQLite dependency pattern {pattern!r} found in {test_file.name}."
+            )
+
+
 # ---------------------------------------------------------------------------
 # MeetingRepository
 # ---------------------------------------------------------------------------

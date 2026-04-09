@@ -82,6 +82,28 @@ def test_match_intro_returns_unknown_for_empty_text() -> None:
     assert result.speaker_name == "Unknown Speaker"
 
 
+def test_match_intro_handles_salutation_and_company_display_name() -> None:
+    sm = SpeakerManager()
+    result = sm.match_intro_to_participant(
+        "Guten Morgen, ich bin Frau Schneider von AYE.",
+        ["Frau Schneider | AYE", "Max Weber | Customer GmbH"],
+    )
+
+    assert result.speaker_name == "Frau Schneider | AYE"
+    assert result.status in {"medium", "high"}
+
+
+def test_match_intro_rejects_first_name_only_when_names_are_ambiguous() -> None:
+    sm = SpeakerManager()
+    result = sm.match_intro_to_participant(
+        "Ich bin Max.",
+        ["Max Weber", "Max Müller"],
+    )
+
+    assert result.speaker_name == "Unknown Speaker"
+    assert result.status == "low"
+
+
 # ---------------------------------------------------------------------------
 # enroll — stub path (no repository)
 # ---------------------------------------------------------------------------

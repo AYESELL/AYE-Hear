@@ -14,6 +14,7 @@ from types import SimpleNamespace
 
 import pytest
 
+from ayehear.models.meeting import Participant as MeetingParticipant
 from ayehear.storage.orm import Base, Meeting, Participant
 from ayehear.storage.repositories import MeetingRepository, ParticipantRepository
 
@@ -100,6 +101,32 @@ def meeting(session) -> Meeting:
     m.id = "m-001"
     session.add(m)
     return m
+
+
+def test_meeting_participant_display_name_uses_salutation_template() -> None:
+    participant = MeetingParticipant(
+        first_name="Anna",
+        last_name="Schneider",
+        organization="AYE",
+        role="Moderator",
+        salutation="Frau",
+        naming_template="salutation_last_name",
+    )
+
+    assert participant.display_name == "Frau Schneider"
+
+
+def test_meeting_participant_display_name_uses_full_name_template() -> None:
+    participant = MeetingParticipant(
+        first_name="Anna",
+        last_name="Schneider",
+        organization="AYE",
+        role="Moderator",
+        salutation="Frau",
+        naming_template="full_name",
+    )
+
+    assert participant.display_name == "Anna Schneider"
 
 
 # ---------------------------------------------------------------------------
