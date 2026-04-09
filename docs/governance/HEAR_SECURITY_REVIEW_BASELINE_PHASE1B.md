@@ -16,39 +16,13 @@ baseline_scope: Phase-1B Implementation (HEAR-008 through HEAR-017)
 
 ## Executive Summary
 
-Phase-1B implementation establishes core data persistence, audio pipeline, and speaker identification subsystems. **Security posture is currently incomplete** with critical gaps in credential management, data classification, and operational control. **Recommended action: BLOCKER status until credential management and data-at-rest protection plan are implemented.**
+Phase-1B implementation establishes core data persistence, audio pipeline, and speaker identification subsystems. **Security posture is currently incomplete** with critical gaps in data protection, auditability, and operational control. A misleading DSN example was also identified as a documentation hygiene issue, but it is **not** evidence of a live credential leak. **Recommended action: BLOCKER status until data-at-rest protection and audit controls are implemented.**
 
 ---
 
 ## Findings by Category
 
 ### 🔴 CRITICAL FINDINGS
-
-#### Finding C1: Hardcoded Credentials in DSN Example
-
-**Location:** `src/ayehear/storage/database.py:36` (example DSN in docstring)  
-**Severity:** CRITICAL  
-**Finding:** Example shows plaintext credentials in DSN string:  
-```python
-config = DatabaseConfig(dsn="postgresql+psycopg://user:pass@localhost/ayehear")
-```
-
-**Impact:** If this pattern is copied to production code or configuration, credentials leak into:
-- Source code repositories (git history)
-- Process environment variables visible via `ps`
-- Log files if DSN is logged
-- Memory dumps
-
-**Required Control:** 
-- ❌ Credentials must NEVER appear in source code
-- ✅ Implement environment variable loading for DSN: `os.environ.get("AYEHEAR_DB_DSN")`
-- ✅ Credentials passed via secure installer setup or local encrypted store
-- ✅ Runtime validation that DSN contains no plaintext passwords
-
-**ADR Reference:** ADR-0006 (Windows Runtime) must define installer-provided credential injection  
-**Status:** **BLOCKER — Phase-1B cannot proceed to Phase-6 (REVIEW) without this control**
-
----
 
 #### Finding C2: No Data Classification or Encryption-at-Rest Policy
 
@@ -137,6 +111,27 @@ segment_text: Mapped[str] = mapped_column(Text, nullable=False)  # meeting conte
 
 **ADR Reference:** ADR-0003 (Speaker ID) must specify audit trail semantics  
 **Status:** **BLOCKER — Audit trail design must be reviewed before HEAR-012 completion**
+
+---
+
+### 🟢 LOW FINDINGS
+
+#### Finding L1: Misleading DSN Example in Docstring
+
+**Location:** `src/ayehear/storage/database.py:36` (example DSN in docstring)  
+**Severity:** LOW  
+**Finding:** The reviewed string used `user:pass` in a usage example. This is a placeholder example, not a live secret and not a real credential exposure. The risk is limited to copy-paste behavior or misinterpretation during review.
+
+**Impact:**
+- No active secret is exposed in the repository
+- Developers could still copy an unsafe DSN pattern into future code or local config
+
+**Required Control:**
+- Replace the example with a non-secret placeholder or env/installer-based wording
+- Keep the rule that real credentials must never appear in source-controlled files
+
+**ADR Reference:** ADR-0006 should continue to define installer-provided credential injection  
+**Status:** Closed by documentation cleanup, not a release blocker
 
 ---
 
@@ -264,9 +259,7 @@ segment_text: Mapped[str] = mapped_column(Text, nullable=False)  # meeting conte
 
 ---
 
-### 🟢 LOW FINDINGS
-
-#### Finding L1: Logging Sensitive Data in DEBUG Mode
+#### Finding L2: Logging Sensitive Data in DEBUG Mode
 
 **Location:** `app/window.py`, `services/*.py`  
 **Severity:** LOW  
@@ -292,9 +285,8 @@ logger.debug("Transcript %s: %s", segment_id, segment_text)  # ❌ redact!
 
 | Blocker | Finding | Resolution | Owner | Target |
 |---------|---------|-----------|-------|--------|
-| **B1** | C1: Hardcoded credentials | Implement env-var loading + ADR-0006 credential injection | AYEHEAR_ARCHITECTURE (ADR-0006) | Phase-1B HOLD |
-| **B2** | C2: No encryption-at-rest | Define encryption model in ADR-0009 + implement C_SENSITIVE marking | AYEHEAR_ARCHITECT + AYEHEAR_SECURITY | ADR-0009 (Phase-1C gate) |
-| **B3** | C3: No audit trail | Design + implement speaker_profile_audit_log table + repository logging | AYEHEAR_DEVELOPER (HEAR-012) + HEAR-018 QA | HEAR-012 acceptance criteria |
+| **B1** | C2: No encryption-at-rest | Define encryption model in ADR-0009 + implement C_SENSITIVE marking | AYEHEAR_ARCHITECT + AYEHEAR_SECURITY | ADR-0009 (Phase-1C gate) |
+| **B2** | C3: No audit trail | Design + implement speaker_profile_audit_log table + repository logging | AYEHEAR_DEVELOPER (HEAR-012) + HEAR-018 QA | HEAR-012 acceptance criteria |
 
 ---
 
@@ -302,11 +294,9 @@ logger.debug("Transcript %s: %s", segment_id, segment_text)  # ❌ redact!
 
 ### Immediate (Must have before Phase-1B → Phase-6 REVIEW)
 
-- [ ] **Credential Management:** Implement `os.environ.get("AYEHEAR_DB_DSN")` pattern
-- [ ] **No Hardcoded Credentials:** Code audit and remove example hardcoded password from docstring
 - [ ] **Loopback-Only Validation:** Add PostgreSQL listen_addresses check to bootstrap
 - [ ] **Data Classification Plan:** Document C_SENSITIVE entities (speaker profiles, transcripts, participant names)
-- [ ] **ADR-0006 Update:** Specify installer-managed credential provisioning (no hardcoding)
+- [ ] **ADR-0006 Update:** Specify installer-managed credential provisioning and safe DSN sourcing
 - [ ] **ADR-0009 Creation:** Define encryption model for C_SENSITIVE data (decision on pgcrypto vs app-layer vs OS-level)
 
 ### Phase-1C Blockers (Before Phase-1C tasks execute)
@@ -338,7 +328,7 @@ logger.debug("Transcript %s: %s", segment_id, segment_text)  # ❌ redact!
 
 | Risk | Likelihood | Impact | Mitigation | Status |
 |------|------------|--------|-----------|--------|
-| Credentials leak to source control | HIGH | CRITICAL | Env-var loading, no hardcoding rule | **BLOCKER** |
+| Unsafe DSN pattern copied from examples | LOW | MEDIUM | Use non-secret placeholders and installer/env-based examples only | Mitigated by doc cleanup |
 | Database accessed from LAN | MEDIUM | CRITICAL | Loopback-only validation + docs | **HIGH** |
 | Speaker profiles tampered with (deliberate or accidental) | MEDIUM | HIGH | Audit trail + access logs | **BLOCKER** |
 | Encryption-at-rest not implemented | HIGH | CRITICAL | ADR-0009 + implementation gate | **BLOCKER** |
@@ -353,7 +343,7 @@ logger.debug("Transcript %s: %s", segment_id, segment_text)  # ❌ redact!
 
 - **Art. 5 (Integrity & Confidentiality):** Encryption-at-rest (ADR-0009 & C2), Access logging (C3)
 - **Art. 17 (Right to Erasure):** Data retention policy & deletion procedure required
-- **Art. 32 (Security):** Encryption, audit trails, credential management (C1, C2, C3)
+- **Art. 32 (Security):** Encryption and audit trails (C2, C3), plus secure credential provisioning as an operational control
 
 ### Windows Security Best Practices
 
@@ -365,11 +355,11 @@ logger.debug("Transcript %s: %s", segment_id, segment_text)  # ❌ redact!
 
 ## Next Steps (Phase-1B → Phase-1C Handoff)
 
-1. **AYEHEAR_ARCHITECT:** Update ADR-0006 and create ADR-0009 with credential & encryption models
-2. **AYEHEAR_DEVELOPER:** Implement blockers B1 & B3 (credential loading, audit trail schema & code)
+1. **AYEHEAR_ARCHITECT:** Update ADR-0006 and create ADR-0009 with credential provisioning and encryption models
+2. **AYEHEAR_DEVELOPER:** Implement blockers B1 and B2 (encryption hooks, audit trail schema and code)
 3. **AYEHEAR_DEVELOPER:** Update HEAR-012 acceptance criteria to include audit trail validation
 4. **AYEHEAR_SECURITY:** Validate ADR-0009 encryption model is adequate before Phase-1C execution
-5. **AYEHEAR_QA:** Add offline & encryption validation to HEAR-018 acceptance matrix
+5. **AYEHEAR_QA:** Add offline and encryption validation to HEAR-018 acceptance matrix
 
 ---
 
@@ -387,6 +377,6 @@ logger.debug("Transcript %s: %s", segment_id, segment_text)  # ❌ redact!
 ---
 
 **Baseline Status:** READY FOR PHASE-1C PLANNING  
-**Security Blockers:** 3 CRITICAL (credentials, encryption, audit trail)  
+**Security Blockers:** 2 CRITICAL (encryption, audit trail)  
 **Estimated Resolution Time:** 1–2 sprints (Phases 1B–1C)  
 **Reviewer Sign-off:** AYEHEAR_SECURITY (pending architecture review of ADR-0006/ADR-0009)

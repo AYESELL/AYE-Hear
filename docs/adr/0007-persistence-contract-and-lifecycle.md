@@ -26,28 +26,34 @@ AYE Hear adopts the following canonical PostgreSQL persistence entities for V1:
 ### Canonical Entities
 
 #### `meetings`
+
 - primary meeting record and lifecycle container
-- fields include `id`, `title`, `started_at`, `ended_at`, `status`, `created_at`, `updated_at`
+- fields include `id`, `title`, `mode`, `meeting_type`, `started_at`, `ended_at`, `status`, `created_at`, `updated_at`
 - owns the top-level relation for transcript and protocol artifacts
 
 #### `participants`
+
 - meeting-scoped participant registration
-- fields include `id`, `meeting_id`, `speaker_profile_id`, `display_name`, `enrollment_status`, `created_at`, `updated_at`
+- fields include `id`, `meeting_id`, `speaker_profile_id`, `display_name`, `first_name`, `last_name`, `salutation`, `organization`, `naming_template`, `enrollment_status`, `created_at`, `updated_at`
 
 #### `speaker_profiles`
+
 - reusable enrolled speaker identity records
 - fields include `id`, `display_name`, `embedding_vector`, `embedding_version`, `created_at`, `updated_at`
 - embedding storage is PostgreSQL-native and must support pgvector-backed similarity search
 
 #### `transcript_segments`
+
 - transcript output units with speaker attribution state
 - fields include `id`, `meeting_id`, `participant_id`, `start_ms`, `end_ms`, `segment_text`, `confidence_score`, `manual_correction`, `created_at`, `updated_at`
 
 #### `protocol_snapshots`
+
 - immutable protocol revisions generated from reviewed transcript state
 - fields include `id`, `meeting_id`, `snapshot_version`, `snapshot_content`, `engine_version`, `generated_at`
 
 #### `protocol_action_items`
+
 - normalized actionable outputs from protocol snapshots
 - fields include `id`, `protocol_snapshot_id`, `assignee_participant_id`, `title`, `description`, `status`, `due_date`, `created_at`, `updated_at`
 
@@ -66,6 +72,7 @@ AYE Hear adopts the following canonical PostgreSQL persistence entities for V1:
 
 - Speaker correction is mandatory when confidence is insufficient
 - `manual_correction = true` marks reviewed transcript assignments
+- participant identity corrections must update participant mapping and remain auditable in transcript assignment history
 - Protocol generation must prefer reviewed transcript state over raw model output
 
 ### Versioning
@@ -77,15 +84,18 @@ AYE Hear adopts the following canonical PostgreSQL persistence entities for V1:
 ## Consequences
 
 **Positive:**
+
 - One canonical storage contract across all subsystems
 - Clear ownership of transcript corrections and protocol revisions
 - Supports speaker matching, auditability and future export flows
 
 **Negative:**
+
 - Initial schema design is more deliberate than an ad hoc local store
 - pgvector becomes part of the baseline PostgreSQL capability set
 
 **Mitigations:**
+
 - Keep flexible meeting and protocol metadata in structured JSON fields where justified
 - Preserve append-only snapshot semantics to simplify review and recovery
 

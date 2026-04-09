@@ -12,7 +12,16 @@ Live speaker identification is core: "Who said what?" must be known in real-time
 
 ## Decision
 
-Implement a **two-stage pipeline with mandatory pre-meeting voice enrollment**:
+Implement a **three-stage pipeline with mandatory pre-meeting context and enrollment**:
+
+**Stage 0: Meeting Context + Participant Pre-Registration (Pre-Meeting)**
+
+- User must select a meeting type before recording starts (`internal`, `external`, additional configured modes)
+- User can pre-register participants before audio enrollment
+- Supported participant name templates for V1:
+  - `salutation_last_name_company` (example: `Frau Schneider | AYE`)
+  - `full_name_company` (example: `Anna Schneider | AYE`)
+- During live introduction, speaker matching must prefer this participant set over free-form name guessing
 
 **Stage 1: Voice Enrollment (Pre-Meeting)**
 
@@ -27,6 +36,8 @@ Implement a **two-stage pipeline with mandatory pre-meeting voice enrollment**:
 2. Segmentation: Pyannote detects speaker change boundaries
 3. Embedding: For each segment, generate embedding
 4. Matching: Cosine similarity match
+   - Name assignment uses participant-constrained matching first (from Stage 0)
+   - Free-form matching is only a fallback when no participant candidate is plausible
    - ≥ 0.85 → Speaker name + high confidence
    - 0.65–0.84 → "Uncertain: possibly {name}"
    - < 0.65 → "Unknown Speaker"
@@ -48,6 +59,7 @@ else:
 **Positive:**
 
 - Mandatory enrollment eliminates guessing
+- Meeting-type and participant pre-registration reduce name ambiguity at runtime
 - Confidence scoring ensures transparency
 - Fallback to manual correction available
 
@@ -59,6 +71,7 @@ else:
 **Mitigations:**
 
 - UI emphasizes enrollment before meeting
+- UI must expose post-assignment correction for participant names and keep correction audit state
 - Manual correction retroactively possible
 - Confidence scores in export
 

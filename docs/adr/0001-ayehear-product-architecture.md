@@ -11,6 +11,7 @@ decision_owner: AYEHEAR_ARCHITECT
 AYE Hear is a new product in the AYE product line designed to provide local meeting transcription, speaker identification, and protocol generation without cloud dependencies.
 
 The product must:
+
 - Run as a standalone Windows desktop application
 - Support live speaker identification with pre-meeting voice enrollment
 - Generate meeting protocols in real-time
@@ -50,18 +51,21 @@ AYE Hear will be architected as an **offline-first Windows desktop application**
 ## Consequences
 
 **Positive:**
+
 - Complete data privacy (regulatory advantage)
 - Offline-first model aligns with AYE KNOW principles
 - No dependency on third-party transcription APIs
 - Predictable cost structure (no per-minute billing)
 
 **Negative:**
+
 - Higher initial computational load on desktop
 - Diarization accuracy limited by single microphone
 - USB/network audio devices require driver support
 - Customer must allocate local storage for historical meetings
 
 **Mitigations:**
+
 - Confidence scoring and manual correction UI
 - Performance profiling on target hardware before V1 release
 - Clear documentation on mic placement and audio quality

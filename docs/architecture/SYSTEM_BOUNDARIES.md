@@ -15,11 +15,13 @@ This document defines the runtime and ownership boundaries between the core AYE 
 ### 1. UI Shell
 
 Responsibilities:
+
 - start and stop meeting workflows
 - expose enrollment, live transcript, manual correction and protocol review
 - present confidence and error state to the user
 
 Does not own:
+
 - raw audio processing
 - speaker embedding inference
 - direct protocol extraction logic
@@ -27,34 +29,40 @@ Does not own:
 ### 2. Audio Pipeline
 
 Responsibilities:
+
 - capture microphone input through the approved Windows path
 - apply preprocessing and chunking
 - feed transcription and diarization stages with normalized audio segments
 
 Does not own:
+
 - participant identity decisions
 - persistent protocol generation
 
 ### 3. Speaker Identification
 
 Responsibilities:
+
 - manage speaker enrollment
 - generate and compare speaker embeddings
 - assign confidence-scored speaker matches to transcript segments
 - trigger manual review when the confidence threshold is not met
 
 Does not own:
+
 - microphone capture
 - protocol drafting
 
 ### 4. Meeting Protocol Engine
 
 Responsibilities:
+
 - consume reviewed transcript state
 - generate structured protocol revisions locally
 - emit protocol snapshots and action items
 
 Does not own:
+
 - raw capture
 - direct UI orchestration
 - final speaker identity decisions before correction

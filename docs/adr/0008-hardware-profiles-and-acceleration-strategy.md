@@ -11,6 +11,7 @@ decision_owner: AYEHEAR_ARCHITECT
 AYE Hear must run on Windows laptops with significantly different hardware capabilities. Audio capture, diarization, transcription and local LLM inference all compete for CPU, RAM and optionally GPU resources.
 
 The product needs a formal baseline for:
+
 - CPU-only execution
 - optional GPU acceleration
 - predictable fallback behavior
@@ -45,15 +46,18 @@ AYE Hear defines two supported runtime tiers for V1:
 ## Consequences
 
 **Positive:**
+
 - V1 remains deployable on ordinary Windows hardware
 - Higher-end machines gain meaningful performance improvements
 - Operations and QA can test against a stable compatibility baseline
 
 **Negative:**
+
 - Performance expectations differ by hardware tier
 - Additional validation is required for GPU-specific runtime paths
 
 **Mitigations:**
+
 - Publish minimum and recommended hardware guidance
 - Keep CPU-only as the authoritative fallback path
 - Treat profile selection as configuration plus runtime detection, not as product forks

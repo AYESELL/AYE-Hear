@@ -15,6 +15,12 @@ coverage.xml
 htmlcov/
 .idea/
 .vscode/*.code-snippets
+.vscode/settings.json
+
+# Build metadata / pip-generated artefacts
+PKG-INFO
+*.egg-info/
+SOURCES.txt
 
 # Local runtime artifacts
 data/

@@ -47,10 +47,14 @@ AYE Hear is a Windows desktop application for **local, offline-first meeting tra
 1. Start Meeting
    ├─ Choose type: Internal | External (Customer/Vendor)
    ├─ Meeting name & participants
+   ├─ Select participant template:
+   │  ├─ Herr/Frau + Last Name + Company
+   │  └─ First Name + Last Name + Company
    └─ Confirm audio device (Windows default)
 
 2. Speaker Enrollment (Pre-Meeting)
    ├─ Each participant speaks 5-10 sec reference
+   ├─ Introduction text is matched against pre-registered participant names
    ├─ System captures voice profile
    └─ Quality check (confidence ≥ 0.75)
 
@@ -63,7 +67,7 @@ AYE Hear is a Windows desktop application for **local, offline-first meeting tra
 
 4. End & Finalize
    ├─ Review captured decisions, tasks, open items
-   ├─ Correct any speaker mismatches
+   ├─ Correct any speaker mismatches and participant name assignments
    ├─ Approve protocol
    └─ Export as Markdown, DOCX, or PDF
 ```
