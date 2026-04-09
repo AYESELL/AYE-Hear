@@ -1,0 +1,15 @@
+[run]
+source = src/ayehear
+
+[report]
+omit =
+    # PySide6 UI shell — no unit-testable logic without QApplication
+    src/ayehear/app/__init__.py
+    src/ayehear/app/__main__.py
+    src/ayehear/app/main.py
+    src/ayehear/app/window.py
+    # WASAPI audio capture — requires physical audio hardware
+    src/ayehear/services/audio_capture.py
+
+[coverage:run]
+branch = True

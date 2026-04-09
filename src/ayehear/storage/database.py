@@ -8,11 +8,9 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 
-from sqlalchemy import create_engine, event, text
+from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
-
-from ayehear.storage.orm import Base
 
 logger = logging.getLogger(__name__)
 

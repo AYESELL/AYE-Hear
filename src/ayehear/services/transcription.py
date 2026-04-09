@@ -11,9 +11,8 @@ Transcription profiles map to faster-whisper compute_type / beam_size settings:
 from __future__ import annotations
 
 import logging
-import time
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from ayehear.services.audio_capture import AudioSegment
@@ -52,7 +51,7 @@ class TranscriptionService:
     profile: str = "balanced"
     language: str = "de"
     transcript_repo: "TranscriptSegmentRepository | None" = None
-    _model: object = field(default=None, init=False, repr=False)
+    _model: Any = field(default=None, init=False, repr=False)
 
     def active_profile(self) -> str:
         return self.profile
@@ -123,7 +122,7 @@ class TranscriptionService:
         if the model is unavailable (no ML runtime installed).
         """
         try:
-            from faster_whisper import WhisperModel  # type: ignore[import]
+            from faster_whisper import WhisperModel
         except ModuleNotFoundError:
             logger.warning("faster-whisper is not installed; returning empty transcript.")
             return "", self.language

@@ -268,7 +268,7 @@ class MainWindow(QMainWindow):
             snapshot = self._snapshot_repo.latest(self._active_meeting_id)
             if snapshot is None:
                 return
-            content = snapshot.content or {}
+            content = snapshot.snapshot_content or {}
             lines: list[str] = []
 
             def _section(title: str, items: list[str]) -> None:

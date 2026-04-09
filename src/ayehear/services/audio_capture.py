@@ -13,8 +13,9 @@ from __future__ import annotations
 import logging
 import threading
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timezone
+from typing import Protocol
 
 import numpy as np
 
@@ -48,6 +49,14 @@ class AudioSegment:
 SegmentCallback = Callable[[AudioSegment], None]
 
 
+class _AudioInputStream(Protocol):
+    def start(self) -> None: ...
+
+    def stop(self) -> None: ...
+
+    def close(self) -> None: ...
+
+
 class AudioCaptureService:
     """Captures audio from Windows default device (WASAPI default).
 
@@ -64,7 +73,7 @@ class AudioCaptureService:
 
     def __init__(self, profile: AudioCaptureProfile | None = None) -> None:
         self._profile = profile or AudioCaptureProfile()
-        self._stream = None
+        self._stream: _AudioInputStream | None = None
         self._active = False
         self._lock = threading.Lock()
         self._elapsed_ms: int = 0
@@ -116,9 +125,9 @@ class AudioCaptureService:
 
     def _open_stream(self) -> None:
         try:
-            import sounddevice as sd  # type: ignore[import-untyped]
+            import sounddevice as sd
 
-            self._stream = sd.InputStream(
+            stream = sd.InputStream(
                 samplerate=self._profile.sample_rate_hz,
                 channels=self._profile.channels,
                 dtype="float32",
@@ -127,7 +136,8 @@ class AudioCaptureService:
                 callback=self._sd_callback,
                 finished_callback=self._on_stream_finished,
             )
-            self._stream.start()
+            self._stream = stream
+            stream.start()
         except ImportError:
             logger.warning("sounddevice not installed — running in stub mode.")
             self._stream = None
