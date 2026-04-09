@@ -19,6 +19,7 @@ from ayehear.storage.orm import (
     ProtocolActionItem,
     ProtocolSnapshot,
     SpeakerProfile,
+    TranscriptCorrectionLog,
     TranscriptSegment,
 )
 
@@ -163,6 +164,48 @@ class ParticipantRepository:
         self._s.flush()
         return p
 
+    def update_metadata(
+        self,
+        participant_id: str,
+        *,
+        display_name: str | None = None,
+        first_name: str | None = None,
+        last_name: str | None = None,
+        salutation: str | None = None,
+        organization: str | None = None,
+        naming_template: str | None = None,
+    ) -> Participant:
+        """Update individual metadata fields for a pre-registered participant.
+
+        Only non-None keyword arguments are applied, leaving other fields unchanged.
+        Raises ValueError when the participant does not exist (HEAR-020).
+        """
+        p = self._s.get(Participant, participant_id)
+        if p is None:
+            raise ValueError(f"Participant {participant_id!r} not found.")
+        if display_name is not None:
+            p.display_name = display_name
+        if first_name is not None:
+            p.first_name = first_name
+        if last_name is not None:
+            p.last_name = last_name
+        if salutation is not None:
+            p.salutation = salutation
+        if organization is not None:
+            p.organization = organization
+        if naming_template is not None:
+            p.naming_template = naming_template
+        self._s.flush()
+        return p
+
+    def display_names_for_meeting(self, meeting_id: str) -> list[str]:
+        """Return the ordered display names of all participants in a meeting.
+
+        Used by SpeakerManager.register_meeting_participants() to seed the
+        participant-constrained intro-matching set (HEAR-021 / ADR-0003 Stage 0).
+        """
+        return [p.display_name for p in self.list_for_meeting(meeting_id)]
+
 
 # ---------------------------------------------------------------------------
 # TranscriptSegmentRepository
@@ -223,16 +266,74 @@ class TranscriptSegmentRepository:
         )
 
     def apply_correction(
-        self, segment_id: str, speaker_name: str
+        self,
+        segment_id: str,
+        speaker_name: str,
+        participant_id: str | None = None,
     ) -> TranscriptSegment:
-        """Assign a corrected speaker name and mark the segment as manually reviewed."""
+        """Assign a corrected speaker name, update participant mapping, and log the audit trail.
+
+        Writes an immutable TranscriptCorrectionLog entry with the before-state,
+        then updates the segment in-place (ADR-0003 / ADR-0007 / HEAR-022).
+
+        Args:
+            segment_id:     ID of the TranscriptSegment to correct.
+            speaker_name:   Corrected display name to assign to the segment.
+            participant_id: When provided, also updates the participant FK link
+                            so the segment is associated with the correct Participant
+                            record (enables downstream protocol grouping by participant).
+        """
         seg = self._s.get(TranscriptSegment, segment_id)
         if seg is None:
             raise ValueError(f"TranscriptSegment {segment_id!r} not found.")
+
+        # Audit log: capture before-state (HEAR-022)
+        log_entry = TranscriptCorrectionLog(
+            transcript_segment_id=seg.id,
+            previous_speaker_name=seg.speaker_name,
+            corrected_speaker_name=speaker_name,
+            previous_participant_id=seg.participant_id,
+            corrected_participant_id=participant_id,
+        )
+        self._s.add(log_entry)
+
+        # Apply corrections to the segment
         seg.speaker_name = speaker_name
+        if participant_id is not None:
+            seg.participant_id = participant_id
         seg.manual_correction = True
         self._s.flush()
         return seg
+
+    def correction_history(self, segment_id: str) -> list[TranscriptCorrectionLog]:
+        """Return all correction log entries for a segment, oldest first.
+
+        Provides the full audit trail for ADR-0007 compliance checks and QA review.
+        """
+        return (
+            self._s.query(TranscriptCorrectionLog)
+            .filter(TranscriptCorrectionLog.transcript_segment_id == segment_id)
+            .order_by(TranscriptCorrectionLog.corrected_at)
+            .all()
+        )
+
+    def list_for_protocol(self, meeting_id: str) -> list[TranscriptSegment]:
+        """Return non-silence segments in chronological order for protocol generation.
+
+        Since apply_correction() updates speaker_name in-place, segments returned
+        here already reflect the reviewed (corrected) state. The manual_correction
+        flag on each segment indicates which assignments were manually verified.
+        This makes the 'prefer reviewed state' intent explicit (HEAR-022 / ADR-0007).
+        """
+        return (
+            self._s.query(TranscriptSegment)
+            .filter(
+                TranscriptSegment.meeting_id == meeting_id,
+                TranscriptSegment.is_silence.is_(False),
+            )
+            .order_by(TranscriptSegment.start_ms)
+            .all()
+        )
 
 
 # ---------------------------------------------------------------------------

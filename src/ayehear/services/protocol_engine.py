@@ -122,11 +122,14 @@ class ProtocolEngine:
         if self._transcripts is None:
             return []
         try:
-            segments = self._transcripts.list_for_meeting(meeting_id)
+            # list_for_protocol() excludes silence and returns segments in
+            # chronological order; speaker_name already reflects any manual
+            # corrections applied via apply_correction() (HEAR-022 / ADR-0007).
+            segments = self._transcripts.list_for_protocol(meeting_id)
             return [
                 f"[{s.start_ms}ms] {s.speaker_name}: {s.text}"
                 for s in segments
-                if not s.is_silence and s.text
+                if s.text
             ]
         except Exception as exc:
             logger.error("Failed to load transcript for %s: %s", meeting_id, exc)

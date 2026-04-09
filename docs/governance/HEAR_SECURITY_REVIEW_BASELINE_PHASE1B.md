@@ -10,7 +10,7 @@ baseline_scope: Phase-1B Implementation (HEAR-008 through HEAR-017)
 **Date:** 2026-04-09  
 **Reviewer:** AYEHEAR_SECURITY  
 **Scope:** Implementation review of Phase-1B tasks (storage bootstrap, ORM, data persistence, audio capture, speaker management)  
-**Status:** Phase-5 VALIDATE gate assessment  
+**Status:** Phase-5 VALIDATE gate assessment
 
 ---
 
@@ -29,17 +29,20 @@ Phase-1B implementation establishes core data persistence, audio pipeline, and s
 **Location:** ORM and storage layer (all entities)  
 **Severity:** CRITICAL  
 **Finding:** The following sensitive data types are stored in PostgreSQL WITHOUT defined encryption:
+
 - Speaker embeddings (`speaker_profiles.embedding_vector`) — biometric data
 - Participant names and company (`participants.display_name, organization`) — PII
 - Transcript segments with speaker assignment (`transcript_segments.segment_text, participant_id`) — meeting minutes (sensitive)
 - Protocol snapshots and action items — meeting intelligence
 
-**Impact:** 
+**Impact:**
+
 - Local PostgreSQL database file is unencrypted on Windows disk
 - If device is compromised or hard drive accessed, all meeting intelligence and speaker profiles are exposed
 - GDPR Art. 32 requires encryption-at-rest or equivalent safeguards for PII
 
 **Evidence from Code:**
+
 ```python
 # ORM entities with no encryption directives
 embedding_vector: Mapped[list | None] = mapped_column(JSON, nullable=True)  # biometric!
@@ -47,16 +50,15 @@ segment_text: Mapped[str] = mapped_column(Text, nullable=False)  # meeting conte
 ```
 
 **Required Controls:**
+
 1. **Data Classification (Immediate):**
    - C_SENSITIVE: Speaker embeddings, transcript text, participant identity, protocol decisions
    - C_INTERNAL: Meeting metadata, timestamps
-   
 2. **Encryption Strategy (Phase-1C blockers):**
    - PostgreSQL native: `pgcrypto` extension for C_SENSITIVE columns (transparent encryption)
    - OR: Application-layer encryption before PostgreSQL insert (envelope encryption)
    - OR: Windows EFS/BitLocker requirement (document as operational control)
    - Decision: ADR-0009 required ("Data Protection & Encryption Model")
-   
 3. **Key Management:**
    - Master encryption key must be protected (separate from data)
    - Installer must regenerate or derive key per installation
@@ -72,17 +74,20 @@ segment_text: Mapped[str] = mapped_column(Text, nullable=False)  # meeting conte
 **Location:** `services/speaker_manager.py`, repositories.py  
 **Severity:** CRITICAL  
 **Finding:** Speaker profile retrieval and modification has no logging or access control:
+
 - `SpeakerProfileRepository.upsert()` can modify any profile without tracking WHO and WHEN
 - No logging of profile updates or corrections
 - No soft-delete or historical tracking of enrollment changes
 - Manual correction workflow stores `manual_correction=true` but does not log the correction reason or approver
 
 **Impact:**
+
 - Insider threat: User or malware could silently alter speaker profiles to misattribute speech
 - Auditability failure: Cannot prove speaker profiles were not tampered with
 - GDPR Art. 5 (accountability): No audit trail for PII modification requests
 
 **Required Controls:**
+
 1. **Audit Logging (Phase-1C):**
    - Create `speaker_profile_audit_log` table:
      ```sql
@@ -123,10 +128,12 @@ segment_text: Mapped[str] = mapped_column(Text, nullable=False)  # meeting conte
 **Finding:** The reviewed string used `user:pass` in a usage example. This is a placeholder example, not a live secret and not a real credential exposure. The risk is limited to copy-paste behavior or misinterpretation during review.
 
 **Impact:**
+
 - No active secret is exposed in the repository
 - Developers could still copy an unsafe DSN pattern into future code or local config
 
 **Required Control:**
+
 - Replace the example with a non-secret placeholder or env/installer-based wording
 - Keep the rule that real credentials must never appear in source-controlled files
 
@@ -144,10 +151,12 @@ segment_text: Mapped[str] = mapped_column(Text, nullable=False)  # meeting conte
 **Finding:** Audio capture maintains a 4-second ring buffer in RAM for diarization look-ahead. This buffer contains raw audio and can be accessed by other processes (memory dump, debugger).
 
 **Impact:**
+
 - Unencrypted audio in memory could leak meeting content if VM/device is compromised
 - Process debugging or crash dumps would contain audio samples
 
 **Mitigation (Phase-1B):**
+
 - ✅ Document: Ring buffer only retained for 4 seconds during active capture (minimal window)
 - ✅ Clear buffer on capture stop: `buffer.clear()` or zero-out
 - 🔄 Future (Phase-2): Consider mmap-backed buffer with memory-locking to prevent swap
@@ -161,6 +170,7 @@ segment_text: Mapped[str] = mapped_column(Text, nullable=False)  # meeting conte
 **Location:** `storage/database.py` (PostgreSQL connection)  
 **Severity:** HIGH  
 **Finding:** Database connection to `localhost:5432` assumes installer correctly configured PostgreSQL as loopback-only. No runtime check verifies:
+
 - PostgreSQL is not listening on network interfaces (0.0.0.0)
 - Local firewall rules restrict external access to port 5432
 - Honest but misconfigured installer could open PostgreSQL to LAN
@@ -168,6 +178,7 @@ segment_text: Mapped[str] = mapped_column(Text, nullable=False)  # meeting conte
 **Impact:** If PostgreSQL accidentally listens on network interface, meeting data becomes remotely accessible without encryption
 
 **Required Control:**
+
 - Add startup validation in `DatabaseBootstrap._verify_connection()`:
   ```python
   # Check that PostgreSQL is loopback-only
@@ -187,6 +198,7 @@ segment_text: Mapped[str] = mapped_column(Text, nullable=False)  # meeting conte
 **Location:** All services  
 **Severity:** HIGH  
 **Finding:** No automated test validates that the application does NOT make external API calls:
+
 - No network traffic inspection in test suite
 - No integration test that runs offline (network disabled)
 - Protocol engine integration with Ollama assumes loopback connectivity
@@ -194,6 +206,7 @@ segment_text: Mapped[str] = mapped_column(Text, nullable=False)  # meeting conte
 **Impact:** Hidden network call to cloud API could be introduced accidentally in refactoring
 
 **Required Testing (QA responsibility HEAR-018):**
+
 - Test matrix should include "Offline Validation" scenario:
   - Disable networking
   - Start meeting
@@ -216,6 +229,7 @@ segment_text: Mapped[str] = mapped_column(Text, nullable=False)  # meeting conte
 **Impact:** If PostgreSQL password is compromised (device stolen, user account compromised), password cannot be rotated without reinstalling
 
 **Mitigation (Phase-1C+):**
+
 - Document in ADR-0006: Installer creates signed credentials with optional expiration
 - Add "Change Database Password" option in application settings
 - Test password rotation scenario
@@ -233,6 +247,7 @@ segment_text: Mapped[str] = mapped_column(Text, nullable=False)  # meeting conte
 **Impact:** May require explicit user consent and data minimization
 
 **Mitigation (ADR-0009):**
+
 - Explicitly mark `speaker_profiles.embedding_vector` as C_SENSITIVE
 - Document: embeddings are retained for meeting duration + 30 days (configurable)
 - Add "Delete All Speaker Profiles" option in UI
@@ -251,6 +266,7 @@ segment_text: Mapped[str] = mapped_column(Text, nullable=False)  # meeting conte
 **Impact:** User could accidentally assign unknown speaker to wrong participant (false positive)
 
 **Mitigation (Phase-1C — HEAR-016):**
+
 - Add validation: manual reassignment only to participants pre-registered for meeting
 - Add confirmation dialog showing confidence score before correction
 - Log correction reason (required field)
@@ -266,6 +282,7 @@ segment_text: Mapped[str] = mapped_column(Text, nullable=False)  # meeting conte
 **Finding:** Development code has `logger.debug()` calls that may log transcripts or speaker names
 
 **Example:**
+
 ```python
 logger.debug("Created meeting %s", meeting.id)  # ✅ safe
 # But future logs might include:
@@ -273,6 +290,7 @@ logger.debug("Transcript %s: %s", segment_id, segment_text)  # ❌ redact!
 ```
 
 **Mitigation (Phase-1B):**
+
 - Code review guideline: DEBUG logs must NOT include C_SENSITIVE data
 - Use `logger.info()` for operational events only
 - For debugging: wrap sensitive data: `logger.debug("Segment created: %s", redact(segment_text))`
@@ -283,10 +301,10 @@ logger.debug("Transcript %s: %s", segment_id, segment_text)  # ❌ redact!
 
 ## Implementation Blockers Summary
 
-| Blocker | Finding | Resolution | Owner | Target |
-|---------|---------|-----------|-------|--------|
-| **B1** | C2: No encryption-at-rest | Define encryption model in ADR-0009 + implement C_SENSITIVE marking | AYEHEAR_ARCHITECT + AYEHEAR_SECURITY | ADR-0009 (Phase-1C gate) |
-| **B2** | C3: No audit trail | Design + implement speaker_profile_audit_log table + repository logging | AYEHEAR_DEVELOPER (HEAR-012) + HEAR-018 QA | HEAR-012 acceptance criteria |
+| Blocker | Finding                   | Resolution                                                              | Owner                                      | Target                       |
+| ------- | ------------------------- | ----------------------------------------------------------------------- | ------------------------------------------ | ---------------------------- |
+| **B1**  | C2: No encryption-at-rest | Define encryption model in ADR-0009 + implement C_SENSITIVE marking     | AYEHEAR_ARCHITECT + AYEHEAR_SECURITY       | ADR-0009 (Phase-1C gate)     |
+| **B2**  | C3: No audit trail        | Design + implement speaker_profile_audit_log table + repository logging | AYEHEAR_DEVELOPER (HEAR-012) + HEAR-018 QA | HEAR-012 acceptance criteria |
 
 ---
 
@@ -326,14 +344,14 @@ logger.debug("Transcript %s: %s", segment_id, segment_text)  # ❌ redact!
 
 ## Risk Assessment
 
-| Risk | Likelihood | Impact | Mitigation | Status |
-|------|------------|--------|-----------|--------|
-| Unsafe DSN pattern copied from examples | LOW | MEDIUM | Use non-secret placeholders and installer/env-based examples only | Mitigated by doc cleanup |
-| Database accessed from LAN | MEDIUM | CRITICAL | Loopback-only validation + docs | **HIGH** |
-| Speaker profiles tampered with (deliberate or accidental) | MEDIUM | HIGH | Audit trail + access logs | **BLOCKER** |
-| Encryption-at-rest not implemented | HIGH | CRITICAL | ADR-0009 + implementation gate | **BLOCKER** |
-| Meeting data recovered from unencrypted backup | MEDIUM | HIGH | Encryption + secure backup procedure docs | Phase-2 |
-| Sensitive data in debug logs | LOW | MEDIUM | Code review guideline | Phase-1B documentation |
+| Risk                                                      | Likelihood | Impact   | Mitigation                                                        | Status                   |
+| --------------------------------------------------------- | ---------- | -------- | ----------------------------------------------------------------- | ------------------------ |
+| Unsafe DSN pattern copied from examples                   | LOW        | MEDIUM   | Use non-secret placeholders and installer/env-based examples only | Mitigated by doc cleanup |
+| Database accessed from LAN                                | MEDIUM     | CRITICAL | Loopback-only validation + docs                                   | **HIGH**                 |
+| Speaker profiles tampered with (deliberate or accidental) | MEDIUM     | HIGH     | Audit trail + access logs                                         | **BLOCKER**              |
+| Encryption-at-rest not implemented                        | HIGH       | CRITICAL | ADR-0009 + implementation gate                                    | **BLOCKER**              |
+| Meeting data recovered from unencrypted backup            | MEDIUM     | HIGH     | Encryption + secure backup procedure docs                         | Phase-2                  |
+| Sensitive data in debug logs                              | LOW        | MEDIUM   | Code review guideline                                             | Phase-1B documentation   |
 
 ---
 

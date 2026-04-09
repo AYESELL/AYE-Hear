@@ -132,6 +132,9 @@ class TranscriptSegment(Base):
 
     meeting: Mapped[Meeting] = relationship(back_populates="transcript_segments")
     participant: Mapped[Participant | None] = relationship(back_populates="transcript_segments")
+    correction_logs: Mapped[list["TranscriptCorrectionLog"]] = relationship(
+        back_populates="transcript_segment", cascade="all, delete-orphan"
+    )
 
 
 class ProtocolSnapshot(Base):
@@ -174,3 +177,32 @@ class ProtocolActionItem(Base):
     )
 
     protocol_snapshot: Mapped[ProtocolSnapshot] = relationship(back_populates="action_items")
+
+
+class TranscriptCorrectionLog(Base):
+    """Immutable audit record for every manual speaker-name or participant correction.
+
+    Written by TranscriptSegmentRepository.apply_correction() before mutating
+    the source segment. Preserves before-state for ADR-0003/ADR-0007 auditability.
+    Never updated; cascade-deleted only when the parent segment is deleted.
+    """
+
+    __tablename__ = "transcript_correction_log"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_new_uuid)
+    transcript_segment_id: Mapped[str] = mapped_column(
+        String(36), ForeignKey("transcript_segments.id", ondelete="CASCADE"), nullable=False
+    )
+    previous_speaker_name: Mapped[str] = mapped_column(String(256), nullable=False)
+    corrected_speaker_name: Mapped[str] = mapped_column(String(256), nullable=False)
+    previous_participant_id: Mapped[str | None] = mapped_column(
+        String(36), ForeignKey("participants.id", ondelete="SET NULL"), nullable=True
+    )
+    corrected_participant_id: Mapped[str | None] = mapped_column(
+        String(36), ForeignKey("participants.id", ondelete="SET NULL"), nullable=True
+    )
+    corrected_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+
+    transcript_segment: Mapped[TranscriptSegment] = relationship(
+        back_populates="correction_logs"
+    )

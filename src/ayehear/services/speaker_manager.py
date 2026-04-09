@@ -56,6 +56,12 @@ class SpeakerManager:
 
     The class is intentionally decoupled from the storage layer so it can
     be tested without a database connection (pass None as repos in unit tests).
+
+    Three-stage pipeline (ADR-0003):
+      Stage 0  – participant-constrained intro matching (call register_meeting_participants
+                 before meeting starts, then resolve_speaker_from_segment during recording)
+      Stage 1  – voice enrollment (pre-meeting, see enroll())
+      Stage 2  – embedding-based segment matching (see match_segment())
     """
 
     def __init__(
@@ -69,6 +75,74 @@ class SpeakerManager:
         self.medium_confidence_threshold = medium_confidence_threshold
         self._profiles = profile_repo
         self._participants = participant_repo
+        # Stage 0: constrained participant set for the active meeting session
+        self._meeting_participants: list[str] = []
+
+    # ------------------------------------------------------------------
+    # Stage 0: Meeting context — participant-constrained matching (HEAR-021)
+    # ------------------------------------------------------------------
+
+    def register_meeting_participants(self, display_names: list[str]) -> None:
+        """Register pre-meeting participant display names for constrained intro matching.
+
+        Must be called at meeting setup before recording starts (ADR-0003 Stage 0).
+        The display names come from ParticipantRepository.display_names_for_meeting().
+        """
+        self._meeting_participants = list(display_names)
+        logger.info(
+            "Registered %d participant(s) for constrained intro matching.",
+            len(self._meeting_participants),
+        )
+
+    def clear_meeting_context(self) -> None:
+        """Remove the registered participant list when a meeting session ends."""
+        self._meeting_participants = []
+
+    def resolve_speaker_from_segment(
+        self,
+        segment_embedding: list[float],
+        segment_text: str = "",
+    ) -> SpeakerMatch:
+        """Unified speaker resolution for the live pipeline (ADR-0003 three-stage).
+
+        Resolution order:
+          1. If segment_text looks like a self-introduction AND meeting participants
+             are registered (Stage 0), try participant-constrained text matching first.
+          2. If the constrained match reaches medium or high confidence, return it.
+          3. Fall back to embedding-based matching (Stage 2).
+          4. Low-confidence results always require manual review.
+        """
+        if self._meeting_participants and self._looks_like_intro(segment_text):
+            intro_match = self.match_intro_to_participant(
+                segment_text, self._meeting_participants
+            )
+            if intro_match.status in ("medium", "high"):
+                logger.debug(
+                    "Constrained intro match: '%s' (confidence=%.2f)",
+                    intro_match.speaker_name,
+                    intro_match.confidence,
+                )
+                return intro_match
+            # Low-confidence intro → fall through to embedding-based matching
+
+        return self.match_segment(segment_embedding)
+
+    @staticmethod
+    def _looks_like_intro(text: str) -> bool:
+        """Return True when text contains a recognisable self-introduction pattern.
+
+        Supports common German and English introductory phrases. Used to gate
+        participant-constrained matching so ordinary speech is not misrouted.
+        """
+        if not text:
+            return False
+        pattern = re.compile(
+            r"\b(ich bin|mein name ist|ich heisse|ich hei[sß]e|stelle mich|"
+            r"hier ist|hier spricht|"
+            r"i am|my name is|i'm|this is|speaking)\b",
+            re.IGNORECASE,
+        )
+        return bool(pattern.search(text))
 
     # ------------------------------------------------------------------
     # Stage 1: Enrollment (HEAR-012)
@@ -265,10 +339,13 @@ class SpeakerManager:
         parts = [part for part in normalized_name.split() if part]
         if not parts:
             return []
-        aliases = {normalized_name, parts[-1]}
-        if len(parts) >= 2:
-            aliases.add(f"{parts[0]} {parts[-1]}")
-            aliases.add(parts[0])
+        if len(parts) == 1:
+            # Single-word name: only one alias
+            return [normalized_name]
+        # Multi-part name: use full name, last name, and first+last combination.
+        # Single first-name alias is deliberately omitted — too ambiguous when
+        # multiple participants share a first name (e.g. 'Max Weber'/'Max Müller').
+        aliases = {normalized_name, parts[-1], f"{parts[0]} {parts[-1]}"}
         return [alias for alias in aliases if alias]
 
     def _normalize_text(self, value: str) -> str:

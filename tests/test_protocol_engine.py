@@ -74,7 +74,7 @@ def test_generate_without_repo_returns_version_1() -> None:
 
 def test_generate_calls_snapshot_append() -> None:
     mock_transcript_repo = MagicMock()
-    mock_transcript_repo.list_for_meeting.return_value = []
+    mock_transcript_repo.list_for_protocol.return_value = []
 
     mock_snapshot_row = MagicMock()
     mock_snapshot_row.id = "snap-1"
@@ -102,7 +102,7 @@ def test_generate_persists_action_items() -> None:
     seg.speaker_name = "Anna"
     seg.text = "Bitte sende das Follow-up."
     seg.is_silence = False
-    mock_transcript_repo.list_for_meeting.return_value = [seg]
+    mock_transcript_repo.list_for_protocol.return_value = [seg]
 
     mock_snapshot_row = MagicMock()
     mock_snapshot_row.id = "snap-2"

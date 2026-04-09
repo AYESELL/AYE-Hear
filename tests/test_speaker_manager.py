@@ -150,3 +150,154 @@ def test_cosine_similarity_different_length_returns_zero() -> None:
     score = SpeakerManager._cosine_similarity([1.0], [1.0, 2.0])
     assert score == 0.0
 
+
+# ---------------------------------------------------------------------------
+# Stage 0: constrained pipeline matching (HEAR-021)
+# ---------------------------------------------------------------------------
+
+
+def test_register_meeting_participants_stores_names() -> None:
+    sm = SpeakerManager()
+    sm.register_meeting_participants(["Frau Schneider", "Max Weber"])
+    assert sm._meeting_participants == ["Frau Schneider", "Max Weber"]
+
+
+def test_register_meeting_participants_replaces_previous_list() -> None:
+    sm = SpeakerManager()
+    sm.register_meeting_participants(["Alice"])
+    sm.register_meeting_participants(["Bob", "Carol"])
+    assert sm._meeting_participants == ["Bob", "Carol"]
+
+
+def test_clear_meeting_context_resets_list() -> None:
+    sm = SpeakerManager()
+    sm.register_meeting_participants(["Alice"])
+    sm.clear_meeting_context()
+    assert sm._meeting_participants == []
+
+
+# --- _looks_like_intro ---
+
+
+def test_looks_like_intro_german_patterns() -> None:
+    assert SpeakerManager._looks_like_intro("Guten Morgen, ich bin Frau Schneider.")
+    assert SpeakerManager._looks_like_intro("Mein Name ist Max Weber.")
+    assert SpeakerManager._looks_like_intro("Ich heisse Anna.")
+    assert SpeakerManager._looks_like_intro("Ich heiße Klaus.")
+    assert SpeakerManager._looks_like_intro("Ich stelle mich kurz vor.")
+    assert SpeakerManager._looks_like_intro("Hier ist Thomas vom Support.")
+    assert SpeakerManager._looks_like_intro("Hier spricht Frau Meier.")
+
+
+def test_looks_like_intro_english_patterns() -> None:
+    assert SpeakerManager._looks_like_intro("My name is John Smith.")
+    assert SpeakerManager._looks_like_intro("I am Anna from AYE.")
+    assert SpeakerManager._looks_like_intro("I'm the product lead.")
+    assert SpeakerManager._looks_like_intro("This is Maria speaking.")
+
+
+def test_looks_like_intro_rejects_ordinary_speech() -> None:
+    assert not SpeakerManager._looks_like_intro("Das Budget wurde genehmigt.")
+    assert not SpeakerManager._looks_like_intro("Wann ist der nächste Termin?")
+    assert not SpeakerManager._looks_like_intro("Nächster Punkt auf der Agenda.")
+    assert not SpeakerManager._looks_like_intro("")
+
+
+def test_looks_like_intro_case_insensitive() -> None:
+    assert SpeakerManager._looks_like_intro("MEIN NAME IST Anna.")
+    assert SpeakerManager._looks_like_intro("ICH BIN der Entwickler.")
+
+
+# --- resolve_speaker_from_segment ---
+
+
+def test_resolve_prefers_constrained_intro_when_confident() -> None:
+    sm = SpeakerManager()
+    sm.register_meeting_participants(["Frau Schneider", "Max Weber"])
+
+    result = sm.resolve_speaker_from_segment(
+        segment_embedding=[0.0] * 768,
+        segment_text="Guten Morgen, ich bin Frau Schneider.",
+    )
+    assert result.speaker_name == "Frau Schneider"
+    assert result.status in ("medium", "high")
+
+
+def test_resolve_falls_back_to_embedding_for_non_intro_text() -> None:
+    """Ordinary speech → embedding path → no profiles loaded → Unknown Speaker."""
+    sm = SpeakerManager()
+    sm.register_meeting_participants(["Frau Schneider"])
+
+    result = sm.resolve_speaker_from_segment(
+        segment_embedding=[0.1] * 768,
+        segment_text="Das Budget ist bereits genehmigt.",
+    )
+    # no profiles in repo → Unknown Speaker from embedding path
+    assert result.speaker_name == "Unknown Speaker"
+
+
+def test_resolve_falls_back_when_no_participants_registered() -> None:
+    """Intro text with no participant list → skip Stage 0 → embedding → Unknown."""
+    sm = SpeakerManager()
+    # No register_meeting_participants() call
+
+    result = sm.resolve_speaker_from_segment(
+        segment_embedding=[0.0] * 768,
+        segment_text="Ich bin Anna.",
+    )
+    assert result.speaker_name == "Unknown Speaker"
+
+
+def test_resolve_low_confidence_intro_falls_back_to_embedding() -> None:
+    """Intro that doesn't match any participant → low confidence → fall back to embedding."""
+    sm = SpeakerManager()
+    sm.register_meeting_participants(["Frau Schneider", "Max Weber"])
+
+    # The text is an intro but 'Herr Unbekannt' is not in participant list
+    result = sm.resolve_speaker_from_segment(
+        segment_embedding=[0.0] * 768,
+        segment_text="Ich bin Herr Unbekannt vom Finanzamt.",
+    )
+    # intro match confidence is low → falls back to embedding → no profiles → Unknown
+    assert result.speaker_name == "Unknown Speaker"
+    assert result.requires_review is True
+
+
+def test_resolve_unknown_explicitly_set_when_no_match() -> None:
+    """Whether via intro or embedding path, Unknown Speaker is always explicit."""
+    sm = SpeakerManager()
+    result = sm.resolve_speaker_from_segment(
+        segment_embedding=[0.0] * 768,
+        segment_text="",
+    )
+    assert result.speaker_name == "Unknown Speaker"
+    assert result.status == "low"
+    assert result.requires_review is True
+
+
+# --- ambiguous-name handling ---
+
+
+def test_resolve_ambiguous_name_selects_best_match() -> None:
+    """When two participants have similar names, the closer match wins."""
+    sm = SpeakerManager()
+    sm.register_meeting_participants(["Anna Schneider", "Andreas Schneider"])
+
+    # "ich bin Anna" should match "Anna Schneider" over "Andreas Schneider"
+    result = sm.resolve_speaker_from_segment(
+        segment_embedding=[0.0] * 768,
+        segment_text="Ich bin Anna Schneider.",
+    )
+    assert result.speaker_name == "Anna Schneider"
+
+
+def test_resolve_uses_full_name_when_available() -> None:
+    sm = SpeakerManager()
+    sm.register_meeting_participants(["Max Weber", "Max Müller"])
+
+    result = sm.resolve_speaker_from_segment(
+        segment_embedding=[0.0] * 768,
+        segment_text="Mein Name ist Max Müller.",
+    )
+    assert result.speaker_name == "Max Müller"
+

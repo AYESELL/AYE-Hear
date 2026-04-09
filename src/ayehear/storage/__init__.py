@@ -17,6 +17,7 @@ from ayehear.storage.orm import (
     ProtocolActionItem,
     ProtocolSnapshot,
     SpeakerProfile,
+    TranscriptCorrectionLog,
     TranscriptSegment,
 )
 from ayehear.storage.repositories import (
@@ -36,6 +37,7 @@ __all__ = [
     "ProtocolActionItem",
     "ProtocolSnapshot",
     "SpeakerProfile",
+    "TranscriptCorrectionLog",
     "TranscriptSegment",
     "MeetingRepository",
     "ParticipantRepository",
