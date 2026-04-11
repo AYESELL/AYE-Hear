@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 
 from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import (
+    QAbstractItemView,
     QComboBox,
     QFormLayout,
     QGroupBox,
@@ -23,7 +24,9 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ayehear.models.meeting import MeetingSession, Participant
 from ayehear.models.runtime import RuntimeConfig
+from ayehear.services.audio_capture import AudioCaptureProfile, enumerate_input_devices
 
 if TYPE_CHECKING:
     from ayehear.storage.repositories import (
@@ -46,6 +49,7 @@ class MainWindow(QMainWindow):
         self._transcript_repo = transcript_repo
         self._snapshot_repo = snapshot_repo
         self._active_meeting_id: str | None = None
+        self._session: MeetingSession | None = None
 
         self.setWindowTitle("AYE Hear")
         self.resize(1440, 900)
@@ -88,46 +92,316 @@ class MainWindow(QMainWindow):
 
         meeting_box = QGroupBox("Meeting Setup")
         form = QFormLayout(meeting_box)
-        form.addRow("Meeting Title", QLineEdit())
 
-        meeting_type = QComboBox()
-        meeting_type.addItems(self.runtime_config.protocol.meeting_modes)
-        form.addRow("Meeting Type", meeting_type)
+        self._meeting_title = QLineEdit()
+        form.addRow("Meeting Title", self._meeting_title)
 
-        participant_count = QSpinBox()
-        participant_count.setRange(1, 30)
-        participant_count.setValue(2)
-        form.addRow("Participants", participant_count)
+        self._meeting_type = QComboBox()
+        self._meeting_type.addItems(self.runtime_config.protocol.meeting_modes)
+        form.addRow("Meeting Type", self._meeting_type)
 
-        naming_template = QComboBox()
-        naming_template.addItems([
+        self._participant_count = QSpinBox()
+        self._participant_count.setRange(1, 30)
+        self._participant_count.setValue(2)
+        form.addRow("Participants", self._participant_count)
+
+        self._naming_template = QComboBox()
+        self._naming_template.addItems([
             "Herr/Frau + Last Name + Company",
             "First Name + Last Name + Company",
         ])
-        form.addRow("Participant Template", naming_template)
+        form.addRow("Participant Template", self._naming_template)
 
-        form.addRow("Default Input", QLineEdit("Windows default microphone"))
+        # HEAR-039: real Windows device selector
+        self._audio_device = QComboBox()
+        self._audio_device.addItem("Windows default microphone", userData=None)
+        self._populate_audio_devices()
+        form.addRow("Audio Input", self._audio_device)
         layout.addWidget(meeting_box)
 
         speakers_box = QGroupBox("Speaker Enrollment")
         speakers_layout = QVBoxLayout(speakers_box)
-        speakers_layout.addWidget(QLabel("Participants introduce themselves before recording starts."))
-        speakers = QListWidget()
-        speakers.addItems([
+        speakers_layout.addWidget(QLabel(
+            "Doppelklick zum Bearbeiten. Format: Name | Organisation | Status"
+        ))
+
+        self._speakers_list = QListWidget()
+        self._speakers_list.setEditTriggers(
+            QAbstractItemView.EditTrigger.DoubleClicked
+            | QAbstractItemView.EditTrigger.EditKeyPressed
+        )
+        for entry in [
             "Frau Schneider | AYE | pending enrollment",
             "Max Weber | Customer GmbH | pending enrollment",
-        ])
-        speakers_layout.addWidget(speakers)
-        speakers_layout.addWidget(QPushButton("Apply Participant Template"))
-        speakers_layout.addWidget(QPushButton("Start Enrollment"))
+        ]:
+            item = QListWidgetItem(entry)
+            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
+            self._speakers_list.addItem(item)
+        speakers_layout.addWidget(self._speakers_list)
+        # HEAR-040: update status label after any user-committed inline edit
+        self._speakers_list.itemChanged.connect(self._on_speaker_item_changed)
+
+        speaker_btn_row = QHBoxLayout()
+        add_btn = QPushButton("+ Add")
+        add_btn.setToolTip("Neuen Sprecher hinzufügen")
+        add_btn.clicked.connect(self._add_speaker)
+        edit_btn = QPushButton("Edit")
+        edit_btn.setToolTip("Ausgewählten Sprecher bearbeiten")
+        edit_btn.clicked.connect(self._edit_speaker)
+        remove_btn = QPushButton("Remove")
+        remove_btn.setToolTip("Ausgewählten Sprecher entfernen")
+        remove_btn.clicked.connect(self._remove_speaker)
+        speaker_btn_row.addWidget(add_btn)
+        speaker_btn_row.addWidget(edit_btn)
+        speaker_btn_row.addWidget(remove_btn)
+        speakers_layout.addLayout(speaker_btn_row)
+
+        # HEAR-040: visible feedback label for speaker actions
+        self._speaker_status = QLabel("")
+        self._speaker_status.setStyleSheet("color: #1a7a1a; font-weight: 600;")
+        speakers_layout.addWidget(self._speaker_status)
+
+        apply_template_btn = QPushButton("Apply Participant Template")
+        apply_template_btn.clicked.connect(self._apply_participant_template)
+        speakers_layout.addWidget(apply_template_btn)
+
+        start_enrollment_btn = QPushButton("Start Enrollment")
+        start_enrollment_btn.clicked.connect(self._start_enrollment)
+        speakers_layout.addWidget(start_enrollment_btn)
+
         layout.addWidget(speakers_box)
 
+        # HEAR-041: meeting status indicator
+        self._meeting_status_label = QLabel("\u26aa Kein aktives Meeting")
+        self._meeting_status_label.setStyleSheet("font-weight: 600; color: #888;")
+        layout.addWidget(self._meeting_status_label)
+
         controls = QHBoxLayout()
-        controls.addWidget(QPushButton("Start Meeting"))
-        controls.addWidget(QPushButton("Show Current State"))
+        self._start_meeting_btn = QPushButton("Start Meeting")
+        self._start_meeting_btn.clicked.connect(self._start_meeting)
+        self._stop_meeting_btn = QPushButton("Stop Meeting")
+        self._stop_meeting_btn.clicked.connect(self._stop_meeting)
+        self._stop_meeting_btn.setEnabled(False)
+        show_state_btn = QPushButton("Show Current State")
+        show_state_btn.clicked.connect(self._show_current_state)
+        controls.addWidget(self._start_meeting_btn)
+        controls.addWidget(self._stop_meeting_btn)
+        controls.addWidget(show_state_btn)
         layout.addLayout(controls)
         layout.addStretch(1)
         return panel
+
+    # ------------------------------------------------------------------
+    # HEAR-039: audio device helpers
+    # ------------------------------------------------------------------
+
+    def _populate_audio_devices(self) -> None:
+        """Fill the Audio Input dropdown with available Windows capture devices."""
+        devices = enumerate_input_devices()
+        if devices:
+            self._audio_device.clear()
+            for idx, name in devices:
+                self._audio_device.addItem(name, userData=idx)
+        # If no devices found the fallback item set during construction remains.
+
+    def _selected_audio_profile(self) -> AudioCaptureProfile:
+        """Return an AudioCaptureProfile for the selected input device (HEAR-039).
+
+        device_index is the sounddevice index (int) or None for WASAPI default.
+        Use this when starting AudioCaptureService once the audio pipeline is
+        integrated (ADR-0004).
+        """
+        device_index: int | None = self._audio_device.currentData()
+        return AudioCaptureProfile(device_index=device_index)
+
+    # ------------------------------------------------------------------
+    # Speaker management (HEAR-036 / HEAR-040)
+    # ------------------------------------------------------------------
+
+    def _on_speaker_item_changed(self, item: QListWidgetItem) -> None:
+        """Update feedback label after user commits an inline edit (HEAR-040)."""
+        self._set_speaker_status(f"Gespeichert: {item.text()[:40]}")
+
+    def _set_speaker_status(self, message: str) -> None:
+        """Show a short status message below the speaker list."""
+        self._speaker_status.setText(message)
+
+    def _add_speaker(self) -> None:
+        """Add a new editable speaker entry to the list."""
+        item = QListWidgetItem("Name | Organisation | pending enrollment")
+        item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
+        self._speakers_list.addItem(item)
+        self._speakers_list.setCurrentItem(item)
+        self._speakers_list.editItem(item)
+        self._set_speaker_status("Neuer Sprecher hinzugef\u00fcgt \u2014 Namen direkt editieren.")
+
+    def _edit_speaker(self) -> None:
+        """Inline-Edit des ausgewählten Sprecher-Eintrags."""
+        item = self._speakers_list.currentItem()
+        if item is None:
+            QMessageBox.information(self, "Edit Speaker", "Bitte einen Sprecher ausw\u00e4hlen.")
+            self._set_speaker_status("Kein Sprecher ausgew\u00e4hlt.")
+            return
+        self._speakers_list.editItem(item)
+        self._set_speaker_status(f"Bearbeite: {item.text()[:40]}")
+
+    def _remove_speaker(self) -> None:
+        """Entfernt den ausgewählten Sprecher nach Bestätigung."""
+        item = self._speakers_list.currentItem()
+        if item is None:
+            QMessageBox.information(self, "Remove Speaker", "Bitte einen Sprecher ausw\u00e4hlen.")
+            self._set_speaker_status("Kein Sprecher ausgew\u00e4hlt.")
+            return
+        answer = QMessageBox.question(
+            self,
+            "Sprecher entfernen",
+            f"'{item.text()}' entfernen?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+        )
+        if answer == QMessageBox.StandardButton.Yes:
+            name = item.text()
+            self._speakers_list.takeItem(self._speakers_list.row(item))
+            self._set_speaker_status(f"Sprecher entfernt: {name[:40]}")
+
+    def _get_speaker_texts(self) -> list[str]:
+        """Gibt alle nicht-leeren Sprecher-Texte zurück."""
+        result = []
+        for i in range(self._speakers_list.count()):
+            text = self._speakers_list.item(i).text().strip()
+            if text:
+                result.append(text)
+        return result
+
+    # ------------------------------------------------------------------
+    # Setup action handlers (HEAR-037)
+    # ------------------------------------------------------------------
+
+    def _apply_participant_template(self) -> None:
+        """Generiert Platzhalter-Sprecher aus Anzahl und Namens-Template."""
+        count = self._participant_count.value()
+        use_salutation = self._naming_template.currentText().startswith("Herr/Frau")
+        self._speakers_list.clear()
+        for i in range(1, count + 1):
+            if use_salutation:
+                text = f"Herr/Frau Teilnehmer_{i} | Organisation | pending enrollment"
+            else:
+                text = f"Vorname_{i} Nachname_{i} | Organisation | pending enrollment"
+            item = QListWidgetItem(text)
+            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
+            self._speakers_list.addItem(item)
+
+    def _start_enrollment(self) -> None:
+        """Startet den Speaker-Enrollment-Prozess (Platzhalter – ADR-0004)."""
+        speakers = self._get_speaker_texts()
+        if not speakers:
+            QMessageBox.warning(self, "Enrollment", "Bitte mindestens einen Sprecher hinzufügen.")
+            return
+        QMessageBox.information(
+            self,
+            "Speaker Enrollment",
+            f"Enrollment gestartet für {len(speakers)} Sprecher.\n\n"
+            "Teilnehmer sprechen jetzt ihren Namen in das Mikrofon.\n\n"
+            "Hinweis: Audio-Pipeline-Integration ausstehend (ADR-0004).",
+        )
+
+    def _start_meeting(self) -> None:
+        """Validiert das Setup und startet eine Meeting-Session."""
+        title = self._meeting_title.text().strip()
+        if not title:
+            QMessageBox.warning(self, "Start Meeting", "Bitte einen Meeting-Titel eingeben.")
+            self._meeting_title.setFocus()
+            return
+
+        speakers = self._get_speaker_texts()
+        if not speakers:
+            QMessageBox.warning(self, "Start Meeting", "Bitte mindestens einen Sprecher hinzufügen.")
+            return
+
+        import uuid
+        from datetime import datetime
+
+        participants: list[Participant] = []
+        for s in speakers:
+            parts = [p.strip() for p in s.split("|")]
+            display = parts[0] if parts else s
+            org = parts[1] if len(parts) > 1 else ""
+            name_parts = display.split()
+            last = name_parts[-1] if name_parts else display
+            first: str | None = " ".join(name_parts[:-1]) if len(name_parts) > 1 else None
+            participants.append(
+                Participant(first_name=first, last_name=last, organization=org, role="participant")
+            )
+
+        device_label = self._audio_device.currentText()
+
+        self._session = MeetingSession(
+            title=title,
+            mode=self._meeting_type.currentText(),
+            meeting_type=self._meeting_type.currentText(),
+            participants=participants,
+            started_at=datetime.now(),
+        )
+
+        meeting_id = str(uuid.uuid4())
+        known_speakers = [p.display_name for p in self._session.participants]
+        self.set_active_meeting(meeting_id, known_speakers=known_speakers)
+
+        # HEAR-041: transcript + protocol reflect meeting start
+        self.append_transcript_line(
+            f"[00:00] Meeting '{title}' gestartet — {len(speakers)} Teilnehmer "
+            f"| Audio: {device_label}."
+        )
+        self._protocol_view.setPlainText(
+            f"Meeting: {title}\n"
+            f"Typ:     {self._meeting_type.currentText()}\n"
+            f"Audio:   {device_label}\n"
+            f"Sprecher ({len(speakers)}): {', '.join(speakers[:5])}\n\n"
+            "Decisions\n- Waiting for first confirmed decision.\n\n"
+            "Action Items\n- No action items detected yet."
+        )
+
+        # HEAR-041: visible session state
+        self._meeting_status_label.setText(f"\U0001f7e2 Meeting aktiv: {title}")
+        self._meeting_status_label.setStyleSheet("font-weight: 700; color: #1a7a1a;")
+        self._start_meeting_btn.setEnabled(False)
+        self._stop_meeting_btn.setEnabled(True)
+
+        QMessageBox.information(self, "Meeting gestartet", f"Meeting '{title}' ist jetzt aktiv.")
+
+    def _stop_meeting(self) -> None:
+        """Beendet die aktive Meeting-Session (HEAR-041)."""
+        self.stop_active_meeting()
+        self._session = None
+        self._meeting_status_label.setText("\u26aa Kein aktives Meeting")
+        self._meeting_status_label.setStyleSheet("font-weight: 600; color: #888;")
+        self._start_meeting_btn.setEnabled(True)
+        self._stop_meeting_btn.setEnabled(False)
+        self.append_transcript_line("[--:--] Meeting beendet.")
+
+    def _show_current_state(self) -> None:
+        """Zeigt einen Dialog mit dem aktuellen Setup- und Session-Status (HEAR-041)."""
+        title = self._meeting_title.text().strip() or "(nicht gesetzt)"
+        mode = self._meeting_type.currentText()
+        device = self._audio_device.currentText()
+        speakers = self._get_speaker_texts()
+
+        lines = [
+            f"Meeting-Titel:  {title}",
+            f"Meeting-Typ:    {mode}",
+            f"Audio-Ger\u00e4t:   {device}",
+            f"Sprecher ({len(speakers)}):",
+        ]
+        for s in speakers:
+            lines.append(f"  \u2022 {s}")
+        lines.append("")
+        if self._session is not None:
+            lines.append(f"\u2705 Aktive Session: {self._session.title}")
+            lines.append(f"   Gestartet:    {self._session.started_at.strftime('%H:%M:%S')}")
+            lines.append(f"   Teilnehmer:   {len(self._session.participants)}")
+        else:
+            lines.append("\u26aa Keine aktive Meeting-Session.")
+
+        QMessageBox.information(self, "Aktueller Status", "\n".join(lines))
 
     def _build_transcript_panel(self) -> QWidget:
         panel = QWidget()

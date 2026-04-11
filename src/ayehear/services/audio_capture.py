@@ -21,6 +21,31 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
+
+def enumerate_input_devices() -> list[tuple[int, str]]:
+    """Return list of (device_index, device_name) for available audio input devices.
+
+    Uses sounddevice WASAPI query (ADR-0004).  Returns an empty list when
+    sounddevice is not installed or no capture devices are present, so callers
+    can fall back gracefully to the system default.
+    """
+    try:
+        import sounddevice as sd  # type: ignore[import]
+
+        devices = sd.query_devices()
+        return [
+            (idx, str(dev["name"]))
+            for idx, dev in enumerate(devices)
+            if dev.get("max_input_channels", 0) > 0
+        ]
+    except ImportError:
+        logger.warning("sounddevice not installed — device enumeration unavailable.")
+        return []
+    except Exception as exc:
+        logger.error("Failed to enumerate audio input devices: %s", exc)
+        return []
+
+
 # ADR-0004: 16 kHz mono, 512-sample chunks (~32 ms)
 _DEFAULT_SAMPLE_RATE = 16_000
 _DEFAULT_CHANNELS = 1
@@ -33,6 +58,7 @@ class AudioCaptureProfile:
     sample_rate_hz: int = _DEFAULT_SAMPLE_RATE
     channels: int = _DEFAULT_CHANNELS
     frame_size: int = _DEFAULT_FRAME_SIZE
+    device_index: int | None = None  # None = WASAPI default (ADR-0004)
 
 
 @dataclass
@@ -132,7 +158,7 @@ class AudioCaptureService:
                 channels=self._profile.channels,
                 dtype="float32",
                 blocksize=self._profile.frame_size,
-                device=None,  # WASAPI default as per ADR-0004
+                device=self._profile.device_index,  # None = WASAPI default (ADR-0004)
                 callback=self._sd_callback,
                 finished_callback=self._on_stream_finished,
             )
