@@ -19,7 +19,7 @@
     .\tools\scripts\Build-WindowsPackage.ps1 -BuildInstaller -Clean
 
 .NOTES
-    Prerequisites: Python 3.11, PyInstaller >= 6.9, NSIS 3.x (if -BuildInstaller)
+    Prerequisites: Python 3.12, PyInstaller >= 6.9, NSIS 3.x (if -BuildInstaller)
     ADR references: ADR-0002, ADR-0006
     Task: HEAR-017
 #>
@@ -48,8 +48,8 @@ if ($Clean) {
 # ─── Checks ────────────────────────────────────────────────────────────────────
 Write-Host "[check] Python version..."
 $pythonOut = python --version 2>&1
-if ($pythonOut -notmatch '3\.11') {
-    Write-Error "Python 3.11.x required (found: $pythonOut). Aborting."
+if ($pythonOut -notmatch '3\.12') {
+    Write-Error "Python 3.12.x required (found: $pythonOut). Aborting."
 }
 Write-Host "        $pythonOut  OK"
 
@@ -74,12 +74,12 @@ if (-not (Test-Path $specPath)) {
 # -*- mode: python ; coding: utf-8 -*-
 block_cipher = None
 a = Analysis(
-    ['src/ayehear/__main__.py'],
-    pathex=['src'],
+    ['../src/ayehear/__main__.py'],
+    pathex=['../src'],
     binaries=[],
     datas=[
-        ('config/', 'config'),
-        ('src/ayehear/storage/migrations/', 'ayehear/storage/migrations'),
+        ('../config/', 'config'),
+        ('../src/ayehear/storage/migrations/', 'ayehear/storage/migrations'),
     ],
     hiddenimports=[
         'ayehear.storage',
@@ -145,27 +145,45 @@ if (-not (Test-Path $exePath)) {
 }
 Write-Host "[verify] $exePath  OK"
 
-# ─── NSIS installer ────────────────────────────────────────────────────────────
+# ─── Inno Setup installer ──────────────────────────────────────────────────────
 if ($BuildInstaller) {
-    $nsiScript = "build\installer\ayehear-installer.nsi"
-    if (-not (Test-Path $nsiScript)) {
-        Write-Warning "[nsis] $nsiScript not found — skipping installer build"
+    $issScript = "build\installer\ayehear-installer.iss"
+    if (-not (Test-Path $issScript)) {
+        Write-Error "[inno] Required installer script missing: $issScript"
     }
     else {
-        Write-Host "[nsis] Building installer with NSIS..."
-        makensis /V2 `
-            "/DPRODUCT_VERSION=$version" `
-            "/DDIST_DIR=..\..\dist\AyeHear" `
-            $nsiScript
+        # Locate iscc.exe: PATH → standard install locations
+        $iscc = Get-Command iscc -ErrorAction SilentlyContinue
+        if (-not $iscc) {
+            $candidates = @(
+                "C:\Program Files (x86)\Inno Setup 6\iscc.exe",
+                "C:\Program Files\Inno Setup 6\iscc.exe",
+                "$env:LOCALAPPDATA\Programs\Inno Setup 6\iscc.exe"
+            )
+            foreach ($c in $candidates) {
+                if (Test-Path $c) { $iscc = [PSCustomObject]@{ Source = $c }; break }
+            }
+        }
+        if (-not $iscc) {
+            Write-Error "[inno] iscc.exe not found. Install Inno Setup 6: winget install JRSoftware.InnoSetup"
+        }
+
+        $bundleDir = (Resolve-Path "dist\AyeHear").Path
+        $issScriptPath = (Resolve-Path $issScript).Path
+        Write-Host "[inno] Building installer with Inno Setup 6..."
+        & $iscc.Source `
+            "/DProductVersion=$version" `
+            "/DDistDir=$bundleDir" `
+            $issScriptPath
         if ($LASTEXITCODE -ne 0) {
-            Write-Error "NSIS failed with exit code $LASTEXITCODE"
+            Write-Error "[inno] Inno Setup failed with exit code $LASTEXITCODE"
         }
         $installerPath = "dist\AyeHear-Setup-$version.exe"
         if (Test-Path $installerPath) {
-            Write-Host "[nsis] Installer created: $installerPath"
+            Write-Host "[inno] Installer created: $installerPath"
         }
         else {
-            Write-Warning "[nsis] Expected installer not found at $installerPath — check NSIS output/outfile directive"
+            Write-Warning "[inno] Expected installer not found at $installerPath"
         }
     }
 }

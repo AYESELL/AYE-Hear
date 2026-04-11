@@ -24,7 +24,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Install dependencies
         run: |
@@ -54,10 +54,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Install build dependencies
         run: |
@@ -87,12 +87,12 @@ jobs:
           import os, sys
           block_cipher = None
           a = Analysis(
-              ['src/ayehear/__main__.py'],
-              pathex=['src'],
+              ['../src/ayehear/__main__.py'],
+              pathex=['../src'],
               binaries=[],
               datas=[
-                  ('config/', 'config'),
-                  ('src/ayehear/storage/migrations/', 'ayehear/storage/migrations'),
+                ('../config/', 'config'),
+                ('../src/ayehear/storage/migrations/', 'ayehear/storage/migrations'),
               ],
               hiddenimports=[
                   'ayehear.storage',
@@ -204,15 +204,13 @@ jobs:
       - name: Build NSIS installer
         shell: pwsh
         run: |
-          if (Test-Path "build\installer\ayehear-installer.nsi") {
-              makensis /V2 `
-                  /DPRODUCT_VERSION="${{ steps.version.outputs.version }}" `
-                  /DDIST_DIR="..\..\dist\AyeHear" `
-                  build\installer\ayehear-installer.nsi
-              Write-Host "Installer build completed"
-          } else {
-              Write-Warning "build\installer\ayehear-installer.nsi not found — skipping NSIS build"
-          }
+          $scriptPath = (Resolve-Path "build\installer\ayehear-installer.nsi").Path
+          $bundleDir = (Resolve-Path "dist\AyeHear").Path
+          makensis /V2 `
+            "/DPRODUCT_VERSION=${{ steps.version.outputs.version }}" `
+            "/DDIST_DIR=$bundleDir" `
+            $scriptPath
+          Write-Host "Installer build completed"
 
       - name: Upload installer artifact
         if: success()

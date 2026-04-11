@@ -12,6 +12,7 @@ build/
 *.log
 .coverage
 coverage.xml
+.coverage_report.json
 htmlcov/
 .idea/
 .vscode/*.code-snippets

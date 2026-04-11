@@ -19,7 +19,7 @@ startup health checks and release readiness baseline.
 | Requirement               | Version | Notes                                                               |
 | ------------------------- | ------- | ------------------------------------------------------------------- |
 | Windows 10/11             | 22H2+   | 64-bit mandatory                                                    |
-| Python                    | 3.11    | Exact minor — do not use 3.12+ for V1                               |
+| Python                    | 3.12    | Exact minor for V1 packaging and release validation                 |
 | PostgreSQL                | 16.x    | Lock per ADR-0006; local installer-managed instance                 |
 | PyInstaller               | ≥ 6.9   | `pip install pyinstaller` in CI/build venv                          |
 | NSIS                      | 3.x     | [nsis.sourceforge.io](https://nsis.sourceforge.io) — PATH-available |
@@ -193,6 +193,12 @@ makensis /V2 build\installer\ayehear-installer.nsi
 # Output: dist\AyeHear-Setup-<version>.exe
 ```
 
+Current repository baseline:
+
+- `build\installer\ayehear-installer.nsi` packages the PyInstaller `dist\AyeHear\` onedir bundle into a Windows installer.
+- The installer copies the app to `C:\AyeHear\app`, creates desktop and Start Menu shortcuts, and registers an uninstaller.
+- PostgreSQL provisioning, service registration and migration bootstrap remain release-readiness checks and are not yet automated by this NSIS baseline.
+
 ### 5.2 Installer Responsibilities
 
 | Phase             | Action                                                     |
@@ -213,14 +219,38 @@ makensis /V2 build\installer\ayehear-installer.nsi
 
 Before cutting a release:
 
+### 6.1 Security Pre-Flight (MUST complete before any other step)
+
+Run the BitLocker evidence script on the **target deployment machine** and
+attach the output file to the release ticket (QA-DP-01):
+
+```powershell
+# Captures manage-bde -status evidence and exits 0 on Pass
+.\tools\scripts\Invoke-BitLockerPreFlight.ps1
+```
+
+- [ ] **QA-DP-01 — BitLocker pre-flight passed** (`[PASS]` in evidence file)
+  — evidence file attached to release ticket.
+  _If failed: obtain AYEHEAR_SECURITY written waiver before proceeding._
+  Script: `tools\scripts\Invoke-BitLockerPreFlight.ps1` | ADR: ADR-0009 | Task: HEAR-035
+
+### 6.2 Build & Test
+
 - [ ] All HEAR Phase-1B developer tasks are DONE
-- [ ] `pnpm test` (or `pytest`) passes fully
+- [ ] `pytest tests -q` passes fully (≥ 75 % coverage)
 - [ ] PyInstaller build succeeds locally on both CPU-only and CUDA-capable hardware
 - [ ] NSIS installer tested on a clean Windows 11 VM
+
+### 6.3 Deployment Validation
+
 - [ ] PostgreSQL initialization verified from zero-state
 - [ ] Startup health check passes end-to-end
 - [ ] Schema migrations apply cleanly on a fresh data directory
+
+### 6.4 Artifacts & Tagging
+
 - [ ] `dist\AyeHear-Setup-<version>.exe` uploaded to release artifacts
+- [ ] BitLocker evidence file archived with release artifacts
 - [ ] `CHANGELOG.md` updated
 - [ ] Git tag created: `release/v<version>`
 
