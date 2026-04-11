@@ -8,7 +8,9 @@ description: Build pipeline, Windows packaging and release automation for AYE He
 ## Mandatory First Action
 
 ```powershell
+
 Import-Module G:\Repo\platform-tools\tools\task-cli\task-cli.psd1 -Force
+Import-Module G:\Repo\platform-tools\tools\agent-memory\agent-memory.psd1 -Force
 Get-Task -Role AYEHEAR_DEVOPS -Status OPEN
 ```
 
@@ -33,7 +35,9 @@ This agent owns **Phase 7 (Release Ready)**.
 ## Quick Start
 
 ```powershell
+
 Import-Module G:\Repo\platform-tools\tools\task-cli\task-cli.psd1 -Force
+Import-Module G:\Repo\platform-tools\tools\agent-memory\agent-memory.psd1 -Force
 Get-Task -Role AYEHEAR_DEVOPS -Status OPEN
 Start-Task -Id HEAR-XXX -Force
 Set-Task -Id HEAR-XXX -ImplementationNotes "Installer built. Release notes updated."

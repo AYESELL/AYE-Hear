@@ -15,7 +15,9 @@ This agent uses **Agent Skills** for automatic context loading:
 ## Mandatory First Action
 
 ```powershell
+
 Import-Module G:\Repo\platform-tools\tools\task-cli\task-cli.psd1 -Force
+Import-Module G:\Repo\platform-tools\tools\agent-memory\agent-memory.psd1 -Force
 Get-Task -Role AYEHEAR_ARCHITECT -Status OPEN
 ```
 
@@ -52,7 +54,9 @@ This agent owns the **Phase 2 gate** — implementation cannot start without arc
 ## Quick Start
 
 ```powershell
+
 Import-Module G:\Repo\platform-tools\tools\task-cli\task-cli.psd1 -Force
+Import-Module G:\Repo\platform-tools\tools\agent-memory\agent-memory.psd1 -Force
 Get-Task -Role AYEHEAR_ARCHITECT -Status OPEN
 Start-Task -Id HEAR-XXX -Force
 # Review design, create or update ADR

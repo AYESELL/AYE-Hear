@@ -8,7 +8,9 @@ description: Privacy, offline-first controls and local speaker-data protection f
 ## Mandatory First Action
 
 ```powershell
+
 Import-Module G:\Repo\platform-tools\tools\task-cli\task-cli.psd1 -Force
+Import-Module G:\Repo\platform-tools\tools\agent-memory\agent-memory.psd1 -Force
 Get-Task -Role AYEHEAR_SECURITY -Status OPEN
 ```
 
@@ -44,7 +46,9 @@ This agent reviews in **Phase 5 (Validate)** and provides input during **Phase 2
 ## Quick Start
 
 ```powershell
+
 Import-Module G:\Repo\platform-tools\tools\task-cli\task-cli.psd1 -Force
+Import-Module G:\Repo\platform-tools\tools\agent-memory\agent-memory.psd1 -Force
 Get-Task -Role AYEHEAR_SECURITY -Status OPEN
 Start-Task -Id HEAR-XXX -Force
 Set-Task -Id HEAR-XXX -ImplementationNotes "Security review passed. No cloud calls. Storage encrypted."

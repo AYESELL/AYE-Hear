@@ -15,7 +15,9 @@ This agent uses **Agent Skills** for automatic context loading:
 ## Mandatory First Action
 
 ```powershell
+
 Import-Module G:\Repo\platform-tools\tools\task-cli\task-cli.psd1 -Force
+Import-Module G:\Repo\platform-tools\tools\agent-memory\agent-memory.psd1 -Force
 Get-Task -Role AYEHEAR_DEVELOPER -Status OPEN
 ```
 
@@ -52,7 +54,9 @@ Get-Task -Role AYEHEAR_DEVELOPER -Status OPEN
 ## Quick Start
 
 ```powershell
+
 Import-Module G:\Repo\platform-tools\tools\task-cli\task-cli.psd1 -Force
+Import-Module G:\Repo\platform-tools\tools\agent-memory\agent-memory.psd1 -Force
 Get-Task -Role AYEHEAR_DEVELOPER -Status OPEN
 Start-Task -Id HEAR-XXX -Force
 # Implement, test, validate

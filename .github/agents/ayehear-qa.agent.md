@@ -8,7 +8,9 @@ description: Test strategy, acceptance validation and hardware-oriented QA for A
 ## Mandatory First Action
 
 ```powershell
+
 Import-Module G:\Repo\platform-tools\tools\task-cli\task-cli.psd1 -Force
+Import-Module G:\Repo\platform-tools\tools\agent-memory\agent-memory.psd1 -Force
 Get-Task -Role AYEHEAR_QA -Status OPEN
 ```
 
@@ -42,7 +44,9 @@ This agent is active in **Phases 4, 5, and 6**.
 ## Quick Start
 
 ```powershell
+
 Import-Module G:\Repo\platform-tools\tools\task-cli\task-cli.psd1 -Force
+Import-Module G:\Repo\platform-tools\tools\agent-memory\agent-memory.psd1 -Force
 Get-Task -Role AYEHEAR_QA -Status OPEN
 Start-Task -Id HEAR-XXX -Force
 Set-Task -Id HEAR-XXX -ImplementationNotes "Tests passed. Coverage 82%. Quality gates met."
