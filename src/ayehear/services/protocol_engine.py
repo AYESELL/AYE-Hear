@@ -12,6 +12,8 @@ from __future__ import annotations
 import json
 import logging
 import re
+import urllib.parse
+import urllib.request
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
@@ -57,8 +59,25 @@ class ProtocolEngine:
     ) -> None:
         self._snapshots = snapshot_repo
         self._transcripts = transcript_repo
-        self._ollama_base_url = ollama_base_url
+        self._ollama_base_url = self._validate_loopback_url(ollama_base_url)
         self._ollama_model = ollama_model
+
+    @staticmethod
+    def _validate_loopback_url(url: str) -> str:
+        """Enforce that the Ollama URL points to a loopback address only (offline-first).
+
+        AYE Hear must never transmit meeting data to external services.
+        Raises ValueError if the hostname resolves to a non-loopback address.
+        """
+        parsed = urllib.parse.urlparse(url)
+        host = parsed.hostname or ""
+        _LOOPBACK_HOSTS = {"localhost", "127.0.0.1", "::1", "[::1]"}
+        if host not in _LOOPBACK_HOSTS and not host.startswith("127."):
+            raise ValueError(
+                f"Ollama URL hostname {host!r} is not a loopback address. "
+                "AYE Hear requires all LLM calls to remain local (offline-first, ADR-0006)."
+            )
+        return url
 
     # ------------------------------------------------------------------
     # Public API
@@ -149,8 +168,6 @@ class ProtocolEngine:
 
     def _extract_via_ollama(self, lines: list[str]) -> ProtocolContent:
         """Call local Ollama API for structured extraction."""
-        import urllib.request
-
         transcript_text = "\n".join(lines)
         prompt = (
             "You are a meeting assistant. Extract a structured protocol from the "

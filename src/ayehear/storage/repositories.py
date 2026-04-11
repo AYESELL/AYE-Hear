@@ -253,11 +253,12 @@ class TranscriptSegmentRepository:
     def low_confidence(
         self, meeting_id: str, threshold: float = 0.65
     ) -> list[TranscriptSegment]:
-        """Return unreviewed segments below the given confidence threshold."""
+        """Return unreviewed, non-silence segments below the given confidence threshold."""
         return (
             self._s.query(TranscriptSegment)
             .filter(
                 TranscriptSegment.meeting_id == meeting_id,
+                TranscriptSegment.is_silence.is_(False),
                 TranscriptSegment.confidence_score < threshold,
                 TranscriptSegment.manual_correction.is_(False),
             )

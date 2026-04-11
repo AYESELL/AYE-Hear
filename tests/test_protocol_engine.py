@@ -143,3 +143,29 @@ def test_rule_based_no_duplicate_classification() -> None:
     # Should appear only in action_items, not in decisions
     assert len(content.action_items) == 1
     assert len(content.decisions) == 0
+
+
+# ---------------------------------------------------------------------------
+# Offline-first: Ollama URL must be loopback-only (HEAR-032 / ADR-0006)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("valid_url", [
+    "http://localhost:11434",
+    "http://127.0.0.1:11434",
+    "http://127.0.0.2:11434",
+])
+def test_ollama_loopback_url_accepted(valid_url: str) -> None:
+    engine = ProtocolEngine(ollama_base_url=valid_url)
+    assert engine._ollama_base_url == valid_url
+
+
+@pytest.mark.parametrize("external_url", [
+    "http://api.openai.com/v1",
+    "http://192.168.1.100:11434",
+    "http://10.0.0.1:11434",
+    "https://cloud-llm.example.com/api",
+])
+def test_ollama_external_url_rejected(external_url: str) -> None:
+    with pytest.raises(ValueError, match="loopback"):
+        ProtocolEngine(ollama_base_url=external_url)
