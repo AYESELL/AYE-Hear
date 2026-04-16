@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import sys
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -108,7 +109,7 @@ def test_open_stream_passes_none_for_default_profile() -> None:
 # ---------------------------------------------------------------------------
 
 try:
-    from PySide6.QtWidgets import QApplication
+    import PySide6.QtWidgets  # noqa: F401
     _QT_AVAILABLE = True
 except ImportError:
     _QT_AVAILABLE = False
@@ -117,19 +118,43 @@ pytestmark_qt = pytest.mark.skipif(not _QT_AVAILABLE, reason="PySide6 not availa
 
 
 @pytest.fixture(scope="module")
-def qt_app():
-    if not _QT_AVAILABLE:
-        return None
-    app = QApplication.instance() or QApplication([])
-    yield app
+def qt_app(qapp):
+    """Module-scoped Qt fixture; delegates to the session-scoped qapp in conftest.py.
+
+    Tracks every MainWindow created via _make_window() so that all of them are
+    explicitly closed and scheduled for deletion at module teardown.  Without this,
+    abandoned QMainWindow objects are garbage-collected at an unpredictable time,
+    leaving Qt's internal threads in an inconsistent state and causing the next
+    test module (test_mic_level_widget) to crash with a Windows access violation.
+    """
+    _windows: list = []
+    yield qapp, _windows
+    # Close and delete all tracked windows before the module fixture tears down.
+    import gc
+
+    for win in _windows:
+        try:
+            win._refresh_timer.stop()
+            win._asr_timer.stop()
+            win.close()
+            win.deleteLater()
+        except Exception:  # noqa: BLE001
+            pass
+    for _ in range(5):
+        qapp.processEvents()
+    gc.collect()
+    for _ in range(3):
+        qapp.processEvents()
 
 
-def _make_window(qt_app):
+def _make_window(qt_app_fixture):
     from ayehear.app.window import MainWindow
     from ayehear.models.runtime import RuntimeConfig
 
+    qapp, _windows = qt_app_fixture
     cfg = RuntimeConfig()
     win = MainWindow(runtime_config=cfg)
+    _windows.append(win)
     return win
 
 
@@ -322,6 +347,28 @@ def test_stop_meeting_resets_ui(qt_app) -> None:
     assert "kein" in win._meeting_status_label.text().lower()
     assert win._start_meeting_btn.isEnabled()
     assert not win._stop_meeting_btn.isEnabled()
+
+
+@pytestmark_qt
+def test_stop_meeting_exports_protocol_and_transcript(qt_app, tmp_path: Path) -> None:
+    win = _make_window(qt_app)
+    win._meeting_title.setText("Export Test")
+
+    with patch("ayehear.app.window.QMessageBox.information"):
+        win._start_meeting()
+
+    win._protocol_view.setPlainText("Summary\n- Export ready")
+    win._transcript_view.setPlainText("[00:00] Anna: Hallo")
+
+    with patch.object(win, "_resolve_export_dir", return_value=tmp_path):
+        win._stop_meeting()
+
+    exported = {path.name for path in tmp_path.iterdir() if path.is_file()}
+    # HEAR-070: protocol now exported as Markdown, DOCX and PDF (no longer .txt)
+    assert any(name.endswith("-protocol.md") for name in exported)
+    assert any(name.endswith("-protocol.docx") for name in exported)
+    assert any(name.endswith("-protocol.pdf") for name in exported)
+    assert any(name.endswith("-transcript.txt") for name in exported)
 
 
 @pytestmark_qt
