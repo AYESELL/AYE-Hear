@@ -30,6 +30,7 @@ from PySide6.QtWidgets import (
 
 from ayehear.app.enrollment_dialog import EnrollmentDialog
 from ayehear.app.mic_level_widget import MicLevelWidget
+from ayehear.app.system_readiness import ReadinessChecker, SystemReadinessWidget
 from ayehear.models.meeting import MeetingSession, Participant
 from ayehear.models.runtime import RuntimeConfig
 from ayehear.services.audio_capture import (
@@ -38,16 +39,24 @@ from ayehear.services.audio_capture import (
     AudioSegment,
     enumerate_input_devices,
 )
+from ayehear.services.protocol_engine import ProtocolEngine
 from ayehear.services.speaker_manager import SpeakerManager
 from ayehear.services.transcription import TranscriptionService
 
 if TYPE_CHECKING:
+    from sqlalchemy.orm import Session
     from ayehear.storage.repositories import (
+        MeetingRepository,
+        ParticipantRepository,
         TranscriptSegmentRepository,
         ProtocolSnapshotRepository,
     )
 
 logger = logging.getLogger(__name__)
+
+# Prefix used to identify degraded-state placeholder text in the protocol view
+# so exports and tests can detect when the panel shows no real content.
+_PROTOCOL_DEGRADED_PREFIX = "[DEGRADED]"
 
 
 class MainWindow(QMainWindow):
@@ -56,12 +65,18 @@ class MainWindow(QMainWindow):
     def __init__(
         self,
         runtime_config: RuntimeConfig,
+        db_session: "Session | None" = None,
+        meeting_repo: "MeetingRepository | None" = None,
+        participant_repo: "ParticipantRepository | None" = None,
         transcript_repo: "TranscriptSegmentRepository | None" = None,
         snapshot_repo: "ProtocolSnapshotRepository | None" = None,
         speaker_manager: "SpeakerManager | None" = None,
     ) -> None:
         super().__init__()
         self.runtime_config = runtime_config
+        self._db_session = db_session
+        self._meeting_repo = meeting_repo
+        self._participant_repo = participant_repo
         self._transcript_repo = transcript_repo
         self._snapshot_repo = snapshot_repo
         self._active_meeting_id: str | None = None
@@ -75,6 +90,16 @@ class MainWindow(QMainWindow):
         # ADR-0003: speaker identification pipeline
         self._speaker_manager: SpeakerManager = speaker_manager or SpeakerManager()
         self._enrolled_speakers: dict[str, str] = {}  # participant_id -> profile_id
+        # Maps list-item UUID (UserRole) -> DB Participant.id (HEAR-084 AC1/AC3)
+        self._participant_id_map: dict[str, str] = {}
+        # HEAR-085 AC2: protocol engine for structured draft generation (ADR-0005)
+        self._protocol_engine = ProtocolEngine(
+            snapshot_repo=snapshot_repo,
+            transcript_repo=transcript_repo,
+        )
+        # HEAR-087: system readiness checker + widget (built in _build_setup_panel)
+        self._readiness_checker = ReadinessChecker()
+        self._readiness_widget: SystemReadinessWidget | None = None
         self._audio_buffer_lock = threading.Lock()
         self._pending_audio_chunks: list[np.ndarray] = []
         self._pending_start_ms: int | None = None
@@ -108,6 +133,8 @@ class MainWindow(QMainWindow):
         self._refresh_timer = QTimer(self)
         self._refresh_timer.setInterval(10_000)
         self._refresh_timer.timeout.connect(self._refresh_review_queue)
+        # HEAR-085 AC2: also rebuild structured protocol draft on each refresh tick
+        self._refresh_timer.timeout.connect(self._rebuild_protocol_from_persistence)
 
         self._asr_timer = QTimer(self)
         self._asr_timer.setInterval(1000)
@@ -209,6 +236,11 @@ class MainWindow(QMainWindow):
 
         layout.addWidget(speakers_box)
 
+        # HEAR-087: system readiness indicators
+        self._readiness_widget = SystemReadinessWidget()
+        self._readiness_widget.set_refresh_callback(self._refresh_readiness)
+        layout.addWidget(self._readiness_widget)
+
         # HEAR-041: meeting status indicator
         self._meeting_status_label = QLabel("\u26aa Kein aktives Meeting")
         self._meeting_status_label.setStyleSheet("font-weight: 600; color: #888;")
@@ -243,6 +275,8 @@ class MainWindow(QMainWindow):
             for idx, name in devices:
                 self._audio_device.addItem(name, userData=idx)
         # If no devices found the fallback item set during construction remains.
+        # HEAR-087: refresh readiness after devices are enumerated
+        QTimer.singleShot(0, self._refresh_readiness)
 
     def _selected_audio_profile(self) -> AudioCaptureProfile:
         """Return an AudioCaptureProfile for the selected input device (HEAR-039).
@@ -253,6 +287,24 @@ class MainWindow(QMainWindow):
         """
         device_index: int | None = self._audio_device.currentData()
         return AudioCaptureProfile(device_index=device_index)
+
+    # ------------------------------------------------------------------
+    # HEAR-087: system readiness
+    # ------------------------------------------------------------------
+
+    def _refresh_readiness(self) -> None:
+        """Evaluate all component readiness states and update the indicator widget."""
+        if self._readiness_widget is None:
+            return
+        components, aggregate = self._readiness_checker.check_all(
+            meeting_repo=self._meeting_repo,
+            participant_repo=self._participant_repo,
+            transcript_repo=self._transcript_repo,
+            snapshot_repo=self._snapshot_repo,
+            speaker_profile_repo=self._speaker_manager._profiles,
+            runtime_config=self.runtime_config,
+        )
+        self._readiness_widget.update_status(components, aggregate)
 
     # ------------------------------------------------------------------
     # Speaker management (HEAR-036 / HEAR-040)
@@ -400,6 +452,17 @@ class MainWindow(QMainWindow):
                 profile_id = enrolled[participant_id]
                 item.setText(f"{name} | {org} | enrolled (id: {profile_id[:8]})")
                 self._enrolled_speakers[participant_id] = profile_id
+                # HEAR-084 AC3: persist participant-to-profile linkage when repo available
+                db_participant_id = self._participant_id_map.get(participant_id)
+                if db_participant_id and self._participant_repo is not None:
+                    try:
+                        self._participant_repo.mark_enrolled(db_participant_id, profile_id)
+                        logger.info(
+                            "Enrollment persisted: participant=%s profile=%s",
+                            db_participant_id, profile_id,
+                        )
+                    except Exception as exc:
+                        logger.error("Failed to persist enrollment linkage: %s", exc)
             elif accepted and participant_id in pending_ids:
                 # Dialog was accepted but this speaker was not recorded
                 item.setText(f"{name} | {org} | enrollment failed")
@@ -455,6 +518,47 @@ class MainWindow(QMainWindow):
         )
 
         meeting_id = str(uuid.uuid4())
+
+        # HEAR-084 AC1: persist meeting + participants to DB when repos available
+        self._participant_id_map = {}
+        if self._meeting_repo is not None:
+            try:
+                db_meeting = self._meeting_repo.create(
+                    title=title,
+                    meeting_type=self._meeting_type.currentText(),
+                    mode=self._meeting_type.currentText(),
+                )
+                self._meeting_repo.start(db_meeting.id)
+                meeting_id = db_meeting.id
+                logger.info("Meeting persisted to DB: %s", meeting_id)
+            except Exception as exc:
+                logger.error("Failed to persist meeting to DB: %s — using in-memory id", exc)
+
+        if self._participant_repo is not None and self._session is not None:
+            # Build participant_id_map: list-item UUID -> DB Participant.id
+            for i in range(self._speakers_list.count()):
+                item = self._speakers_list.item(i)
+                list_uuid = item.data(Qt.ItemDataRole.UserRole)
+                raw = item.text().strip()
+                if not raw or not list_uuid:
+                    continue
+                p_name, p_org, _ = self._parse_speaker_raw(raw)
+                name_parts = p_name.split()
+                first_name = " ".join(name_parts[:-1]) if len(name_parts) > 1 else None
+                last_name = name_parts[-1] if name_parts else p_name
+                try:
+                    db_participant = self._participant_repo.add(
+                        meeting_id=meeting_id,
+                        display_name=p_name,
+                        first_name=first_name,
+                        last_name=last_name,
+                        organization=p_org,
+                    )
+                    self._participant_id_map[list_uuid] = db_participant.id
+                    logger.debug("Participant persisted: %s -> %s", p_name, db_participant.id)
+                except Exception as exc:
+                    logger.error("Failed to persist participant '%s': %s", p_name, exc)
+
         known_speakers = [p.display_name for p in self._session.participants]
         # ADR-0003 Stage 0: register participant names for constrained intro matching
         self._speaker_manager.register_meeting_participants(known_speakers)
@@ -467,14 +571,21 @@ class MainWindow(QMainWindow):
             f"| Audio: {device_label}."
         )
         self.append_transcript_line(f"[00:00] System: {audio_status}")
-        self._protocol_view.setPlainText(
-            f"Meeting: {title}\n"
-            f"Typ:     {self._meeting_type.currentText()}\n"
-            f"Audio:   {device_label}\n"
-            f"Sprecher ({len(speakers)}): {', '.join(speakers[:5])}\n\n"
-            "Decisions\n- Waiting for first confirmed decision.\n\n"
-            "Action Items\n- No action items detected yet."
-        )
+
+        # HEAR-085 AC1/AC2: protocol panel shows structured state, never transcript mirror
+        if self._snapshot_repo is not None:
+            self._protocol_view.setPlainText(
+                f"# {title}\n"
+                f"Typ: {self._meeting_type.currentText()} | Sprecher: {len(speakers)}\n\n"
+                "Aufnahme läuft — strukturierter Protokollentwurf erscheint nach der ersten "
+                "Snapshot-Generierung (ca. 10 s nach dem ersten Transkript).\n"
+            )
+        else:
+            self._protocol_view.setPlainText(
+                "[DEGRADED] Protokollentwurf nicht verfügbar — "
+                "Persistenz-Backend nicht verbunden.\n\n"
+                "Live-Transkript siehe Transkript-Panel."
+            )
 
         # HEAR-041: visible session state
         self._meeting_status_label.setText(f"\U0001f7e2 Meeting aktiv: {title}")
@@ -486,6 +597,8 @@ class MainWindow(QMainWindow):
         self._export_path_label.setText("")
 
         QMessageBox.information(self, "Meeting gestartet", f"Meeting '{title}' ist jetzt aktiv.")
+        # HEAR-087: refresh readiness state after meeting start
+        self._refresh_readiness()
 
     def _stop_meeting(self) -> None:
         """Beendet die aktive Meeting-Session (HEAR-041)."""
@@ -496,6 +609,14 @@ class MainWindow(QMainWindow):
         meeting_id = self._active_meeting_id
         title = (self._session.title if self._session is not None else None) or ""
         self._export_meeting_artifacts(meeting_id, title)
+
+        # HEAR-084 AC4: mark meeting as ended in DB
+        if meeting_id and self._meeting_repo is not None:
+            try:
+                self._meeting_repo.end(meeting_id)
+                logger.info("Meeting ended in DB: %s", meeting_id)
+            except Exception as exc:
+                logger.error("Failed to end meeting in DB: %s", exc)
 
         self.stop_active_meeting()
         self._session = None
@@ -608,17 +729,20 @@ class MainWindow(QMainWindow):
             rms=float(np.sqrt(np.mean(samples ** 2))),
             is_silence=False,
         )
-        # ADR-0003: resolve speaker identity before persistence — no hardcoded assignment
+        # ADR-0003: resolve speaker identity BEFORE persistence (HEAR-084 AC2)
+        # Embedding-based pre-resolution ensures no segment is saved as unknown/0.0
         embedding = SpeakerManager._extract_embedding(samples.tolist())
+        speaker_pre_match = self._speaker_manager.match_segment(embedding)
 
         result = self._transcription_service.transcribe_segment(
             segment,
             meeting_id=meeting_id,
-            speaker_name="unknown",
-            confidence_score=0.0,
+            speaker_name=speaker_pre_match.speaker_name,
+            confidence_score=speaker_pre_match.confidence,
         )
 
         text = result.text.strip() if result.text else ""
+        # Refine with text hint (intro matching) — if improved, speaker_match overrides
         speaker_match = self._speaker_manager.resolve_speaker_from_segment(
             embedding, segment_text=text
         )
@@ -816,8 +940,22 @@ class MainWindow(QMainWindow):
         self._refresh_protocol_display()
 
     def _refresh_protocol_display(self) -> None:
-        """Reload the latest protocol snapshot and update the protocol view."""
+        """Reload the latest protocol snapshot and update the protocol view.
+
+        Shows an explicit degraded label when persistence is not connected,
+        so the panel clearly communicates its state per HEAR-085 AC3.
+        """
+        # AC3: explicit degraded label when persistence unavailable
         if self._snapshot_repo is None or self._active_meeting_id is None:
+            current = self._protocol_view.toPlainText()
+            if not current.startswith(_PROTOCOL_DEGRADED_PREFIX):
+                self._protocol_view.setPlainText(
+                    f"{_PROTOCOL_DEGRADED_PREFIX} Protokollentwurf nicht verf\u00fcgbar \u2014 "
+                    "Persistenz-Backend nicht verbunden.\n\n"
+                    "Verbinden Sie die Datenbank, um die strukturierte Protokollerstellung "
+                    "gem\u00e4\u00df ADR-0005 zu aktivieren.\n\n"
+                    "Live-Transkript siehe Transkript-Panel."
+                )
             return
         try:
             snapshot = self._snapshot_repo.latest(self._active_meeting_id)
@@ -840,6 +978,26 @@ class MainWindow(QMainWindow):
             self._protocol_view.setPlainText("\n".join(lines).strip())
         except Exception as exc:
             logger.error("Protocol refresh failed: %s", exc)
+
+    def _rebuild_protocol_from_persistence(self) -> None:
+        """Generate a new protocol snapshot from persisted transcript data (HEAR-085 AC2).
+
+        Called by the periodic refresh timer (every 10 s).  Uses ProtocolEngine
+        to produce a structured draft from confirmed transcript segments and
+        stores it as a new versioned snapshot.  No-ops when persistence is
+        unavailable or no meeting is active.
+        """
+        if (
+            self._active_meeting_id is None
+            or self._transcript_repo is None
+            or self._snapshot_repo is None
+        ):
+            return
+        try:
+            self._protocol_engine.generate(self._active_meeting_id)
+            self._refresh_protocol_display()
+        except Exception as exc:
+            logger.error("Protocol rebuild failed: %s", exc)
 
     # ------------------------------------------------------------------
     # HEAR-070 / HEAR-075: Protocol export (multi-format)
@@ -988,8 +1146,11 @@ class MainWindow(QMainWindow):
         from ayehear.utils.paths import exports_dir as _exports_dir
 
         draft = self._protocol_view.toPlainText().strip()
-        if not draft:
-            QMessageBox.warning(self, "Export", "Das Protokoll ist noch leer — nichts zu exportieren.")
+        if not draft or draft.startswith("[DEGRADED]"):
+            if draft.startswith("[DEGRADED]"):
+                QMessageBox.warning(self, "Export", "Kein exportierbarer Protokollentwurf vorhanden.\n\nDas Protokoll ist degradiert — Datenbankverbindung erforderlich.")
+            else:
+                QMessageBox.warning(self, "Export", "Das Protokoll ist noch leer — nichts zu exportieren.")
             return
 
         title = ""
@@ -1016,27 +1177,27 @@ class MainWindow(QMainWindow):
             logger.error("Protocol export failed: %s", exc)
             QMessageBox.critical(self, "Export fehlgeschlagen", f"Fehler beim Schreiben:\n{exc}")
 
-    def _update_protocol_live(self, transcript_line: str) -> None:
-        """Update the protocol draft incrementally on each new transcript line (HEAR-075).
+    def _update_protocol_live(self, transcript_line: str) -> None:  # noqa: ARG002
+        """Refresh the protocol draft view on each new transcript line (HEAR-085 AC1/AC2).
 
-        When a database snapshot repository is available, delegates to the full
-        refresh.  In the simple / no-DB case, appends a lightweight transcript
-        summary so the panel is never static during an active meeting.
+        The protocol panel represents a *structured draft*, never a transcript
+        mirror.  When persistence is available, delegates to the snapshot-based
+        refresh.  When persistence is unavailable, the degraded-state label
+        remains visible — transcript lines are ONLY added to the transcript view,
+        never to the protocol panel.
         """
         if self._snapshot_repo is not None and self._active_meeting_id is not None:
+            # With DB: refresh the structured snapshot view
             self._refresh_protocol_display()
             return
-
-        # No DB: maintain a running live view from transcript lines
+        # Without DB: ensure degraded label is visible (do NOT mirror transcript)
         current = self._protocol_view.toPlainText()
-        # Only extend the Transcript section (add if not present)
-        if "## Transcript" not in current:
-            current = current.rstrip() + "\n\n## Transcript\n"
-        current = current.rstrip() + f"\n{transcript_line}"
-        self._protocol_view.setPlainText(current)
-        self._protocol_view.verticalScrollBar().setValue(
-            self._protocol_view.verticalScrollBar().maximum()
-        )
+        if not current.startswith(_PROTOCOL_DEGRADED_PREFIX):
+            self._protocol_view.setPlainText(
+                f"{_PROTOCOL_DEGRADED_PREFIX} Protokollentwurf nicht verf\u00fcgbar \u2014 "
+                "Persistenz-Backend nicht verbunden.\n\n"
+                "Live-Transkript siehe Transkript-Panel."
+            )
 
     def append_transcript_line(self, line: str) -> None:
         """Append a new transcribed line to the live transcript view (HEAR-075: also updates protocol)."""
