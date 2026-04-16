@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import logging
+import threading
+from datetime import datetime
 from typing import TYPE_CHECKING
 
-from PySide6.QtCore import Qt, QTimer
+import numpy as np
+
+from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QComboBox,
@@ -24,9 +28,18 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from ayehear.app.enrollment_dialog import EnrollmentDialog
+from ayehear.app.mic_level_widget import MicLevelWidget
 from ayehear.models.meeting import MeetingSession, Participant
 from ayehear.models.runtime import RuntimeConfig
-from ayehear.services.audio_capture import AudioCaptureProfile, enumerate_input_devices
+from ayehear.services.audio_capture import (
+    AudioCaptureProfile,
+    AudioCaptureService,
+    AudioSegment,
+    enumerate_input_devices,
+)
+from ayehear.services.speaker_manager import SpeakerManager
+from ayehear.services.transcription import TranscriptionService
 
 if TYPE_CHECKING:
     from ayehear.storage.repositories import (
@@ -38,11 +51,14 @@ logger = logging.getLogger(__name__)
 
 
 class MainWindow(QMainWindow):
+    transcript_line_ready = Signal(str)
+
     def __init__(
         self,
         runtime_config: RuntimeConfig,
         transcript_repo: "TranscriptSegmentRepository | None" = None,
         snapshot_repo: "ProtocolSnapshotRepository | None" = None,
+        speaker_manager: "SpeakerManager | None" = None,
     ) -> None:
         super().__init__()
         self.runtime_config = runtime_config
@@ -50,6 +66,21 @@ class MainWindow(QMainWindow):
         self._snapshot_repo = snapshot_repo
         self._active_meeting_id: str | None = None
         self._session: MeetingSession | None = None
+        self._audio_capture_service: AudioCaptureService | None = None
+        self._transcription_service = TranscriptionService(
+            profile=self.runtime_config.models.whisper_profile,
+            language="de",
+            transcript_repo=transcript_repo,
+        )
+        # ADR-0003: speaker identification pipeline
+        self._speaker_manager: SpeakerManager = speaker_manager or SpeakerManager()
+        self._enrolled_speakers: dict[str, str] = {}  # display_name -> participant_id
+        self._audio_buffer_lock = threading.Lock()
+        self._pending_audio_chunks: list[np.ndarray] = []
+        self._pending_start_ms: int | None = None
+        self._pending_end_ms: int = 0
+        self._pending_duration_ms: int = 0
+        self._asr_warned_no_text = False
 
         self.setWindowTitle("AYE Hear")
         self.resize(1440, 900)
@@ -77,6 +108,11 @@ class MainWindow(QMainWindow):
         self._refresh_timer = QTimer(self)
         self._refresh_timer.setInterval(10_000)
         self._refresh_timer.timeout.connect(self._refresh_review_queue)
+
+        self._asr_timer = QTimer(self)
+        self._asr_timer.setInterval(1000)
+        self._asr_timer.timeout.connect(self._process_pending_audio)
+        self.transcript_line_ready.connect(self.append_transcript_line)
 
     # ------------------------------------------------------------------
     # Panel builders
@@ -175,7 +211,9 @@ class MainWindow(QMainWindow):
         self._meeting_status_label = QLabel("\u26aa Kein aktives Meeting")
         self._meeting_status_label.setStyleSheet("font-weight: 600; color: #888;")
         layout.addWidget(self._meeting_status_label)
-
+        # HEAR-044: live mic state + level meter
+        self._mic_level_widget = MicLevelWidget()
+        layout.addWidget(self._mic_level_widget)
         controls = QHBoxLayout()
         self._start_meeting_btn = QPushButton("Start Meeting")
         self._start_meeting_btn.clicked.connect(self._start_meeting)
@@ -291,18 +329,74 @@ class MainWindow(QMainWindow):
             self._speakers_list.addItem(item)
 
     def _start_enrollment(self) -> None:
-        """Startet den Speaker-Enrollment-Prozess (Platzhalter – ADR-0004)."""
-        speakers = self._get_speaker_texts()
-        if not speakers:
-            QMessageBox.warning(self, "Enrollment", "Bitte mindestens einen Sprecher hinzufügen.")
+        """Open the real voice enrollment dialog (HEAR-074 / ADR-0003 Stage 1).
+
+        Collects pending speakers from the list, opens EnrollmentDialog for
+        microphone-based recording, and updates list item status after each
+        successful enrollment.  The dialog guides the user with on-screen
+        instructions and shows status transitions (pending → recording →
+        enrolled / failed).
+        """
+        pending: list[tuple[str, str]] = []
+        for i in range(self._speakers_list.count()):
+            raw = self._speakers_list.item(i).text().strip()
+            if not raw:
+                continue
+            name, org, status = self._parse_speaker_raw(raw)
+            if "enrolled" not in status.lower():
+                pending.append((name, org))
+
+        # No speakers at all → warning
+        if self._speakers_list.count() == 0:
+            QMessageBox.warning(
+                self,
+                "Enrollment",
+                "Bitte mindestens einen Sprecher hinzufügen.",
+            )
             return
-        QMessageBox.information(
-            self,
-            "Speaker Enrollment",
-            f"Enrollment gestartet für {len(speakers)} Sprecher.\n\n"
-            "Teilnehmer sprechen jetzt ihren Namen in das Mikrofon.\n\n"
-            "Hinweis: Audio-Pipeline-Integration ausstehend (ADR-0004).",
+
+        # All speakers already enrolled → informational hint
+        if not pending:
+            QMessageBox.information(
+                self,
+                "Enrollment",
+                "Alle Sprecher sind bereits enrolliert.",
+            )
+            return
+
+        dlg = EnrollmentDialog(
+            pending_speakers=pending,
+            speaker_manager=self._speaker_manager,
+            parent=self,
         )
+        from PySide6.QtWidgets import QDialog
+        accepted = dlg.exec() == QDialog.DialogCode.Accepted
+        enrolled = dlg.get_enrolled_results() if accepted else {}
+        # Update list items to reflect enrollment result
+        pending_names = {n for n, _ in pending}
+        for i in range(self._speakers_list.count()):
+            item = self._speakers_list.item(i)
+            name, org, _ = self._parse_speaker_raw(item.text().strip())
+            if name in enrolled:
+                profile_id = enrolled[name]
+                item.setText(f"{name} | {org} | enrolled (id: {profile_id[:8]})")
+                self._enrolled_speakers[name] = profile_id
+            elif accepted and name in pending_names:
+                # Dialog was accepted but this speaker was not recorded
+                item.setText(f"{name} | {org} | enrollment failed")
+        enrolled_count = len(enrolled)
+        self._set_speaker_status(
+            f"Enrollment abgeschlossen: {enrolled_count}/{len(pending)} Sprecher registriert."
+        )
+
+    @staticmethod
+    def _parse_speaker_raw(raw: str) -> tuple[str, str, str]:
+        """Parse a speaker list entry into (name, org, status) tuple."""
+        parts = [p.strip() for p in raw.split("|")]
+        name = parts[0] if parts else raw
+        org = parts[1] if len(parts) > 1 else "Organisation"
+        status = parts[2] if len(parts) > 2 else ""
+        return name, org, status
 
     def _start_meeting(self) -> None:
         """Validiert das Setup und startet eine Meeting-Session."""
@@ -318,7 +412,6 @@ class MainWindow(QMainWindow):
             return
 
         import uuid
-        from datetime import datetime
 
         participants: list[Participant] = []
         for s in speakers:
@@ -344,13 +437,17 @@ class MainWindow(QMainWindow):
 
         meeting_id = str(uuid.uuid4())
         known_speakers = [p.display_name for p in self._session.participants]
+        # ADR-0003 Stage 0: register participant names for constrained intro matching
+        self._speaker_manager.register_meeting_participants(known_speakers)
         self.set_active_meeting(meeting_id, known_speakers=known_speakers)
+        audio_status = self._start_audio_pipeline()
 
         # HEAR-041: transcript + protocol reflect meeting start
         self.append_transcript_line(
             f"[00:00] Meeting '{title}' gestartet — {len(speakers)} Teilnehmer "
             f"| Audio: {device_label}."
         )
+        self.append_transcript_line(f"[00:00] System: {audio_status}")
         self._protocol_view.setPlainText(
             f"Meeting: {title}\n"
             f"Typ:     {self._meeting_type.currentText()}\n"
@@ -365,17 +462,24 @@ class MainWindow(QMainWindow):
         self._meeting_status_label.setStyleSheet("font-weight: 700; color: #1a7a1a;")
         self._start_meeting_btn.setEnabled(False)
         self._stop_meeting_btn.setEnabled(True)
+        # HEAR-075: enable export while meeting is active
+        self._export_btn.setEnabled(True)
+        self._export_path_label.setText("")
 
         QMessageBox.information(self, "Meeting gestartet", f"Meeting '{title}' ist jetzt aktiv.")
 
     def _stop_meeting(self) -> None:
         """Beendet die aktive Meeting-Session (HEAR-041)."""
+        self._transcribe_pending_buffer(force=True)
+        self._stop_audio_pipeline()
         self.stop_active_meeting()
         self._session = None
         self._meeting_status_label.setText("\u26aa Kein aktives Meeting")
         self._meeting_status_label.setStyleSheet("font-weight: 600; color: #888;")
         self._start_meeting_btn.setEnabled(True)
         self._stop_meeting_btn.setEnabled(False)
+        # HEAR-075: keep export accessible after recording stops
+        # (export button stays enabled so user can export the final protocol)
         self.append_transcript_line("[--:--] Meeting beendet.")
 
     def _show_current_state(self) -> None:
@@ -394,7 +498,7 @@ class MainWindow(QMainWindow):
         for s in speakers:
             lines.append(f"  \u2022 {s}")
         lines.append("")
-        if self._session is not None:
+        if self._session is not None and self._session.started_at is not None:
             lines.append(f"\u2705 Aktive Session: {self._session.title}")
             lines.append(f"   Gestartet:    {self._session.started_at.strftime('%H:%M:%S')}")
             lines.append(f"   Teilnehmer:   {len(self._session.participants)}")
@@ -402,6 +506,134 @@ class MainWindow(QMainWindow):
             lines.append("\u26aa Keine aktive Meeting-Session.")
 
         QMessageBox.information(self, "Aktueller Status", "\n".join(lines))
+
+    def _start_audio_pipeline(self) -> str:
+        """Start the live audio capture + ASR buffering loop for the active meeting."""
+        if self._active_meeting_id is None:
+            return "Audio-Pipeline nicht gestartet (kein aktives Meeting)."
+
+        self._clear_audio_buffer()
+        self._asr_warned_no_text = False
+
+        profile = self._selected_audio_profile()
+        self._audio_capture_service = AudioCaptureService(profile=profile)
+        self._mic_level_widget.set_initializing()
+        try:
+            self._audio_capture_service.start(self._on_audio_segment)
+            self._asr_timer.start()
+            self._mic_level_widget.set_active()
+            return "Audioaufnahme aktiv, Live-Transkription läuft."
+        except Exception as exc:
+            logger.error("Audio-Pipeline konnte nicht gestartet werden: %s", exc)
+            self._audio_capture_service = None
+            self._mic_level_widget.set_error(str(exc))
+            return f"Audio-Pipeline konnte nicht gestartet werden: {exc}"
+
+    def _stop_audio_pipeline(self) -> None:
+        self._asr_timer.stop()
+        if self._audio_capture_service is not None:
+            self._audio_capture_service.stop()
+            self._audio_capture_service = None
+        self._mic_level_widget.reset()
+
+    def _clear_audio_buffer(self) -> None:
+        with self._audio_buffer_lock:
+            self._pending_audio_chunks = []
+            self._pending_start_ms = None
+            self._pending_end_ms = 0
+            self._pending_duration_ms = 0
+
+    def _on_audio_segment(self, segment: AudioSegment) -> None:
+        """Collect non-silent chunks in a thread-safe buffer for periodic ASR."""
+        # HEAR-044: feed the level meter (thread-safe via Signal/Slot)
+        self._mic_level_widget.on_audio_segment(segment.rms, segment.is_silence)
+
+        if self._active_meeting_id is None or segment.is_silence:
+            return
+
+        chunk = np.asarray(segment.samples, dtype=np.float32).reshape(-1)
+        if chunk.size == 0:
+            return
+
+        with self._audio_buffer_lock:
+            if self._pending_start_ms is None:
+                self._pending_start_ms = segment.start_ms
+            self._pending_audio_chunks.append(chunk)
+            self._pending_end_ms = segment.end_ms
+            self._pending_duration_ms += max(0, segment.end_ms - segment.start_ms)
+
+    def _process_pending_audio(self) -> None:
+        self._transcribe_pending_buffer(force=False)
+
+    def _transcribe_pending_buffer(self, force: bool) -> None:
+        payload = self._consume_audio_buffer(force=force)
+        if payload is None:
+            return
+
+        start_ms, end_ms, samples = payload
+        meeting_id = self._active_meeting_id
+        if meeting_id is None:
+            return
+
+        segment = AudioSegment(
+            captured_at=datetime.now(),
+            start_ms=start_ms,
+            end_ms=end_ms,
+            samples=samples,
+            rms=float(np.sqrt(np.mean(samples ** 2))),
+            is_silence=False,
+        )
+        # ADR-0003: resolve speaker identity before persistence — no hardcoded assignment
+        embedding = SpeakerManager._extract_embedding(samples.tolist())
+        speaker_match = self._speaker_manager.resolve_speaker_from_segment(embedding)
+
+        result = self._transcription_service.transcribe_segment(
+            segment,
+            meeting_id=meeting_id,
+            speaker_name=speaker_match.speaker_name,
+            confidence_score=speaker_match.confidence,
+        )
+
+        stamp = self._format_ms(start_ms)
+        text = result.text.strip()
+        review_tag = " [low-conf]" if speaker_match.requires_review else ""
+        if text:
+            self.transcript_line_ready.emit(
+                f"[{stamp}] {speaker_match.speaker_name}{review_tag}: {text}"
+            )
+            return
+
+        if (result.error or not self._asr_warned_no_text) and not text:
+            self.transcript_line_ready.emit(
+                f"[{stamp}] System: Audio erkannt, aber noch kein Transkriptions-Text verfügbar."
+            )
+            self._asr_warned_no_text = True
+
+    def _consume_audio_buffer(self, force: bool) -> tuple[int, int, np.ndarray] | None:
+        with self._audio_buffer_lock:
+            if not self._pending_audio_chunks:
+                return None
+
+            if not force and self._pending_duration_ms < 1800:
+                return None
+
+            start_ms = self._pending_start_ms or 0
+            end_ms = self._pending_end_ms
+            chunks = self._pending_audio_chunks
+
+            self._pending_audio_chunks = []
+            self._pending_start_ms = None
+            self._pending_end_ms = 0
+            self._pending_duration_ms = 0
+
+        return start_ms, end_ms, np.concatenate(chunks)
+
+    @staticmethod
+    def _format_ms(total_ms: int) -> str:
+        total_seconds = max(0, total_ms // 1000)
+        minutes = total_seconds // 60
+        seconds = total_seconds % 60
+        return f"{minutes:02d}:{seconds:02d}"
 
     def _build_transcript_panel(self) -> QWidget:
         panel = QWidget()
@@ -426,7 +658,9 @@ class MainWindow(QMainWindow):
 
         protocol_box = QGroupBox("Protocol Draft")
         protocol_layout = QVBoxLayout(protocol_box)
-        protocol_layout.addWidget(QLabel("Decisions, action items and open questions update on significant events."))
+        protocol_layout.addWidget(QLabel(
+            "Decisions, action items and open questions update on significant events."
+        ))
 
         self._protocol_view = QPlainTextEdit()
         self._protocol_view.setReadOnly(True)
@@ -439,6 +673,24 @@ class MainWindow(QMainWindow):
             "- No action items detected yet."
         )
         protocol_layout.addWidget(self._protocol_view)
+
+        # HEAR-075: visible export action
+        export_row = QHBoxLayout()
+        self._export_btn = QPushButton("Export Protocol…")
+        self._export_btn.setToolTip(
+            "Protokoll als Markdown-Datei in den exports/-Ordner speichern"
+        )
+        self._export_btn.clicked.connect(self._do_export_protocol)
+        self._export_btn.setEnabled(False)
+        export_row.addWidget(self._export_btn)
+        export_row.addStretch(1)
+        protocol_layout.addLayout(export_row)
+
+        self._export_path_label = QLabel("")
+        self._export_path_label.setStyleSheet("color: #1a4a7a; font-size: 11px;")
+        self._export_path_label.setWordWrap(True)
+        protocol_layout.addWidget(self._export_path_label)
+
         layout.addWidget(protocol_box)
 
         quality_box = QGroupBox("Review Queue")
@@ -478,6 +730,7 @@ class MainWindow(QMainWindow):
     def stop_active_meeting(self) -> None:
         self._refresh_timer.stop()
         self._active_meeting_id = None
+        self._speaker_manager.clear_meeting_context()
 
     def _refresh_review_queue(self) -> None:
         """Reload low-confidence and uncorrected segments from the repository."""
@@ -560,10 +813,73 @@ class MainWindow(QMainWindow):
         except Exception as exc:
             logger.error("Protocol refresh failed: %s", exc)
 
+    # ------------------------------------------------------------------
+    # HEAR-075: Protocol export
+    # ------------------------------------------------------------------
+
+    def _do_export_protocol(self) -> None:
+        """Export the current protocol draft to <install_root>/exports/ as Markdown."""
+        import datetime as _dt
+        from ayehear.utils.paths import exports_dir as _exports_dir
+
+        draft = self._protocol_view.toPlainText().strip()
+        if not draft:
+            QMessageBox.warning(self, "Export", "Das Protokoll ist noch leer — nichts zu exportieren.")
+            return
+
+        title = ""
+        if self._session is not None:
+            title = self._session.title or ""
+
+        timestamp = _dt.datetime.now().strftime("%Y%m%d_%H%M%S")
+        safe_title = "".join(c if c.isalnum() or c in "-_" else "_" for c in title)[:40]
+        filename = f"protocol_{safe_title}_{timestamp}.md" if safe_title else f"protocol_{timestamp}.md"
+
+        try:
+            out_dir = _exports_dir()
+            out_path = out_dir / filename
+            header = f"# Meeting Protocol — {title}\n\nExported: {_dt.datetime.now().isoformat()}\n\n"
+            out_path.write_text(header + draft, encoding="utf-8")
+            self._export_path_label.setText(f"Exportiert: {out_path}")
+            logger.info("Protocol exported to %s", out_path)
+            QMessageBox.information(
+                self,
+                "Export erfolgreich",
+                f"Protokoll gespeichert:\n{out_path}",
+            )
+        except OSError as exc:
+            logger.error("Protocol export failed: %s", exc)
+            QMessageBox.critical(self, "Export fehlgeschlagen", f"Fehler beim Schreiben:\n{exc}")
+
+    def _update_protocol_live(self, transcript_line: str) -> None:
+        """Update the protocol draft incrementally on each new transcript line (HEAR-075).
+
+        When a database snapshot repository is available, delegates to the full
+        refresh.  In the simple / no-DB case, appends a lightweight transcript
+        summary so the panel is never static during an active meeting.
+        """
+        if self._snapshot_repo is not None and self._active_meeting_id is not None:
+            self._refresh_protocol_display()
+            return
+
+        # No DB: maintain a running live view from transcript lines
+        current = self._protocol_view.toPlainText()
+        # Only extend the Transcript section (add if not present)
+        if "## Transcript" not in current:
+            current = current.rstrip() + "\n\n## Transcript\n"
+        current = current.rstrip() + f"\n{transcript_line}"
+        self._protocol_view.setPlainText(current)
+        self._protocol_view.verticalScrollBar().setValue(
+            self._protocol_view.verticalScrollBar().maximum()
+        )
+
     def append_transcript_line(self, line: str) -> None:
-        """Append a new transcribed line to the live transcript view."""
+        """Append a new transcribed line to the live transcript view (HEAR-075: also updates protocol)."""
         self._transcript_view.appendPlainText(line)
         # Scroll to bottom
         self._transcript_view.verticalScrollBar().setValue(
             self._transcript_view.verticalScrollBar().maximum()
         )
+        # HEAR-075: keep protocol draft visible and up-to-date during meeting
+        if self._active_meeting_id is not None:
+            self._update_protocol_live(line)

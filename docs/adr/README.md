@@ -21,6 +21,8 @@ This directory contains all significant architecture decisions for the AYE Hear 
 | 0007 | Persistence Contract and Lifecycle            | Accepted | AYEHEAR_ARCHITECT |
 | 0008 | Hardware Profiles and Acceleration Strategy   | Accepted | AYEHEAR_ARCHITECT |
 | 0009 | Data Protection and Encryption-at-Rest Model  | Accepted | AYEHEAR_ARCHITECT |
+| 0010 | V1 Scope Integrity and Release State Separation | Accepted | AYEHEAR_ARCHITECT |
+| 0011 | Install-Root Relative Runtime and Artifact Paths | Accepted | AYEHEAR_ARCHITECT |
 
 ## Supporting Architecture Documents
 
@@ -37,4 +39,4 @@ This directory contains all significant architecture decisions for the AYE Hear 
 ---
 
 **Maintained by:** AYEHEAR_ARCHITECT  
-**Last Updated:** 2026-04-09
+**Last Updated:** 2026-04-16

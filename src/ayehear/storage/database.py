@@ -6,6 +6,7 @@ ADR-0007: canonical persistence entities.
 from __future__ import annotations
 
 import logging
+import os
 from pathlib import Path
 
 from sqlalchemy import create_engine, text
@@ -15,9 +16,43 @@ from sqlalchemy.orm import Session, sessionmaker
 logger = logging.getLogger(__name__)
 
 _MIGRATIONS_DIR = Path(__file__).parent / "migrations"
+_RUNTIME_DSN_ENV = "AYEHEAR_DB_DSN"
 
 # Addresses that are unambiguously loopback-only.
 _LOOPBACK_LITERALS = frozenset({"localhost", "127.0.0.1", "::1", ""})
+
+
+def runtime_dsn_path(install_root: Path | None = None) -> Path:
+    """Return the canonical installer-managed DSN file path (ADR-0011).
+
+    Delegates to ``ayehear.utils.paths.dsn_file_path`` so the resolution
+    strategy is centralised in one module per ADR-0011 §4.
+    Development/CI may override the install root for testability.
+    """
+    from ayehear.utils.paths import dsn_file_path
+    return dsn_file_path(install_root)
+
+
+def load_runtime_dsn(install_root: Path | None = None) -> str | None:
+    """Load the runtime DSN from env first, then the installer-managed file.
+
+    Returns None when no usable DSN is available.
+    """
+    env_dsn = os.environ.get(_RUNTIME_DSN_ENV, "").strip()
+    if env_dsn:
+        return env_dsn
+
+    dsn_file = runtime_dsn_path(install_root)
+    if not dsn_file.exists():
+        return None
+
+    try:
+        dsn = dsn_file.read_text(encoding="utf-8").strip()
+    except OSError as exc:
+        logger.warning("Could not read runtime DSN file %s: %s", dsn_file, exc)
+        return None
+
+    return dsn or None
 
 
 def _addr_is_loopback_safe(addr: str) -> bool:
