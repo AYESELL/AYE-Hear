@@ -180,6 +180,15 @@ class TestStartupHealthCheckContract:
         content = script.read_text(encoding="utf-8")
         assert "meetings" in content
 
+    def test_provisioning_script_writes_pg_files_without_bom(self):
+        """Provisioning must write PostgreSQL config files in UTF-8 without BOM."""
+        script = Path(__file__).parent.parent / "tools" / "scripts" / "Install-PostgresRuntime.ps1"
+        content = script.read_text(encoding="utf-8")
+        assert "function Write-TextUtf8NoBom" in content
+        assert "Write-TextUtf8NoBom -Path $pgConf -Content $conf" in content
+        assert "Write-TextUtf8NoBom -Path $pgHba -Content $hba" in content
+        assert "Write-TextUtf8NoBom -Path $DSN_FILE -Content $dsn" in content
+
     def test_provisioning_script_generates_password(self):
         """Provisioning script must generate a per-install password, not use a static default."""
         script = Path(__file__).parent.parent / "tools" / "scripts" / "Install-PostgresRuntime.ps1"
@@ -202,6 +211,48 @@ class TestStartupHealthCheckContract:
         content = script.read_text(encoding="utf-8")
         assert "listen_addresses" in content
         assert "localhost" in content
+
+    def test_provisioning_script_uses_pwfile_for_initdb_with_md5_auth(self):
+        """initdb must receive a password file when md5 auth is enabled."""
+        script = Path(__file__).parent.parent / "tools" / "scripts" / "Install-PostgresRuntime.ps1"
+        content = script.read_text(encoding="utf-8")
+        assert "--pwfile" in content
+        assert "--auth-local',   'md5" in content
+        assert "--auth-host',    'md5" in content
+
+    def test_provisioning_script_does_not_require_dblink_extension(self):
+        """Database creation must work on fresh clusters without dblink extension."""
+        script = Path(__file__).parent.parent / "tools" / "scripts" / "Install-PostgresRuntime.ps1"
+        content = script.read_text(encoding="utf-8")
+        assert "dblink_exec" not in content
+        assert "SELECT 1 FROM pg_database" in content
+
+    def test_provisioning_script_redacts_role_password_in_log(self):
+        """Role creation logging must avoid plaintext password output."""
+        script = Path(__file__).parent.parent / "tools" / "scripts" / "Install-PostgresRuntime.ps1"
+        content = script.read_text(encoding="utf-8")
+        assert "password redacted" in content
+
+    def test_provisioning_script_resolves_versioned_edb_bin_dirs(self):
+        """Provisioning must support EDB layouts that place binaries under versioned subfolders."""
+        script = Path(__file__).parent.parent / "tools" / "scripts" / "Install-PostgresRuntime.ps1"
+        content = script.read_text(encoding="utf-8")
+        assert "function Resolve-PgBinDir" in content
+        assert "Get-ChildItem -Path $pgRoot -Directory" in content
+        assert "Join-Path $dir.FullName 'bin'" in content
+
+    def test_provisioning_script_resolves_pg_bin_from_service_and_registry(self):
+        """Provisioning must fall back to service/registry when installer ignores prefix layout."""
+        script = Path(__file__).parent.parent / "tools" / "scripts" / "Install-PostgresRuntime.ps1"
+        content = script.read_text(encoding="utf-8")
+        assert "Get-CimInstance Win32_Service" in content
+        assert "HKLM:\\SOFTWARE\\PostgreSQL\\Installations" in content
+
+    def test_provisioning_script_does_not_use_invalid_edb_flag(self):
+        """Provisioning script must not pass unsupported EDB installer flags."""
+        script = Path(__file__).parent.parent / "tools" / "scripts" / "Install-PostgresRuntime.ps1"
+        content = script.read_text(encoding="utf-8")
+        assert "--enable_script_permissions" not in content
 
     def test_installer_iss_calls_provisioning_script(self):
         """Inno Setup installer must reference Install-PostgresRuntime.ps1 in [Run]."""
@@ -226,6 +277,22 @@ class TestStartupHealthCheckContract:
         nsi = Path(__file__).parent.parent / "build" / "installer" / "ayehear-installer.nsi"
         content = nsi.read_text(encoding="utf-8")
         assert "Stop-Service" in content and "AyeHearDB" in content
+
+    def test_provisioning_script_protect_dsn_uses_well_known_sids(self):
+        """Protect-DsnFile must use SID-based identities, not locale-dependent string names.
+
+        On German Windows 'SYSTEM' and 'Administrators' cannot be resolved;
+        the script must use WellKnownSidType.LocalSystemSid / BuiltinAdministratorsSid.
+        """
+        script = Path(__file__).parent.parent / "tools" / "scripts" / "Install-PostgresRuntime.ps1"
+        content = script.read_text(encoding="utf-8")
+        # Must use SecurityIdentifier with WellKnownSidType
+        assert "WellKnownSidType" in content
+        assert "LocalSystemSid" in content
+        assert "BuiltinAdministratorsSid" in content
+        # Must NOT fall back to bare English string literals
+        assert "'SYSTEM'" not in content
+        assert "'Administrators'" not in content
 
 
 # ─── DSN environment variable injection ───────────────────────────────────────

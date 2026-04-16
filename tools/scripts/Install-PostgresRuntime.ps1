@@ -38,7 +38,7 @@
     # Standard installer-managed path (called from Inno Setup [Run] entry)
     .\Install-PostgresRuntime.ps1
 
-    # Offline path — bundled installer alongside the setup exe
+    # Offline path - bundled installer alongside the setup exe
     .\Install-PostgresRuntime.ps1 -BundledPgInstaller "C:\AyeHear\pg-installer\postgresql-16.4-1-windows-x64.exe"
 
 .NOTES
@@ -57,7 +57,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-# ─── Constants ────────────────────────────────────────────────────────────────
+# --- Constants ---------------------------------------------------------------
 
 $PG_VERSION       = '16'
 $PG_PORT          = 5433
@@ -74,9 +74,9 @@ $LOG_FILE         = Join-Path $LOG_DIR 'pg-install.log'
 
 # PostgreSQL 16 EDB download URL (official, checksum-verifiable)
 $PG_DOWNLOAD_URL  = 'https://get.enterprisedb.com/postgresql/postgresql-16.4-1-windows-x64.exe'
-$PG_INSTALLER_SHA256 = 'DB5E9D3E4AD65D29E0AD2B6E90B0A36A9D1CB3C47CDA9A6BBAF1CF7F8D8E9C0A'  # placeholder: validate in CI
+$PG_INSTALLER_SHA256 = 'F4BF0AC4B33471F18AAD7D1D9CC52613003F3A3A612AAE167366BF7F7840B2BC'
 
-# ─── Helpers ──────────────────────────────────────────────────────────────────
+# --- Helpers -----------------------------------------------------------------
 
 function Write-Log {
     param([string]$Message, [string]$Level = 'INFO')
@@ -85,6 +85,100 @@ function Write-Log {
     Write-Host $line
     if (-not (Test-Path $LOG_DIR)) { New-Item -ItemType Directory -Path $LOG_DIR -Force | Out-Null }
     Add-Content -Path $LOG_FILE -Value $line -Encoding UTF8
+}
+
+function Write-TextUtf8NoBom {
+    param(
+        [Parameter(Mandatory)][string]$Path,
+        [Parameter(Mandatory)][string]$Content
+    )
+
+    $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+    [System.IO.File]::WriteAllText($Path, $Content, $utf8NoBom)
+}
+
+function Resolve-PgBinDir {
+    param([string]$RequiredTool = 'initdb.exe')
+
+    $pgRoot = Join-Path $InstallDir 'pgsql'
+    $candidates = @(
+        (Join-Path $pgRoot 'bin')
+    )
+
+    if (Test-Path $pgRoot) {
+        $versionedDirs = Get-ChildItem -Path $pgRoot -Directory -ErrorAction SilentlyContinue |
+            Sort-Object Name -Descending
+        foreach ($dir in $versionedDirs) {
+            $candidates += Join-Path $dir.FullName 'bin'
+        }
+    }
+
+    foreach ($candidate in ($candidates | Select-Object -Unique)) {
+        if (Test-Path (Join-Path $candidate $RequiredTool)) {
+            return $candidate
+        }
+    }
+
+    if (Test-Path $pgRoot) {
+        $foundTool = Get-ChildItem -Path $pgRoot -Filter $RequiredTool -File -Recurse -ErrorAction SilentlyContinue |
+            Select-Object -First 1
+        if ($foundTool) {
+            return $foundTool.Directory.FullName
+        }
+    }
+
+    # Fallback 1: inspect the configured PostgreSQL Windows service path
+    try {
+        $svc = Get-CimInstance Win32_Service -Filter "Name='$PG_SERVICE_NAME'" -ErrorAction SilentlyContinue
+        if ($svc -and $svc.PathName) {
+            $pathName = $svc.PathName.Trim()
+            $exePath = $null
+            if ($pathName.StartsWith('"')) {
+                $parts = $pathName -split '"'
+                if ($parts.Length -ge 2) {
+                    $exePath = $parts[1]
+                }
+            } else {
+                $exePath = ($pathName -split '\s+')[0]
+            }
+
+            if ($exePath -and (Test-Path $exePath)) {
+                $svcBinDir = Split-Path -Path $exePath -Parent
+                if (Test-Path (Join-Path $svcBinDir $RequiredTool)) {
+                    return $svcBinDir
+                }
+            }
+        }
+    } catch {
+        # Non-fatal: continue probing other sources
+    }
+
+    # Fallback 2: inspect PostgreSQL installation registry keys
+    $registryRoots = @(
+        'HKLM:\SOFTWARE\PostgreSQL\Installations',
+        'HKLM:\SOFTWARE\WOW6432Node\PostgreSQL\Installations'
+    )
+    foreach ($root in $registryRoots) {
+        if (-not (Test-Path $root)) {
+            continue
+        }
+
+        $installKeys = Get-ChildItem -Path $root -ErrorAction SilentlyContinue | Sort-Object Name -Descending
+        foreach ($key in $installKeys) {
+            $props = Get-ItemProperty -Path $key.PSPath -ErrorAction SilentlyContinue
+            $baseDir = $props.'Base Directory'
+            if (-not $baseDir) {
+                continue
+            }
+
+            $regBinDir = Join-Path $baseDir 'bin'
+            if (Test-Path (Join-Path $regBinDir $RequiredTool)) {
+                return $regBinDir
+            }
+        }
+    }
+
+    return $null
 }
 
 function Invoke-Pg {
@@ -111,19 +205,26 @@ function New-SecurePassword {
 
 function Protect-DsnFile {
     param([string]$Path)
-    # Restrict ACL: remove Everyone/Users, keep SYSTEM + Administrators only
+    # Restrict ACL: remove Everyone/Users, keep SYSTEM + Administrators only.
+    # Use well-known SIDs instead of locale-dependent string names (e.g. German
+    # Windows uses "NT-AUTORITÄT\SYSTEM" / "VORDEFINIERT\Administratoren").
     $acl = Get-Acl -Path $Path
     $acl.SetAccessRuleProtection($true, $false)
 
+    $systemSid = New-Object System.Security.Principal.SecurityIdentifier(
+        [System.Security.Principal.WellKnownSidType]::LocalSystemSid, $null)
+    $adminsSid  = New-Object System.Security.Principal.SecurityIdentifier(
+        [System.Security.Principal.WellKnownSidType]::BuiltinAdministratorsSid, $null)
+
     $systemRule = New-Object System.Security.AccessControl.FileSystemAccessRule(
-        'SYSTEM', 'FullControl', 'Allow')
+        $systemSid, 'FullControl', 'ContainerInherit,ObjectInherit', 'None', 'Allow')
     $adminRule  = New-Object System.Security.AccessControl.FileSystemAccessRule(
-        'Administrators', 'FullControl', 'Allow')
+        $adminsSid, 'FullControl', 'ContainerInherit,ObjectInherit', 'None', 'Allow')
 
     $acl.AddAccessRule($systemRule)
     $acl.AddAccessRule($adminRule)
     Set-Acl -Path $Path -AclObject $acl
-    Write-Log "ACL restricted on $Path (SYSTEM + Administrators only)."
+    Write-Log "ACL restricted on $Path (SYSTEM + Administrators only, SID-based)."
 }
 
 function Wait-PgReady {
@@ -150,7 +251,7 @@ function Assert-InstallerHash {
         Computes the SHA256 hash of the file at FilePath and compares it
         against ExpectedHash (case-insensitive hex string). Terminates the
         script with a non-zero exit code and a clear error message if the
-        hashes do not match — supply-chain protection per HEAR-078.
+        hashes do not match - supply-chain protection per HEAR-078.
     #>
     param(
         [Parameter(Mandatory)][string]$FilePath,
@@ -168,7 +269,7 @@ function Assert-InstallerHash {
     $expected   = $ExpectedHash.ToUpperInvariant()
 
     if ($actualHash -ne $expected) {
-        Write-Log "SHA256 MISMATCH — installer integrity check FAILED." 'ERROR'
+        Write-Log "SHA256 MISMATCH - installer integrity check FAILED." 'ERROR'
         Write-Log "  Expected : $expected" 'ERROR'
         Write-Log "  Actual   : $actualHash" 'ERROR'
         Write-Log "The downloaded file may be corrupted or tampered with." 'ERROR'
@@ -179,13 +280,16 @@ function Assert-InstallerHash {
     Write-Log "SHA256 integrity check PASSED: $actualHash"
 }
 
-# ─── Step 1: Check for existing installation ──────────────────────────────────
+# --- Step 1: Check for existing installation ---------------------------------
 
 Write-Log "=== AYE Hear PostgreSQL Runtime Provisioning (ADR-0006) ==="
 Write-Log "Install root : $InstallDir"
 Write-Log "PG bin dir   : $PG_BIN_DIR"
 Write-Log "PG data dir  : $PG_DATA_DIR"
 Write-Log "Service name : $PG_SERVICE_NAME"
+
+# Required for initdb when using md5 auth settings.
+$bootstrapSuperPw = New-SecurePassword
 
 $pgAlreadyProvisioned = (Test-Path (Join-Path $PG_DATA_DIR 'PG_VERSION')) -and
                         (Test-Path $DSN_FILE)
@@ -201,11 +305,16 @@ if ($pgAlreadyProvisioned -and -not $Force) {
         Start-Service -Name $PG_SERVICE_NAME
         Wait-PgReady
     }
-    Write-Log "Provisioning skipped — existing installation is intact."
+    Write-Log "Provisioning skipped - existing installation is intact."
     exit 0
 }
 
-# ─── Step 2: Ensure PG binaries ───────────────────────────────────────────────
+# --- Step 2: Ensure PG binaries ----------------------------------------------
+
+$resolvedPgBinDir = Resolve-PgBinDir -RequiredTool 'initdb.exe'
+if ($resolvedPgBinDir) {
+    $script:PG_BIN_DIR = $resolvedPgBinDir
+}
 
 $initdbExe = Join-Path $PG_BIN_DIR 'initdb.exe'
 
@@ -216,7 +325,7 @@ if (-not (Test-Path $initdbExe)) {
     if ($BundledPgInstaller -and (Test-Path $BundledPgInstaller)) {
         $pgSetupExe = $BundledPgInstaller
         Write-Log "Using bundled installer: $pgSetupExe"
-        # ── Integrity check: verify SHA256 before any execution ───────────
+        # Integrity check: verify SHA256 before any execution
         Assert-InstallerHash -FilePath $pgSetupExe -ExpectedHash $PG_INSTALLER_SHA256
     } else {
         # Try sibling 'pg-installer' folder relative to this script or AppBinDir
@@ -233,7 +342,7 @@ if (-not (Test-Path $initdbExe)) {
 
         if ($pgSetupExe) {
             Write-Log "Found cached installer: $pgSetupExe"
-            # ── Integrity check: verify SHA256 before any execution ────────
+            # Integrity check: verify SHA256 before any execution
             Assert-InstallerHash -FilePath $pgSetupExe -ExpectedHash $PG_INSTALLER_SHA256
         }
 
@@ -256,7 +365,7 @@ if (-not (Test-Path $initdbExe)) {
                 Write-Log "Download complete via WebClient."
             }
 
-            # ── Integrity check: verify SHA256 before any execution ────────
+            # Integrity check: verify SHA256 before any execution
             Assert-InstallerHash -FilePath $pgSetupExe -ExpectedHash $PG_INSTALLER_SHA256
         }
     }
@@ -267,34 +376,37 @@ if (-not (Test-Path $initdbExe)) {
     #   --prefix              PG binaries path
     #   --datadir             data directory (we init ourselves to control encoding)
     #   --serverport          port (5433 avoids conflict with existing local PG)
-    #   --superpassword       temp superuser pw — we rotate after initdb
+    #   --superpassword       temp superuser pw - we rotate after initdb
     #   --servicename         Windows service name
     #   --install_runtimes 0  skip VC++ redistributable if already present
-    $tempSuperPw = New-SecurePassword
-
     $pgInstallArgs = @(
         '--mode', 'unattended',
         '--prefix',              (Join-Path $InstallDir 'pgsql'),
         '--datadir',             $PG_DATA_DIR,
         '--serverport',          "$PG_PORT",
-        '--superpassword',       $tempSuperPw,
+        '--superpassword',       $bootstrapSuperPw,
         '--servicename',         $PG_SERVICE_NAME,
         '--install_runtimes',    '1',
-        '--enable_acledit',      '0',
-        '--enable_script_permissions', '0'
+        '--enable_acledit',      '0'
     )
 
     # Log install command WITHOUT the superpassword argument (security: never log credentials)
-    $logArgs = $pgInstallArgs | Where-Object { $_ -ne $tempSuperPw }
+    $logArgs = $pgInstallArgs | Where-Object { $_ -ne $bootstrapSuperPw }
     Write-Log "Running: $pgSetupExe $($logArgs -join ' ') --superpassword <REDACTED>"
     $proc = Start-Process -FilePath $pgSetupExe -ArgumentList $pgInstallArgs `
                           -Wait -PassThru -NoNewWindow
     if ($proc.ExitCode -ne 0) {
         throw "PostgreSQL EDB installer failed with exit code $($proc.ExitCode)"
     }
-    Write-Log "PostgreSQL binaries installed."
 
-    # Stop the service temporarily — we reconfigure before final start
+    $resolvedPgBinDir = Resolve-PgBinDir -RequiredTool 'initdb.exe'
+    if (-not $resolvedPgBinDir) {
+        throw "PostgreSQL installer completed, but initdb.exe was not found under $(Join-Path $InstallDir 'pgsql')"
+    }
+    $script:PG_BIN_DIR = $resolvedPgBinDir
+    Write-Log "PostgreSQL binaries installed. Resolved bin dir: $PG_BIN_DIR"
+
+    # Stop the service temporarily - we reconfigure before final start
     $svc = Get-Service -Name $PG_SERVICE_NAME -ErrorAction SilentlyContinue
     if ($svc -and $svc.Status -eq 'Running') {
         Stop-Service -Name $PG_SERVICE_NAME -Force
@@ -304,34 +416,41 @@ if (-not (Test-Path $initdbExe)) {
     Write-Log "PostgreSQL binaries found at $PG_BIN_DIR. Skipping binary install."
 }
 
-# ─── Step 3: initdb (first-time or forced re-init) ────────────────────────────
+# --- Step 3: initdb (first-time or forced re-init) ---------------------------
 
 $pgVersionFile = Join-Path $PG_DATA_DIR 'PG_VERSION'
 if ((Test-Path $pgVersionFile) -and -not $Force) {
     Write-Log "Data directory already initialized ($PG_DATA_DIR). Skipping initdb."
 } else {
     if ($Force -and (Test-Path $PG_DATA_DIR)) {
-        Write-Log "FORCE flag set — removing existing data directory." 'WARN'
+        Write-Log "FORCE flag set - removing existing data directory." 'WARN'
         Remove-Item -Recurse -Force $PG_DATA_DIR
     }
 
     New-Item -ItemType Directory -Path $PG_DATA_DIR -Force | Out-Null
 
     Write-Log "Initializing PostgreSQL data directory..."
-    Invoke-Pg 'initdb' @(
-        '-D', $PG_DATA_DIR,
-        '-U', 'postgres',
-        '--encoding', 'UTF8',
-        '--lc-collate', 'C',
-        '--lc-ctype', 'C',
-        '--locale-provider', 'libc',
-        '--auth-local',   'md5',
-        '--auth-host',    'md5'
-    )
+    $pwFile = Join-Path $env:TEMP 'ayehear-initdb-superuser.pw'
+    try {
+        Set-Content -Path $pwFile -Value $bootstrapSuperPw -Encoding ASCII -NoNewline
+        Invoke-Pg 'initdb' @(
+            '-D', $PG_DATA_DIR,
+            '-U', 'postgres',
+            '--pwfile', $pwFile,
+            '--encoding', 'UTF8',
+            '--lc-collate', 'C',
+            '--lc-ctype', 'C',
+            '--locale-provider', 'libc',
+            '--auth-local',   'md5',
+            '--auth-host',    'md5'
+        )
+    } finally {
+        Remove-Item -Path $pwFile -Force -ErrorAction SilentlyContinue
+    }
     Write-Log "initdb complete."
 }
 
-# ─── Step 4: Enforce loopback-only in postgresql.conf ─────────────────────────
+# --- Step 4: Enforce loopback-only in postgresql.conf ------------------------
 
 $pgConf = Join-Path $PG_DATA_DIR 'postgresql.conf'
 if (Test-Path $pgConf) {
@@ -345,46 +464,59 @@ if (Test-Path $pgConf) {
     $conf = $conf -replace "(?m)^#?\s*port\s*=.*$",
                             "port = $PG_PORT"
 
-    Set-Content -Path $pgConf -Value $conf -Encoding UTF8
+    Write-TextUtf8NoBom -Path $pgConf -Content $conf
     Write-Log "postgresql.conf updated: listen_addresses=localhost, port=$PG_PORT"
 }
 
-# ─── Step 5: Register Windows service (if not already registered) ────────────
+# --- Step 5: Register Windows service (if not already registered) ------------
 
 $svc = Get-Service -Name $PG_SERVICE_NAME -ErrorAction SilentlyContinue
+
 if (-not $svc) {
     Write-Log "Registering Windows service '$PG_SERVICE_NAME'..."
     Invoke-Pg 'pg_ctl' @(
         'register',
         '-N', $PG_SERVICE_NAME,
         '-D', $PG_DATA_DIR,
-        '-S', 'auto',           # Auto-start on boot
-        '-w'                    # Wait for service to start
+        '-S', 'auto'            # Auto-start on boot
     )
     Write-Log "Service '$PG_SERVICE_NAME' registered."
 } else {
     Write-Log "Service '$PG_SERVICE_NAME' already registered."
 }
 
-# ─── Step 6: Start service and wait for readiness ────────────────────────────
+# --- Step 6: Start service and wait for readiness ----------------------------
 
 Write-Log "Starting service '$PG_SERVICE_NAME'..."
 Start-Service -Name $PG_SERVICE_NAME -ErrorAction SilentlyContinue
 Wait-PgReady -TimeoutSeconds 30
 
-# ─── Step 7: Create app user, database and generate per-install DSN ──────────
+# --- Step 7: Create app user, database and generate per-install DSN ----------
 
 # Generate a per-installation password (never committed, never a static default)
 $appPassword = New-SecurePassword
+
+$resolvedPsqlBinDir = Resolve-PgBinDir -RequiredTool 'psql.exe'
+if ($resolvedPsqlBinDir) {
+    $script:PG_BIN_DIR = $resolvedPsqlBinDir
+}
 
 $psqlExe = Join-Path $PG_BIN_DIR 'psql.exe'
 
 # Use -h and -p to connect via TCP (loopback); -U postgres is the superuser created by initdb/EDB
 function Invoke-Psql {
-    param([string]$Sql, [string]$Db = 'postgres')
+    param(
+        [string]$Sql,
+        [string]$Db = 'postgres',
+        [string]$LogMessage = ''
+    )
     $args_ = @('-h', '127.0.0.1', '-p', "$PG_PORT", '-U', 'postgres', '-d', $Db,
                '-c', $Sql, '-t', '-q')
-    Write-Log "  psql: $Sql"
+    if ($LogMessage) {
+        Write-Log "  psql: $LogMessage"
+    } else {
+        Write-Log "  psql: $Sql"
+    }
     $result = & $psqlExe @args_ 2>&1
     if ($LASTEXITCODE -ne 0) {
         Write-Log "  psql output: $result" 'ERROR'
@@ -402,7 +534,7 @@ if (Test-Path $pgHba) {
     $setupLine = "host    all             postgres        127.0.0.1/32            trust`n"
     if ($hba -notmatch 'ayehear-setup-trust') {
         $hba = $setupLine + "# ayehear-setup-trust (removed after provisioning)`n" + $hba
-        Set-Content -Path $pgHba -Value $hba -Encoding UTF8
+        Write-TextUtf8NoBom -Path $pgHba -Content $hba
         # Reload config
         Invoke-Pg 'pg_ctl' @('-D', $PG_DATA_DIR, 'reload') | Out-Null
         Write-Log "pg_hba.conf updated for setup (trust loopback for postgres)."
@@ -416,57 +548,60 @@ Invoke-Psql "DO `$`$ BEGIN
   ELSE
     ALTER ROLE $PG_APP_USER WITH LOGIN PASSWORD '$appPassword';
   END IF;
-END `$`$;"
+END `$`$;" -LogMessage "CREATE/ALTER ROLE $PG_APP_USER (password redacted)"
 
-# Create database (idempotent: skip if it already exists)
-Invoke-Psql "DO `$`$ BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = '$PG_APP_DB') THEN
-    PERFORM dblink_exec('dbname=postgres', 'CREATE DATABASE $PG_APP_DB OWNER $PG_APP_USER ENCODING ''UTF8''');
-  END IF;
-END `$`$;" 2>&1 | Out-Null
-# Simpler: attempt creation and ignore already-exists error (exit code 1 is expected on duplicate)
-$createOut = & $psqlExe -h 127.0.0.1 -p $PG_PORT -U postgres -d postgres `
-                        -c "CREATE DATABASE $PG_APP_DB OWNER $PG_APP_USER ENCODING 'UTF8'" 2>&1
-if ($LASTEXITCODE -ne 0 -and ($createOut -join '') -match 'already exists') {
-    Write-Log "Database '$PG_APP_DB' already exists — skipping creation."
-} elseif ($LASTEXITCODE -ne 0) {
-    Write-Log "CREATE DATABASE failed: $($createOut -join ' ')" 'ERROR'
-    throw "CREATE DATABASE $PG_APP_DB failed (exit $LASTEXITCODE): $($createOut -join ' ')"
+# Create database (idempotent, no extension dependency)
+$dbExistsRaw = Invoke-Psql "SELECT 1 FROM pg_database WHERE datname = '$PG_APP_DB' LIMIT 1;" -LogMessage "CHECK DATABASE $PG_APP_DB exists"
+$dbExists = (($dbExistsRaw -join ' ') -match '\b1\b')
+if ($dbExists) {
+        Write-Log "Database '$PG_APP_DB' already exists - skipping creation."
 } else {
-    Write-Log "Database '$PG_APP_DB' created."
+        $createOut = & $psqlExe -h 127.0.0.1 -p $PG_PORT -U postgres -d postgres `
+                                                        -c "CREATE DATABASE $PG_APP_DB OWNER $PG_APP_USER ENCODING 'UTF8'" 2>&1
+        if ($LASTEXITCODE -ne 0 -and ($createOut -join '') -match 'already exists') {
+                Write-Log "Database '$PG_APP_DB' already exists - skipping creation."
+        } elseif ($LASTEXITCODE -ne 0) {
+                Write-Log "CREATE DATABASE failed: $($createOut -join ' ')" 'ERROR'
+                throw "CREATE DATABASE $PG_APP_DB failed (exit $LASTEXITCODE): $($createOut -join ' ')"
+        } else {
+                Write-Log "Database '$PG_APP_DB' created."
+        }
 }
 
 # Grant
 Invoke-Psql "GRANT ALL PRIVILEGES ON DATABASE $PG_APP_DB TO $PG_APP_USER;"
 
-# ─── Step 8: Persist DSN securely ─────────────────────────────────────────────
+# --- Step 8: Persist DSN securely --------------------------------------------
 
 New-Item -ItemType Directory -Path $RUNTIME_DIR -Force | Out-Null
 
 $dsn = "postgresql://${PG_APP_USER}:${appPassword}@127.0.0.1:${PG_PORT}/${PG_APP_DB}"
-Set-Content -Path $DSN_FILE -Value $dsn -Encoding UTF8 -NoNewline
+Write-TextUtf8NoBom -Path $DSN_FILE -Content $dsn
 Protect-DsnFile -Path $DSN_FILE
 Write-Log "DSN written and protected: $DSN_FILE"
 
-# ─── Step 9: Restore restrictive pg_hba.conf ─────────────────────────────────
+# --- Step 9: Restore restrictive pg_hba.conf --------------------------------
 
 if (Test-Path $pgHba) {
     $hba = Get-Content $pgHba -Raw
     # Remove setup-trust lines
     $hba = $hba -replace "host    all             postgres        127\.0\.0\.1/32            trust`r?`n", ''
     $hba = $hba -replace "# ayehear-setup-trust \(removed after provisioning\)`r?`n", ''
-    Set-Content -Path $pgHba -Value $hba -Encoding UTF8
+    Write-TextUtf8NoBom -Path $pgHba -Content $hba
     Invoke-Pg 'pg_ctl' @('-D', $PG_DATA_DIR, 'reload') | Out-Null
     Write-Log "pg_hba.conf restored to production settings."
 }
 
-# ─── Step 10: Schema migrations ───────────────────────────────────────────────
+# --- Step 10: Schema migrations ----------------------------------------------
 
 Write-Log "Running schema migrations via AYE Hear Python bootstrap..."
 $python = Join-Path $AppBinDir '_internal\python.exe'
 if (-not (Test-Path $python)) {
     # Fallback: find python in PATH
-    $python = (Get-Command python -ErrorAction SilentlyContinue)?.Source
+    $pythonCmd = Get-Command python -ErrorAction SilentlyContinue
+    if ($pythonCmd) {
+        $python = $pythonCmd.Source
+    }
 }
 
 if ($python -and (Test-Path $python)) {
@@ -490,13 +625,13 @@ print('Migrations applied successfully.')
         Write-Log "Schema migrations applied."
     }
 } else {
-    Write-Log "Python runtime not found at '$python' — cannot run schema migrations." 'ERROR'
+    Write-Log "Python runtime not found at '$python' - cannot run schema migrations." 'ERROR'
     throw "Python runtime not found. Expected: $python. Schema migrations could not be applied."
 }
 
 Remove-Item Env:\AYEHEAR_DB_DSN -ErrorAction SilentlyContinue
 
-# ─── Done ─────────────────────────────────────────────────────────────────────
+# --- Done --------------------------------------------------------------------
 
 Write-Log "=== PostgreSQL provisioning complete ==="
 Write-Log "  Service   : $PG_SERVICE_NAME  (port $PG_PORT)"
