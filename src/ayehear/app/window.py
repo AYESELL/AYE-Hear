@@ -42,6 +42,11 @@ from ayehear.services.audio_capture import (
 from ayehear.services.protocol_engine import ProtocolEngine
 from ayehear.services.speaker_manager import SpeakerManager
 from ayehear.services.transcription import TranscriptionService
+from ayehear.storage.database import DatabaseBootstrap, DatabaseConfig, load_runtime_dsn
+from ayehear.storage.repositories import (
+    ProtocolSnapshotRepository,
+    SpeakerProfileRepository,
+)
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -293,7 +298,16 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------
 
     def _refresh_readiness(self) -> None:
-        """Evaluate all component readiness states and update the indicator widget."""
+        """Evaluate all component readiness states and update the indicator widget.
+        
+        This method now attempts to reload the persistence layer each time
+        (in case the DSN file was created after app startup), then re-evaluates
+        all component readiness states.
+        """
+        # Try to reload persistence layer if not already connected
+        if self._meeting_repo is None:
+            self._reload_persistence_layer()
+        
         if self._readiness_widget is None:
             return
         components, aggregate = self._readiness_checker.check_all(
@@ -305,6 +319,53 @@ class MainWindow(QMainWindow):
             runtime_config=self.runtime_config,
         )
         self._readiness_widget.update_status(components, aggregate)
+
+    def _reload_persistence_layer(self) -> None:
+        """Attempt to load or reload the persistence layer from DSN.
+        
+        Called by _refresh_readiness() to support dynamic DSN discovery
+        when pg.dsn is written after app startup (e.g., post-provisioning).
+        """
+        try:
+            dsn = load_runtime_dsn()
+            if dsn:
+                logger.info("Loading runtime DSN for persistence layer reload.")
+                bootstrap = DatabaseBootstrap(DatabaseConfig(dsn=dsn))
+                bootstrap.bootstrap()
+                new_session = bootstrap.session()
+                
+                # Close old session if it exists
+                if self._db_session is not None:
+                    self._db_session.close()
+                
+                self._db_session = new_session
+                
+                # Reinitialize all repositories
+                from ayehear.storage.repositories import (
+                    MeetingRepository,
+                    ParticipantRepository,
+                    TranscriptSegmentRepository,
+                )
+                self._meeting_repo = MeetingRepository(new_session)
+                self._participant_repo = ParticipantRepository(new_session)
+                self._transcript_repo = TranscriptSegmentRepository(new_session)
+                self._snapshot_repo = ProtocolSnapshotRepository(new_session)
+                
+                # Reinitialize speaker manager with new session
+                self._speaker_manager = SpeakerManager(
+                    profile_repo=SpeakerProfileRepository(new_session),
+                    participant_repo=self._participant_repo,
+                )
+                
+                # Update services that depend on repos
+                self._transcription_service._transcript_repo = self._transcript_repo
+                self._protocol_engine._snapshot_repo = self._snapshot_repo
+                self._protocol_engine._transcript_repo = self._transcript_repo
+                
+                logger.info("Persistence layer reloaded successfully.")
+        except Exception as exc:
+            logger.error("Failed to reload persistence layer: %s", exc)
+
 
     # ------------------------------------------------------------------
     # Speaker management (HEAR-036 / HEAR-040)
