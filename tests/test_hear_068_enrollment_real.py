@@ -42,7 +42,7 @@ def _make_enrollment_dialog(qapp, speakers=None, sm=None):
     from ayehear.services.speaker_manager import SpeakerManager
 
     if speakers is None:
-        speakers = [("Frau Schneider", "AYE"), ("Max Weber", "Corp")]
+        speakers = [("Frau Schneider", "AYE", "pid-schneider"), ("Max Weber", "Corp", "pid-weber")]
     if sm is None:
         sm = SpeakerManager()
 
@@ -56,9 +56,9 @@ def _make_enrollment_dialog(qapp, speakers=None, sm=None):
 
 def test_enrollment_dialog_shows_all_pending_speakers(qapp) -> None:
     dlg = _make_enrollment_dialog(qapp, speakers=[
-        ("Anna Schmidt", "CompA"),
-        ("Max Weber", "CompB"),
-        ("Frau Müller", "CompC"),
+        ("Anna Schmidt", "CompA", "pid-anna"),
+        ("Max Weber", "CompB", "pid-max"),
+        ("Frau Müller", "CompC", "pid-frau"),
     ])
     assert dlg._speaker_list.count() == 3
     texts = [dlg._speaker_list.item(i).text() for i in range(dlg._speaker_list.count())]
@@ -109,19 +109,19 @@ def test_do_enroll_success_updates_list_item(qapp) -> None:
         success=True,
     )
     dlg = EnrollmentDialog(
-        pending_speakers=[("Frau Schneider", "AYE")],
+        pending_speakers=[("Frau Schneider", "AYE", "pid-1")],
         speaker_manager=mock_sm,
     )
     dlg._speaker_list.setCurrentRow(0)
     item = dlg._speaker_list.item(0)
-    item.setData(0x0100, ("Frau Schneider", "AYE"))  # Qt.ItemDataRole.UserRole
+    item.setData(0x0100, ("Frau Schneider", "AYE", "pid-1"))  # Qt.ItemDataRole.UserRole
 
     samples = np.ones(8000, dtype=np.float32).tolist()
-    dlg._do_enroll(item, "Frau Schneider", "AYE", samples)
+    dlg._do_enroll(item, "Frau Schneider", "AYE", "pid-1", samples)
 
     assert "enrolled" in item.text()
     assert "abcdef12" in item.text()  # first 8 chars of profile_id
-    assert dlg.get_enrolled_results().get("Frau Schneider") == "abcdef1234567890"
+    assert dlg.get_enrolled_results().get("pid-1") == "abcdef1234567890"
     dlg.deleteLater()
     qapp.processEvents()
 
@@ -141,13 +141,13 @@ def test_do_enroll_failure_updates_list_item_to_failed(qapp) -> None:
         error="DB unavailable",
     )
     dlg = EnrollmentDialog(
-        pending_speakers=[("Max Weber", "Corp")],
+        pending_speakers=[("Max Weber", "Corp", "pid-2")],
         speaker_manager=mock_sm,
     )
     item = dlg._speaker_list.item(0)
-    item.setData(0x0100, ("Max Weber", "Corp"))
+    item.setData(0x0100, ("Max Weber", "Corp", "pid-2"))
 
-    dlg._do_enroll(item, "Max Weber", "Corp", [0.1] * 8000)
+    dlg._do_enroll(item, "Max Weber", "Corp", "pid-2", [0.1] * 8000)
 
     assert "failed" in item.text() or "fehlgeschlagen" in dlg._status_lbl.text().lower()
     assert dlg.get_enrolled_results() == {}
@@ -163,12 +163,12 @@ def test_do_enroll_re_enables_record_button_on_success(qapp) -> None:
     mock_sm.enroll.return_value = EnrollmentResult(
         participant_id="p", display_name="X", profile_id="yyy", embedding_dim=768, success=True
     )
-    dlg = EnrollmentDialog(pending_speakers=[("X", "Y")], speaker_manager=mock_sm)
+    dlg = EnrollmentDialog(pending_speakers=[("X", "Y", "p")], speaker_manager=mock_sm)
     dlg._record_btn.setEnabled(False)
     item = dlg._speaker_list.item(0)
-    item.setData(0x0100, ("X", "Y"))
+    item.setData(0x0100, ("X", "Y", "p"))
 
-    dlg._do_enroll(item, "X", "Y", [0.0] * 4000)
+    dlg._do_enroll(item, "X", "Y", "p", [0.0] * 4000)
     assert dlg._record_btn.isEnabled()
     dlg.deleteLater()
     qapp.processEvents()
@@ -183,12 +183,12 @@ def test_do_enroll_re_enables_record_button_on_failure(qapp) -> None:
         participant_id="p", display_name="X", profile_id="", embedding_dim=0,
         success=False, error="err"
     )
-    dlg = EnrollmentDialog(pending_speakers=[("X", "Y")], speaker_manager=mock_sm)
+    dlg = EnrollmentDialog(pending_speakers=[("X", "Y", "p")], speaker_manager=mock_sm)
     dlg._record_btn.setEnabled(False)
     item = dlg._speaker_list.item(0)
-    item.setData(0x0100, ("X", "Y"))
+    item.setData(0x0100, ("X", "Y", "p"))
 
-    dlg._do_enroll(item, "X", "Y", [0.0] * 4000)
+    dlg._do_enroll(item, "X", "Y", "p", [0.0] * 4000)
     assert dlg._record_btn.isEnabled()
     dlg.deleteLater()
     qapp.processEvents()
@@ -205,10 +205,10 @@ def test_finish_recording_with_no_chunks_shows_retry_message(qapp) -> None:
     from ayehear.services.speaker_manager import SpeakerManager
 
     mock_sm = MagicMock(spec=SpeakerManager)
-    dlg = EnrollmentDialog(pending_speakers=[("Speaker A", "Org")], speaker_manager=mock_sm)
+    dlg = EnrollmentDialog(pending_speakers=[("Speaker A", "Org", "pid-a")], speaker_manager=mock_sm)
     dlg._speaker_list.setCurrentRow(0)
     item = dlg._speaker_list.item(0)
-    item.setData(0x0100, ("Speaker A", "Org"))
+    item.setData(0x0100, ("Speaker A", "Org", "pid-a"))
     # Ensure no chunks collected
     dlg._captured_chunks = []
 
@@ -233,7 +233,7 @@ def test_on_audio_segment_collects_chunks(qapp) -> None:
     from ayehear.services.speaker_manager import SpeakerManager
     from datetime import datetime
 
-    dlg = EnrollmentDialog(pending_speakers=[("X", "Y")], speaker_manager=MagicMock(spec=SpeakerManager))
+    dlg = EnrollmentDialog(pending_speakers=[("X", "Y", "pid-x")], speaker_manager=MagicMock(spec=SpeakerManager))
     segment = AudioSegment(
         captured_at=datetime.now(),
         start_ms=0, end_ms=100,
@@ -304,13 +304,17 @@ def test_start_enrollment_updates_speaker_list_after_successful_enrollment(qapp)
     """After enrollment dialog reports enrolled speakers, list items must be updated."""
     win = _make_window(qapp)
     win._speakers_list.clear()
-    win._speakers_list.addItem(QListWidgetItem("Frau Schneider | AYE | pending enrollment"))
+    from PySide6.QtWidgets import QListWidgetItem
+    from PySide6.QtCore import Qt
+    item = QListWidgetItem("Frau Schneider | AYE | pending enrollment")
+    item.setData(Qt.ItemDataRole.UserRole, "stable-pid-0001")
+    win._speakers_list.addItem(item)
 
     with patch("ayehear.app.window.EnrollmentDialog") as MockDlg:
         mock_dlg_instance = MagicMock()
         mock_dlg_instance.exec.return_value = QDialog.DialogCode.Accepted
         mock_dlg_instance.get_enrolled_results.return_value = {
-            "Frau Schneider": "profile-uuid-1234"
+            "stable-pid-0001": "profile-uuid-1234"
         }
         MockDlg.return_value = mock_dlg_instance
 
@@ -319,7 +323,7 @@ def test_start_enrollment_updates_speaker_list_after_successful_enrollment(qapp)
     item_text = win._speakers_list.item(0).text()
     assert "enrolled" in item_text
     assert "profile-uui" in item_text or "profile-uuid-1234"[:8] in item_text
-    assert win._enrolled_speakers.get("Frau Schneider") == "profile-uuid-1234"
+    assert win._enrolled_speakers.get("stable-pid-0001") == "profile-uuid-1234"
     win.deleteLater()
     qapp.processEvents()
 

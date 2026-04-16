@@ -8,17 +8,16 @@ Implements real microphone-based speaker enrollment as required by ADR-0003 Stag
 
 Usage::
 
-    pending = [("Frau Schneider", "AYE"), ("Max Weber", "Corp")]
+    pending = [("Frau Schneider", "AYE", "uuid-1"), ("Max Weber", "Corp", "uuid-2")]
     dlg = EnrollmentDialog(pending, speaker_manager, parent=window)
     if dlg.exec() == QDialog.DialogCode.Accepted:
-        for name, profile_id in dlg.get_enrolled_results().items():
-            print(f"{name} enrolled with profile {profile_id}")
+        for participant_id, profile_id in dlg.get_enrolled_results().items():
+            print(f"{participant_id} enrolled with profile {profile_id}")
 """
 from __future__ import annotations
 
 import logging
 import threading
-import uuid
 from collections.abc import Callable
 from datetime import datetime
 
@@ -70,7 +69,7 @@ class EnrollmentDialog(QDialog):
 
     def __init__(
         self,
-        pending_speakers: list[tuple[str, str]],
+        pending_speakers: list[tuple[str, str, str]],
         speaker_manager: SpeakerManager,
         *,
         recording_duration_ms: int = _DEFAULT_RECORDING_MS,
@@ -80,8 +79,9 @@ class EnrollmentDialog(QDialog):
         """Initialise the dialog.
 
         Args:
-            pending_speakers: List of (display_name, organisation) tuples for
-                speakers that still need enrollment.
+            pending_speakers: List of (display_name, organisation, participant_id) tuples
+                for speakers that still need enrollment.  ``participant_id`` is the
+                stable identity key used in enrollment results (not the display name).
             speaker_manager: SpeakerManager instance used to extract and persist
                 voice embeddings.
             recording_duration_ms: How long to record each speaker (default 7 s).
@@ -98,7 +98,7 @@ class EnrollmentDialog(QDialog):
         self._capture_service: AudioCaptureService | None = None
         self._captured_chunks: list[np.ndarray] = []
         self._lock = threading.Lock()
-        self._enrolled_results: dict[str, str] = {}  # display_name -> profile_id
+        self._enrolled_results: dict[str, str] = {}  # participant_id -> profile_id
 
         self._elapsed_ms = 0
 
@@ -138,9 +138,9 @@ class EnrollmentDialog(QDialog):
 
         layout.addWidget(QLabel("Sprecher (auswählen, dann Aufnehmen drücken):"))
         self._speaker_list = QListWidget()
-        for name, org in self._pending_speakers:
+        for name, org, participant_id in self._pending_speakers:
             item = QListWidgetItem(f"{name} | {org}")
-            item.setData(Qt.ItemDataRole.UserRole, (name, org))
+            item.setData(Qt.ItemDataRole.UserRole, (name, org, participant_id))
             self._speaker_list.addItem(item)
         if self._speaker_list.count() > 0:
             self._speaker_list.setCurrentRow(0)
@@ -172,7 +172,7 @@ class EnrollmentDialog(QDialog):
     # ------------------------------------------------------------------
 
     def get_enrolled_results(self) -> dict[str, str]:
-        """Return dict of display_name -> profile_id for all successfully enrolled speakers."""
+        """Return dict of participant_id -> profile_id for all successfully enrolled speakers."""
         return dict(self._enrolled_results)
 
     # ------------------------------------------------------------------
@@ -186,7 +186,7 @@ class EnrollmentDialog(QDialog):
             self._set_status("Bitte zuerst einen Sprecher aus der Liste auswählen.", error=False)
             return
 
-        name, org = item.data(Qt.ItemDataRole.UserRole)
+        name, org, _participant_id = item.data(Qt.ItemDataRole.UserRole)
 
         # Reset capture state
         with self._lock:
@@ -247,7 +247,7 @@ class EnrollmentDialog(QDialog):
             self._record_btn.setEnabled(True)
             return
 
-        name, org = item.data(Qt.ItemDataRole.UserRole)
+        name, org, participant_id = item.data(Qt.ItemDataRole.UserRole)
 
         if not chunks:
             item.setText(f"{name} | {org} | {_STATUS_PENDING}")
@@ -265,19 +265,19 @@ class EnrollmentDialog(QDialog):
             name,
             len(samples) / 16_000,
         )
-        self._do_enroll(item, name, org, samples)
+        self._do_enroll(item, name, org, participant_id, samples)
 
     def _do_enroll(
         self,
         item: QListWidgetItem,
         name: str,
         org: str,
+        participant_id: str,
         samples: list[float],
     ) -> None:
         """Extract embedding and persist speaker profile via SpeakerManager."""
         self._set_status(f"Embedding wird berechnet für {name!r}…", error=False)
 
-        participant_id = str(uuid.uuid4())
         try:
             result = self._speaker_manager.enroll(
                 participant_id=participant_id,
@@ -292,7 +292,7 @@ class EnrollmentDialog(QDialog):
             return
 
         if result.success:
-            self._enrolled_results[name] = result.profile_id
+            self._enrolled_results[participant_id] = result.profile_id
             item.setText(f"{name} | {org} | {_STATUS_ENROLLED_PREFIX} (id: {result.profile_id[:8]})")
             self._set_status(
                 f"\u2713 {name!r} erfolgreich enrolliert"

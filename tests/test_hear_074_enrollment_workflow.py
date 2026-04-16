@@ -69,9 +69,14 @@ class TestStartEnrollmentPendingFilter:
         win = _make_window(qapp)
 
         from PySide6.QtWidgets import QDialog, QListWidgetItem
+        from PySide6.QtCore import Qt
         win._speakers_list.clear()
-        win._speakers_list.addItem(QListWidgetItem("Anna | Corp | enrolled (id: abc12345)"))
-        win._speakers_list.addItem(QListWidgetItem("Max | AYE | pending enrollment"))
+        enrolled_item = QListWidgetItem("Anna | Corp | enrolled (id: abc12345)")
+        enrolled_item.setData(Qt.ItemDataRole.UserRole, "pid-anna")
+        win._speakers_list.addItem(enrolled_item)
+        pending_item = QListWidgetItem("Max | AYE | pending enrollment")
+        pending_item.setData(Qt.ItemDataRole.UserRole, "pid-max")
+        win._speakers_list.addItem(pending_item)
 
         captured_pending = []
 
@@ -89,6 +94,7 @@ class TestStartEnrollmentPendingFilter:
         assert len(captured_pending) == 1
         assert captured_pending[0][0] == "Max"
         assert captured_pending[0][1] == "AYE"
+        assert captured_pending[0][2] == "pid-max"  # stable participant_id
 
         win.deleteLater()
         qapp.processEvents()
@@ -124,15 +130,18 @@ class TestStartEnrollmentSuccess:
         win = _make_window(qapp)
 
         from PySide6.QtWidgets import QDialog, QListWidgetItem
+        from PySide6.QtCore import Qt
         win._speakers_list.clear()
-        win._speakers_list.addItem(QListWidgetItem("Anna Schmidt | Corp | pending enrollment"))
+        item = QListWidgetItem("Anna Schmidt | Corp | pending enrollment")
+        item.setData(Qt.ItemDataRole.UserRole, "pid-anna-stable")
+        win._speakers_list.addItem(item)
 
         fake_profile_id = "abc12345-dead-beef-0000-000000000000"
 
         with patch("ayehear.app.window.EnrollmentDialog") as MockDlg:
             mock_instance = MagicMock()
             mock_instance.exec.return_value = QDialog.DialogCode.Accepted
-            mock_instance.get_enrolled_results.return_value = {"Anna Schmidt": fake_profile_id}
+            mock_instance.get_enrolled_results.return_value = {"pid-anna-stable": fake_profile_id}
             MockDlg.return_value = mock_instance
 
             win._start_enrollment()
@@ -145,25 +154,28 @@ class TestStartEnrollmentSuccess:
         qapp.processEvents()
 
     def test_successful_enrollment_adds_to_enrolled_speakers(self, qapp):
-        """Enrolled speaker must be added to _enrolled_speakers dict."""
+        """Enrolled speaker must be added to _enrolled_speakers dict keyed by participant_id."""
         win = _make_window(qapp)
 
         from PySide6.QtWidgets import QDialog, QListWidgetItem
+        from PySide6.QtCore import Qt
         win._speakers_list.clear()
-        win._speakers_list.addItem(QListWidgetItem("Eva Muster | AYE | pending enrollment"))
+        item = QListWidgetItem("Eva Muster | AYE | pending enrollment")
+        item.setData(Qt.ItemDataRole.UserRole, "pid-eva-stable")
+        win._speakers_list.addItem(item)
 
         fake_id = "profile-uuid-0001"
 
         with patch("ayehear.app.window.EnrollmentDialog") as MockDlg:
             mock_instance = MagicMock()
             mock_instance.exec.return_value = QDialog.DialogCode.Accepted
-            mock_instance.get_enrolled_results.return_value = {"Eva Muster": fake_id}
+            mock_instance.get_enrolled_results.return_value = {"pid-eva-stable": fake_id}
             MockDlg.return_value = mock_instance
 
             win._start_enrollment()
 
-        assert "Eva Muster" in win._enrolled_speakers
-        assert win._enrolled_speakers["Eva Muster"] == fake_id
+        assert "pid-eva-stable" in win._enrolled_speakers
+        assert win._enrolled_speakers["pid-eva-stable"] == fake_id
 
         win.deleteLater()
         qapp.processEvents()
@@ -173,16 +185,21 @@ class TestStartEnrollmentSuccess:
         win = _make_window(qapp)
 
         from PySide6.QtWidgets import QDialog, QListWidgetItem
+        from PySide6.QtCore import Qt
         win._speakers_list.clear()
-        win._speakers_list.addItem(QListWidgetItem("Recorded | Org | pending enrollment"))
-        win._speakers_list.addItem(QListWidgetItem("Skipped | Org | pending enrollment"))
+        item0 = QListWidgetItem("Recorded | Org | pending enrollment")
+        item0.setData(Qt.ItemDataRole.UserRole, "pid-recorded")
+        win._speakers_list.addItem(item0)
+        item1 = QListWidgetItem("Skipped | Org | pending enrollment")
+        item1.setData(Qt.ItemDataRole.UserRole, "pid-skipped")
+        win._speakers_list.addItem(item1)
 
         fake_id = "abcdef00-1234-5678-0000-000000000000"
 
         with patch("ayehear.app.window.EnrollmentDialog") as MockDlg:
             mock_instance = MagicMock()
             mock_instance.exec.return_value = QDialog.DialogCode.Accepted
-            mock_instance.get_enrolled_results.return_value = {"Recorded": fake_id}
+            mock_instance.get_enrolled_results.return_value = {"pid-recorded": fake_id}
             MockDlg.return_value = mock_instance
 
             win._start_enrollment()
@@ -198,13 +215,16 @@ class TestStartEnrollmentSuccess:
         win = _make_window(qapp)
 
         from PySide6.QtWidgets import QDialog, QListWidgetItem
+        from PySide6.QtCore import Qt
         win._speakers_list.clear()
-        win._speakers_list.addItem(QListWidgetItem("Max | AYE | pending enrollment"))
+        item = QListWidgetItem("Max | AYE | pending enrollment")
+        item.setData(Qt.ItemDataRole.UserRole, "pid-max-label")
+        win._speakers_list.addItem(item)
 
         with patch("ayehear.app.window.EnrollmentDialog") as MockDlg:
             mock_instance = MagicMock()
             mock_instance.exec.return_value = QDialog.DialogCode.Accepted
-            mock_instance.get_enrolled_results.return_value = {"Max": "profile-xyz"}
+            mock_instance.get_enrolled_results.return_value = {"pid-max-label": "profile-xyz"}
             MockDlg.return_value = mock_instance
 
             win._start_enrollment()

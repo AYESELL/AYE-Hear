@@ -74,7 +74,7 @@ class MainWindow(QMainWindow):
         )
         # ADR-0003: speaker identification pipeline
         self._speaker_manager: SpeakerManager = speaker_manager or SpeakerManager()
-        self._enrolled_speakers: dict[str, str] = {}  # display_name -> participant_id
+        self._enrolled_speakers: dict[str, str] = {}  # participant_id -> profile_id
         self._audio_buffer_lock = threading.Lock()
         self._pending_audio_chunks: list[np.ndarray] = []
         self._pending_start_ms: int | None = None
@@ -170,8 +170,10 @@ class MainWindow(QMainWindow):
             "Frau Schneider | AYE | pending enrollment",
             "Max Weber | Customer GmbH | pending enrollment",
         ]:
+            import uuid as _uuid
             item = QListWidgetItem(entry)
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
+            item.setData(Qt.ItemDataRole.UserRole, str(_uuid.uuid4()))
             self._speakers_list.addItem(item)
         speakers_layout.addWidget(self._speakers_list)
         # HEAR-040: update status label after any user-committed inline edit
@@ -266,8 +268,10 @@ class MainWindow(QMainWindow):
 
     def _add_speaker(self) -> None:
         """Add a new editable speaker entry to the list."""
+        import uuid as _uuid
         item = QListWidgetItem("Name | Organisation | pending enrollment")
         item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
+        item.setData(Qt.ItemDataRole.UserRole, str(_uuid.uuid4()))
         self._speakers_list.addItem(item)
         self._speakers_list.setCurrentItem(item)
         self._speakers_list.editItem(item)
@@ -316,6 +320,7 @@ class MainWindow(QMainWindow):
 
     def _apply_participant_template(self) -> None:
         """Generiert Platzhalter-Sprecher aus Anzahl und Namens-Template."""
+        import uuid as _uuid
         count = self._participant_count.value()
         use_salutation = self._naming_template.currentText().startswith("Herr/Frau")
         self._speakers_list.clear()
@@ -326,6 +331,7 @@ class MainWindow(QMainWindow):
                 text = f"Vorname_{i} Nachname_{i} | Organisation | pending enrollment"
             item = QListWidgetItem(text)
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
+            item.setData(Qt.ItemDataRole.UserRole, str(_uuid.uuid4()))
             self._speakers_list.addItem(item)
 
     def _start_enrollment(self) -> None:
@@ -336,15 +342,25 @@ class MainWindow(QMainWindow):
         successful enrollment.  The dialog guides the user with on-screen
         instructions and shows status transitions (pending → recording →
         enrolled / failed).
+
+        Speaker items are identified by a stable UUID stored in
+        ``Qt.ItemDataRole.UserRole`` so that display-name changes do not break
+        enrollment linkage (HEAR-079).
         """
-        pending: list[tuple[str, str]] = []
+        import uuid as _uuid
+        pending: list[tuple[str, str, str]] = []
         for i in range(self._speakers_list.count()):
-            raw = self._speakers_list.item(i).text().strip()
+            item = self._speakers_list.item(i)
+            raw = item.text().strip()
             if not raw:
                 continue
             name, org, status = self._parse_speaker_raw(raw)
             if "enrolled" not in status.lower():
-                pending.append((name, org))
+                participant_id = item.data(Qt.ItemDataRole.UserRole)
+                if not participant_id:
+                    participant_id = str(_uuid.uuid4())
+                    item.setData(Qt.ItemDataRole.UserRole, participant_id)
+                pending.append((name, org, participant_id))
 
         # No speakers at all → warning
         if self._speakers_list.count() == 0:
@@ -372,16 +388,19 @@ class MainWindow(QMainWindow):
         from PySide6.QtWidgets import QDialog
         accepted = dlg.exec() == QDialog.DialogCode.Accepted
         enrolled = dlg.get_enrolled_results() if accepted else {}
-        # Update list items to reflect enrollment result
-        pending_names = {n for n, _ in pending}
+        # Update list items by stable participant_id (HEAR-079)
+        pending_ids = {pid for _, _, pid in pending}
         for i in range(self._speakers_list.count()):
             item = self._speakers_list.item(i)
+            participant_id = item.data(Qt.ItemDataRole.UserRole)
+            if not participant_id:
+                continue
             name, org, _ = self._parse_speaker_raw(item.text().strip())
-            if name in enrolled:
-                profile_id = enrolled[name]
+            if participant_id in enrolled:
+                profile_id = enrolled[participant_id]
                 item.setText(f"{name} | {org} | enrolled (id: {profile_id[:8]})")
-                self._enrolled_speakers[name] = profile_id
-            elif accepted and name in pending_names:
+                self._enrolled_speakers[participant_id] = profile_id
+            elif accepted and participant_id in pending_ids:
                 # Dialog was accepted but this speaker was not recorded
                 item.setText(f"{name} | {org} | enrollment failed")
         enrolled_count = len(enrolled)
@@ -472,6 +491,12 @@ class MainWindow(QMainWindow):
         """Beendet die aktive Meeting-Session (HEAR-041)."""
         self._transcribe_pending_buffer(force=True)
         self._stop_audio_pipeline()
+
+        # HEAR-070: export artifacts before clearing session state
+        meeting_id = self._active_meeting_id
+        title = (self._session.title if self._session is not None else None) or ""
+        self._export_meeting_artifacts(meeting_id, title)
+
         self.stop_active_meeting()
         self._session = None
         self._meeting_status_label.setText("\u26aa Kein aktives Meeting")
@@ -585,17 +610,20 @@ class MainWindow(QMainWindow):
         )
         # ADR-0003: resolve speaker identity before persistence — no hardcoded assignment
         embedding = SpeakerManager._extract_embedding(samples.tolist())
-        speaker_match = self._speaker_manager.resolve_speaker_from_segment(embedding)
 
         result = self._transcription_service.transcribe_segment(
             segment,
             meeting_id=meeting_id,
-            speaker_name=speaker_match.speaker_name,
-            confidence_score=speaker_match.confidence,
+            speaker_name="unknown",
+            confidence_score=0.0,
+        )
+
+        text = result.text.strip() if result.text else ""
+        speaker_match = self._speaker_manager.resolve_speaker_from_segment(
+            embedding, segment_text=text
         )
 
         stamp = self._format_ms(start_ms)
-        text = result.text.strip()
         review_tag = " [low-conf]" if speaker_match.requires_review else ""
         if text:
             self.transcript_line_ready.emit(
@@ -814,8 +842,145 @@ class MainWindow(QMainWindow):
             logger.error("Protocol refresh failed: %s", exc)
 
     # ------------------------------------------------------------------
-    # HEAR-075: Protocol export
+    # HEAR-070 / HEAR-075: Protocol export (multi-format)
     # ------------------------------------------------------------------
+
+    def _resolve_export_dir(self) -> "Path":
+        """Return the directory where meeting artifacts are written (HEAR-073 / ADR-0011).
+
+        Delegates to ``ayehear.utils.paths.exports_dir()`` so the path honours
+        ``AYEHEAR_INSTALL_DIR`` and install-root-relative semantics.  Extracted
+        as a dedicated method so tests can patch it without touching the
+        filesystem helper.
+        """
+        from pathlib import Path as _Path
+        from ayehear.utils.paths import exports_dir as _exports_dir
+        return _exports_dir()
+
+    def _export_meeting_artifacts(
+        self,
+        meeting_id: str | None,
+        title: str,
+    ) -> "list[Path]":
+        """Export the current protocol and transcript as multi-format artifacts.
+
+        Returns a list of ``Path`` objects for every file that was written.
+        Returns an empty list when ``meeting_id`` is ``None`` or both the
+        protocol and transcript views are empty.
+
+        Protocol is written as Markdown, DOCX and PDF.
+        Transcript is written as plain text (``-transcript.txt``).
+        """
+        import datetime as _dt
+        from pathlib import Path as _Path
+
+        if meeting_id is None:
+            return []
+
+        draft = self._protocol_view.toPlainText().strip()
+        transcript = self._transcript_view.toPlainText().strip()
+
+        if not draft and not transcript:
+            return []
+
+        meeting_type = ""
+        if self._session is not None:
+            meeting_type = self._meeting_type.currentText() if hasattr(self, "_meeting_type") else ""
+
+        timestamp = _dt.datetime.now().strftime("%Y%m%d_%H%M%S")
+        safe_title = "".join(c if c.isalnum() or c in "-_" else "_" for c in title)[:40] or "meeting"
+        base_name = f"{safe_title}_{timestamp}"
+
+        try:
+            out_dir: _Path = self._resolve_export_dir()
+            out_dir.mkdir(parents=True, exist_ok=True)
+        except OSError as exc:
+            logger.error("Cannot create export directory: %s", exc)
+            return []
+
+        written: list[_Path] = []
+
+        if draft:
+            md_text = self._format_as_markdown(draft, title, meeting_type)
+            # Markdown
+            md_path = out_dir / f"{base_name}-protocol.md"
+            try:
+                md_path.write_text(md_text, encoding="utf-8")
+                written.append(md_path)
+            except OSError as exc:
+                logger.error("Markdown export failed: %s", exc)
+
+            # DOCX
+            docx_path = out_dir / f"{base_name}-protocol.docx"
+            try:
+                from docx import Document as _Document  # type: ignore[import-untyped]
+                doc = _Document()
+                doc.add_heading(title, level=1)
+                for line in md_text.splitlines():
+                    if line.startswith("## "):
+                        doc.add_heading(line[3:], level=2)
+                    elif line.startswith("# "):
+                        doc.add_heading(line[2:], level=1)
+                    else:
+                        doc.add_paragraph(line)
+                doc.save(str(docx_path))
+                written.append(docx_path)
+            except Exception as exc:
+                logger.error("DOCX export failed: %s", exc)
+
+            # PDF via reportlab
+            pdf_path = out_dir / f"{base_name}-protocol.pdf"
+            try:
+                from reportlab.lib.pagesizes import A4  # type: ignore[import-untyped]
+                from reportlab.platypus import SimpleDocTemplate, Paragraph  # type: ignore[import-untyped]
+                from reportlab.lib.styles import getSampleStyleSheet  # type: ignore[import-untyped]
+                styles = getSampleStyleSheet()
+                story = []
+                for line in md_text.splitlines():
+                    style = styles["Heading2"] if line.startswith("## ") else styles["Normal"]
+                    text = line.lstrip("#").strip() or "\u00a0"
+                    story.append(Paragraph(text, style))
+                doc_pdf = SimpleDocTemplate(str(pdf_path), pagesize=A4)
+                doc_pdf.build(story)
+                written.append(pdf_path)
+            except Exception as exc:
+                logger.error("PDF export failed: %s", exc)
+
+        # Transcript TXT
+        if transcript:
+            txt_path = out_dir / f"{base_name}-transcript.txt"
+            try:
+                header = f"Meeting Transcript — {title}\nExported: {_dt.datetime.now().isoformat()}\n\n"
+                txt_path.write_text(header + transcript, encoding="utf-8")
+                written.append(txt_path)
+            except OSError as exc:
+                logger.error("Transcript export failed: %s", exc)
+
+        return written
+
+    @staticmethod
+    def _format_as_markdown(draft: str, title: str, meeting_type: str) -> str:
+        """Convert a plain-text protocol draft to Markdown.
+
+        Known section header names are converted to ``## Header`` lines.
+        All other lines are preserved verbatim.
+        """
+        import datetime as _dt
+        _SECTIONS = {"Summary", "Decisions", "Action Items", "Open Questions", "Transcript"}
+        lines = [
+            f"# {title}",
+            "",
+            f"**Type:** {meeting_type}",
+            f"**Date:** {_dt.datetime.now().strftime('%Y-%m-%d %H:%M')}",
+            "",
+        ]
+        for raw in draft.splitlines():
+            stripped = raw.strip()
+            if stripped in _SECTIONS:
+                lines.append(f"## {stripped}")
+            else:
+                lines.append(raw)
+        return "\n".join(lines)
 
     def _do_export_protocol(self) -> None:
         """Export the current protocol draft to <install_root>/exports/ as Markdown."""
