@@ -34,6 +34,7 @@ class ProtocolSettings(BaseModel):
 
 class ModelSettings(BaseModel):
     whisper_profile: str = "balanced"
+    whisper_model: str = "small"
     ollama_model: str = "mistral:7b"
 
 

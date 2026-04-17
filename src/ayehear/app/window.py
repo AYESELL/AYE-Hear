@@ -88,6 +88,7 @@ class MainWindow(QMainWindow):
         self._session: MeetingSession | None = None
         self._audio_capture_service: AudioCaptureService | None = None
         self._transcription_service = TranscriptionService(
+            model_name=self.runtime_config.models.whisper_model,
             profile=self.runtime_config.models.whisper_profile,
             language="de",
             transcript_repo=transcript_repo,

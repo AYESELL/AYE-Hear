@@ -64,14 +64,15 @@ Write-Host "        pyinstaller $piOut  OK"
 $version = python -c "import tomllib; f=open('pyproject.toml','rb'); d=tomllib.load(f); print(d['project']['version'])"
 Write-Host "[version] $version"
 
-# ─── Whisper model staging (HEAR-062) ─────────────────────────────────────────
-# Stage the faster-whisper 'base' model from the HuggingFace cache into
-# config/models/whisper/base/ so PyInstaller can bundle it for offline use.
+# ─── Whisper model staging (HEAR-062 / HEAR-094) ─────────────────────────────
+# Stage the faster-whisper 'small' model from the HuggingFace cache into
+# config/models/whisper/small/ so PyInstaller can bundle it for offline use.
 # On CI / build agents the model must be pre-downloaded before running this script.
-$WhisperModelName   = 'base'
-$WhisperStagingDir  = 'config\models\whisper\base'
+# HEAR-094: upgraded from 'base' (~74MB) to 'small' (~244MB) for improved German ASR quality.
+$WhisperModelName   = 'small'
+$WhisperStagingDir  = 'config\models\whisper\small'
 $HfCacheRoot        = "$env:USERPROFILE\.cache\huggingface\hub"
-$HfModelDir         = Join-Path $HfCacheRoot 'models--Systran--faster-whisper-base'
+$HfModelDir         = Join-Path $HfCacheRoot 'models--Systran--faster-whisper-small'
 
 if (-not (Test-Path (Join-Path $WhisperStagingDir 'model.bin'))) {
     if (Test-Path $HfModelDir) {
@@ -107,11 +108,11 @@ if (-not (Test-Path (Join-Path $WhisperStagingDir 'model.bin'))) {
             Write-Host "[model] Whisper model staged to $WhisperStagingDir  OK"
         } else {
             Write-Warning "[model] No snapshot found in $snapshotRoot — Whisper model will not be bundled."
-            Write-Warning "        Run: python -c 'from faster_whisper import WhisperModel; WhisperModel(\"base\")' to pre-download."
+            Write-Warning "        Run: python -c 'from faster_whisper import WhisperModel; WhisperModel(\"small\")' to pre-download."
         }
     } else {
         Write-Warning "[model] HuggingFace cache not found at $HfModelDir — Whisper model will not be bundled."
-        Write-Warning "        Run: python -c 'from faster_whisper import WhisperModel; WhisperModel(\"base\")' to pre-download."
+        Write-Warning "        Run: python -c 'from faster_whisper import WhisperModel; WhisperModel(\"small\")' to pre-download."
     }
 } else {
     $modelSize = [math]::Round((Get-Item (Join-Path $WhisperStagingDir 'model.bin')).Length / 1MB, 1)

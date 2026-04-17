@@ -23,4 +23,5 @@ protocol:
 
 models:
   whisper_profile: balanced
+  whisper_model: small
   ollama_model: mistral:7b

@@ -1,10 +1,11 @@
 # -*- mode: python ; coding: utf-8 -*-
-# HEAR-062: bundle Whisper base model for offline ASR
+# HEAR-062: bundle Whisper model for offline ASR
+# HEAR-094: upgraded from 'base' (~74MB) to 'small' (~244MB) for improved German ASR quality
 import os as _os
 from PyInstaller.utils.hooks import collect_submodules, collect_data_files
 block_cipher = None
-_whisper_model_dir = _os.path.join(_os.path.dirname(_os.path.abspath(SPEC)), '..', 'config', 'models', 'whisper', 'base')
-_whisper_datas = [(_whisper_model_dir, 'models/whisper/base')] if _os.path.isfile(_os.path.join(_whisper_model_dir, 'model.bin')) else []
+_whisper_model_dir = _os.path.join(_os.path.dirname(_os.path.abspath(SPEC)), '..', 'config', 'models', 'whisper', 'small')
+_whisper_datas = [(_whisper_model_dir, 'models/whisper/small')] if _os.path.isfile(_os.path.join(_whisper_model_dir, 'model.bin')) else []
 
 # Collect all psycopg submodules so SQLAlchemy's postgresql+psycopg dialect loads
 # correctly in the frozen bundle (psycopg C-extension lives inside psycopg_binary).
