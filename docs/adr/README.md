@@ -24,6 +24,8 @@ This directory contains all significant architecture decisions for the AYE Hear 
 | 0010 | V1 Scope Integrity and Release State Separation | Accepted | AYEHEAR_ARCHITECT |
 | 0011 | Install-Root Relative Runtime and Artifact Paths | Accepted | AYEHEAR_ARCHITECT |
 | 0012 | Protocol Language Configuration                   | Accepted | AYEHEAR_ARCHITECT |
+| 0013 | Frontend Internationalisation (i18n) Strategy     | Accepted | AYEHEAR_ARCHITECT |
+| 0014 | AYE Desktop Design System & Brand Alignment       | Accepted | AYEHEAR_ARCHITECT |
 
 ## Supporting Architecture Documents
 
