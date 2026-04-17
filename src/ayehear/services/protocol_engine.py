@@ -56,11 +56,13 @@ class ProtocolEngine:
         transcript_repo: "TranscriptSegmentRepository | None" = None,
         ollama_base_url: str = "http://localhost:11434",
         ollama_model: str = "mistral",
+        language: str = "Deutsch",
     ) -> None:
         self._snapshots = snapshot_repo
         self._transcripts = transcript_repo
         self._ollama_base_url = self._validate_loopback_url(ollama_base_url)
         self._ollama_model = ollama_model
+        self._language = language
 
     @staticmethod
     def _validate_loopback_url(url: str) -> str:
@@ -166,14 +168,35 @@ class ProtocolEngine:
             logger.info("Ollama unavailable (%s), using rule-based extraction.", exc)
             return self._extract_rule_based(lines)
 
+    # Language → prompt instruction mapping (HEAR-093)
+    _LANGUAGE_INSTRUCTIONS: dict[str, str] = {
+        "Deutsch": (
+            "Du bist ein Meeting-Assistent. Extrahiere ein strukturiertes Protokoll "
+            "aus dem folgenden Transkript. Antworte ausschließlich mit JSON (kein Markdown). "
+            "Schreibe alle Inhalte auf Deutsch."
+        ),
+        "English": (
+            "You are a meeting assistant. Extract a structured protocol from the following "
+            "transcript. Reply exclusively with JSON (no Markdown). "
+            "Write all content in English."
+        ),
+        "Francais": (
+            "Tu es un assistant de réunion. Extrais un protocole structuré du transcript "
+            "suivant. Réponds uniquement avec du JSON (pas de Markdown). "
+            "Rédige tout le contenu en français."
+        ),
+    }
+    _DEFAULT_LANGUAGE_INSTRUCTION = _LANGUAGE_INSTRUCTIONS["Deutsch"]
+
     def _extract_via_ollama(self, lines: list[str]) -> ProtocolContent:
         """Call local Ollama API for structured extraction."""
         transcript_text = "\n".join(lines)
+        instruction = self._LANGUAGE_INSTRUCTIONS.get(
+            self._language, self._DEFAULT_LANGUAGE_INSTRUCTION
+        )
         prompt = (
-            "Du bist ein Meeting-Assistent. Extrahiere ein strukturiertes Protokoll "
-            "aus dem folgenden Transkript. Antworte ausschließlich mit JSON (kein Markdown). "
-            "Schreibe alle Inhalte auf Deutsch.\n"
-            "Schema: {\"summary\": [...], \"decisions\": [...], \"action_items\": [...], \"open_questions\": [...]}\n\n"
+            f"{instruction}\n"
+            "Schema: {\"summary\": [...], \"decisions\": [...], \"action_items\": [...], \"open_questions\": []}\n\n"
             f"Transkript:\n{transcript_text}"
         )
 

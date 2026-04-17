@@ -185,6 +185,19 @@ class MainWindow(QMainWindow):
         self._audio_device.addItem("Windows default microphone", userData=None)
         self._populate_audio_devices()
         form.addRow("Audio Input", self._audio_device)
+
+        # HEAR-093: Protocol language selection (DE/EN/FR)
+        self._protocol_language = QComboBox()
+        self._protocol_language.addItems(
+            self.runtime_config.protocol.protocol_language_options
+        )
+        default_lang = self.runtime_config.protocol.protocol_language
+        idx = self._protocol_language.findText(default_lang)
+        if idx >= 0:
+            self._protocol_language.setCurrentIndex(idx)
+        self._protocol_language.currentTextChanged.connect(self._on_protocol_language_changed)
+        form.addRow("Protocol Language", self._protocol_language)
+
         layout.addWidget(meeting_box)
 
         speakers_box = QGroupBox("Speaker Enrollment")
@@ -370,6 +383,12 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------
     # Speaker management (HEAR-036 / HEAR-040)
     # ------------------------------------------------------------------
+
+    # HEAR-093: Protocol language change handler
+    def _on_protocol_language_changed(self, language: str) -> None:
+        """Propagate selected protocol language to ProtocolEngine."""
+        self._protocol_engine._language = language
+        logger.debug("Protocol language set to: %s", language)
 
     def _on_speaker_item_changed(self, item: QListWidgetItem) -> None:
         """Update feedback label after user commits an inline edit (HEAR-040)."""
