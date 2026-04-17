@@ -40,7 +40,9 @@ def test_summarize_window_detects_action_item() -> None:
 
 
 def test_summarize_window_detects_open_question() -> None:
-    engine = ProtocolEngine()
+    # Force rule-based path so the test is independent of Ollama availability
+    engine = ProtocolEngine(ollama_base_url="http://localhost:11434")
+    engine._extract_via_ollama = MagicMock(side_effect=Exception("mocked unavailable"))  # type: ignore
     result = engine.summarize_window([
         "Max: Wann ist der naechste Termin?",
     ])
@@ -48,7 +50,9 @@ def test_summarize_window_detects_open_question() -> None:
 
 
 def test_summarize_window_summary_contains_segment_count() -> None:
-    engine = ProtocolEngine()
+    # Force rule-based path so the test is independent of Ollama availability
+    engine = ProtocolEngine(ollama_base_url="http://localhost:11434")
+    engine._extract_via_ollama = MagicMock(side_effect=Exception("mocked unavailable"))  # type: ignore
     lines = ["Anna: Test one.", "Max: Test two.", "Anna: Test three."]
     result = engine.summarize_window(lines)
     assert "3" in result["summary"][0] or "three" in result["summary"][0].lower()

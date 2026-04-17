@@ -170,10 +170,11 @@ class ProtocolEngine:
         """Call local Ollama API for structured extraction."""
         transcript_text = "\n".join(lines)
         prompt = (
-            "You are a meeting assistant. Extract a structured protocol from the "
-            "following transcript. Reply with JSON only (no markdown).\n"
+            "Du bist ein Meeting-Assistent. Extrahiere ein strukturiertes Protokoll "
+            "aus dem folgenden Transkript. Antworte ausschließlich mit JSON (kein Markdown). "
+            "Schreibe alle Inhalte auf Deutsch.\n"
             "Schema: {\"summary\": [...], \"decisions\": [...], \"action_items\": [...], \"open_questions\": [...]}\n\n"
-            f"Transcript:\n{transcript_text}"
+            f"Transkript:\n{transcript_text}"
         )
 
         payload = json.dumps({
