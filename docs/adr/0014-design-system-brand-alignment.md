@@ -72,11 +72,10 @@ class AYEColors:
 ```python
 class AYETypography:
     # Per Brand Style Guide §5:
-    # Primary: iCiel VAG Rounded Next (licensed, not embeddable without licence)
-    # Desktop substitute: "VAG Rounded" → "Arial Rounded MT" → "Arial, sans-serif"
-    # Note: Varela Round is web-only (Google Fonts). Desktop Qt uses system fonts.
+    # Primary: Fredoka (free and embeddable for desktop distribution)
+    # Fallback: "Arial Rounded MT" → "Arial" → "sans-serif"
 
-    FONT_FAMILY_STACK = "VAG Rounded, Arial Rounded MT, Arial, sans-serif"
+    FONT_FAMILY_STACK = "Fredoka, Arial Rounded MT, Arial, sans-serif"
 
     # Sizes (pt → px mapping for Qt: ~1pt = 1.33px at 96dpi)
     SIZE_H1   = 22   # px — H1 headline (28pt reduced for compact desktop)
@@ -253,7 +252,7 @@ Per Brand Style Guide §4.2 and §8:
 | Generic startup-style colors | Full bronze palette |
 | Playful icons / cartoons | Minimal Unicode symbols or thin-stroke SVG icons |
 | Light / white backgrounds | `BG_PRIMARY` (#0E0E11) throughout |
-| Helvetica / Calibri | `VAG Rounded → Arial Rounded MT → Arial` |
+| Helvetica / Calibri | `Fredoka → Arial Rounded MT → Arial` |
 
 ## Assets Required from AYE Brand (not yet in repo)
 
@@ -263,10 +262,10 @@ The following assets must be provided and added to `assets/brand/`:
 |---|---|---|
 | AYE Logo (primary) | SVG | Metallic gradient, for dark backgrounds |
 | AYE Logo (simplified) | SVG | Monochrome flat (for system tray / small contexts) |
-| iCiel VAG Rounded Next | OTF/TTF | Licensed; bundle only with valid Qt desktop licence |
+| Fredoka | TTF | Free font file for bundled desktop distribution |
 
-Until the licensed font is bundled, the approved fallback chain applies:
-`VAG Rounded → Arial Rounded MT → Arial, sans-serif`
+Approved fallback chain for runtime:
+`Fredoka → Arial Rounded MT → Arial, sans-serif`
 
 ## ADR Boundary with ADR-0013
 
@@ -300,6 +299,5 @@ touch different parts of each widget class.
 
 **Negative:**
 - Full removal of inline styles is a significant but mechanical refactor across ~300 lines
-- Font licensing for desktop deployment must be resolved with AYE brand team before
-  bundling iCiel VAG Rounded Next
+- Bundled font file (Fredoka) must be included in packaging and validated on clean Windows hosts
 - Dark theme requires QA verification on all Windows display scaling settings (100%, 125%, 150%)
