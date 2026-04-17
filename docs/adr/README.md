@@ -23,6 +23,7 @@ This directory contains all significant architecture decisions for the AYE Hear 
 | 0009 | Data Protection and Encryption-at-Rest Model  | Accepted | AYEHEAR_ARCHITECT |
 | 0010 | V1 Scope Integrity and Release State Separation | Accepted | AYEHEAR_ARCHITECT |
 | 0011 | Install-Root Relative Runtime and Artifact Paths | Accepted | AYEHEAR_ARCHITECT |
+| 0012 | Protocol Language Configuration                   | Accepted | AYEHEAR_ARCHITECT |
 
 ## Supporting Architecture Documents
 
