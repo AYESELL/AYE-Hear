@@ -74,6 +74,14 @@ class DatabaseConfig:
     def __init__(self, dsn: str) -> None:
         if not dsn:
             raise ValueError("PostgreSQL DSN must not be empty.")
+        # Normalise legacy scheme → psycopg3 (SQLAlchemy dialect).
+        # pg.dsn files written by the installer use the plain postgresql:// or
+        # postgres:// scheme; SQLAlchemy needs postgresql+psycopg:// to select
+        # the psycopg3 driver that is bundled in the frozen exe.
+        for plain in ("postgresql://", "postgres://"):
+            if dsn.startswith(plain):
+                dsn = "postgresql+psycopg://" + dsn[len(plain):]
+                break
         self.dsn = dsn
 
 
