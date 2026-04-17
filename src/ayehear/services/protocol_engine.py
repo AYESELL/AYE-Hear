@@ -28,6 +28,19 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+def _resource_snapshot() -> dict:
+    """Return current CPU% and RAM MB (HEAR-095). Returns empty dict if psutil unavailable."""
+    try:
+        import psutil  # type: ignore[import-untyped]
+        process = psutil.Process()
+        return {
+            "cpu_pct": psutil.cpu_percent(interval=None),
+            "ram_mb": round(process.memory_info().rss / (1024 * 1024), 1),
+        }
+    except Exception:
+        return {}
+
+
 @dataclass
 class ProtocolContent:
     summary: list[str] = field(default_factory=list)
@@ -213,9 +226,24 @@ class ProtocolEngine:
             method="POST",
         )
 
+        # HEAR-095: resource telemetry at LLM inference boundaries
+        res_before = _resource_snapshot()
+        if res_before:
+            logger.debug(
+                "LLM inference start — cpu_pct=%.1f ram_mb=%.1f model=%s",
+                res_before.get("cpu_pct", 0), res_before.get("ram_mb", 0), self._ollama_model,
+            )
+
         with urllib.request.urlopen(req, timeout=30) as resp:
             body = json.loads(resp.read().decode())
             raw = body.get("response", "{}")
+
+        res_after = _resource_snapshot()
+        if res_after:
+            logger.debug(
+                "LLM inference end   — cpu_pct=%.1f ram_mb=%.1f",
+                res_after.get("cpu_pct", 0), res_after.get("ram_mb", 0),
+            )
 
         data = json.loads(raw)
         return ProtocolContent(

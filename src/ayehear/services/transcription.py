@@ -22,6 +22,20 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+
+def _resource_snapshot() -> dict:
+    """Return current CPU% and RAM MB (HEAR-095). Returns empty dict if psutil unavailable."""
+    try:
+        import psutil  # type: ignore[import-untyped]
+        process = psutil.Process()
+        return {
+            "cpu_pct": psutil.cpu_percent(interval=None),
+            "ram_mb": round(process.memory_info().rss / (1024 * 1024), 1),
+        }
+    except Exception:
+        return {}
+
+
 _PROFILES: dict[str, dict] = {
     "fast":     {"compute_type": "int8",   "beam_size": 1},
     "balanced": {"compute_type": "int8",   "beam_size": 3},
@@ -190,6 +204,14 @@ class TranscriptionService:
         audio = np.asarray(samples, dtype=np.float32)
         beam_size = _PROFILES[self.profile]["beam_size"]
 
+        # HEAR-095: resource telemetry at ASR inference boundaries
+        res_before = _resource_snapshot()
+        if res_before:
+            logger.debug(
+                "ASR inference start — cpu_pct=%.1f ram_mb=%.1f model=%s",
+                res_before.get("cpu_pct", 0), res_before.get("ram_mb", 0), self.model_name,
+            )
+
         segments, info = self._model.transcribe(
             audio,
             language=self.language,
@@ -197,4 +219,12 @@ class TranscriptionService:
         )
 
         texts = [seg.text.strip() for seg in segments if seg.text.strip()]
+
+        res_after = _resource_snapshot()
+        if res_after:
+            logger.debug(
+                "ASR inference end   — cpu_pct=%.1f ram_mb=%.1f",
+                res_after.get("cpu_pct", 0), res_after.get("ram_mb", 0),
+            )
+
         return " ".join(texts), info.language
