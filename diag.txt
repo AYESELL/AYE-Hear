@@ -1,0 +1,9 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.0.3, pluggy-1.6.0 -- G:\Repo\aye-hear\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: G:\Repo\aye-hear
+configfile: pyproject.toml
+plugins: anyio-4.13.0, cov-7.1.0
+collecting ... collected 1 item
+
+tests/test_hear_047_speaker_attribution.py::test_window_transcribe_calls_resolve_not_hardcoded FAILED

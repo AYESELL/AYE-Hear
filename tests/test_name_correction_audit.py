@@ -13,19 +13,15 @@ Validates:
 from __future__ import annotations
 
 from pathlib import Path
-from types import SimpleNamespace
 from unittest.mock import MagicMock
 
 import pytest
 
 from ayehear.storage.orm import (
-    Meeting,
-    Participant,
     TranscriptCorrectionLog,
     TranscriptSegment,
 )
 from ayehear.storage.repositories import (
-    MeetingRepository,
     TranscriptSegmentRepository,
 )
 from ayehear.services.protocol_engine import ProtocolEngine
@@ -361,7 +357,7 @@ def test_protocol_engine_generates_from_corrected_transcript() -> None:
         snapshot_repo=mock_snapshot_repo,
         transcript_repo=mock_transcript_repo,
     )
-    snapshot = engine.generate("m-001")
+    engine.generate("m-001")
 
     # Verify that list_for_protocol was called (not list_for_meeting)
     mock_transcript_repo.list_for_protocol.assert_called_once_with("m-001")

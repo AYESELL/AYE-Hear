@@ -7,7 +7,6 @@ script, and lightweight session/query doubles for repository behavior.
 from __future__ import annotations
 
 from pathlib import Path
-from types import SimpleNamespace
 
 import pytest
 

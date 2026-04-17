@@ -13,15 +13,12 @@ Test Type: Manual + Automated UI Discovery
 """
 
 import sys
-import time
-import json
 from datetime import datetime
 from pathlib import Path
 
 # Try pywinauto for Windows UI automation
 try:
-    from pywinauto import Application, Desktop
-    from pywinauto.base_wrapper import BaseWrapper
+    from pywinauto import Desktop  # type: ignore[import-untyped]
     HAS_PYWINAUTO = True
 except ImportError:
     HAS_PYWINAUTO = False
@@ -111,7 +108,7 @@ class SmokeTester:
                                 expected_elements["correction_button"] = True
                             if "button" in elem.element_info.control_type or "action" in name:
                                 expected_elements["action_buttons"] = True
-                    except:
+                    except Exception:
                         pass
             
             found_count = sum(1 for v in expected_elements.values() if v)
@@ -238,7 +235,7 @@ class SmokeTester:
         self.log("=" * 60)
         self.log("TEST 5: Installation Validation", "TEST")
         
-        install_dir = Path("C:\\AyeHear")
+        _install_dir = Path("C:\\AyeHear")
         expected_files = [
             Path("C:\\AyeHear\\app\\AyeHear.exe"),
             Path("C:\\AyeHear\\app\\unins000.exe"),
@@ -275,7 +272,7 @@ class SmokeTester:
     
     def run_all_tests(self):
         """Run complete test suite"""
-        self.log(f"HEAR-038 SMOKE TEST - Installer App UI Workflows")
+        self.log("HEAR-038 SMOKE TEST - Installer App UI Workflows")
         self.log(f"Start: {self.start_time}")
         self.log(f"Log: {self.log_file}")
         

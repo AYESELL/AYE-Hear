@@ -30,7 +30,7 @@ def enumerate_input_devices() -> list[tuple[int, str]]:
     can fall back gracefully to the system default.
     """
     try:
-        import sounddevice as sd  # type: ignore[import]
+        import sounddevice as sd  # type: ignore[import-untyped]
 
         devices = sd.query_devices()
         return [

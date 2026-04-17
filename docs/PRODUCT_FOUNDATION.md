@@ -1,13 +1,13 @@
 ---
-status: draft
+status: active
 owner: AYEHEAR_ARCHITECT
-updated: 2026-04-08
+updated: 2026-04-16
 ---
 
 # AYE Hear Product Foundation
 
-**Version:** Draft  
-**Date:** 2026-04-08  
+**Version:** Active (Two-State Scope Baseline)  
+**Date:** 2026-04-16  
 **Audience:** All AYEHEAR\_\* personas
 
 ---
@@ -16,7 +16,30 @@ updated: 2026-04-08
 
 AYE Hear is a Windows desktop application for **local, offline-first meeting transcription, speaker identification, and intelligent protocol generation**. Designed for organizations that require privacy-first meeting intelligence with full local control.
 
+## Scope Integrity Statement (ADR-0010)
+
+Current release governance uses two explicit states:
+
+| State | Current Status | Source |
+| --- | --- | --- |
+| Operations-Handoff Readiness | GO | HEAR-052 |
+| Product-Complete Readiness | NO-GO | HEAR-066 |
+
+This distinction is mandatory for all V1 scope claims until B1/B2/B3 blockers are closed.
+
+## Reading Guide: Current State vs Target State
+
+To avoid ambiguity, this document uses a strict separation:
+
+- **Target State (Vision):** `Core Promises`, `Architecture at a Glance`, and `User Workflow` describe the intended product-complete behavior.
+- **Current State (Operations-Handoff):** `V1.0 Operations-Handoff Scope (Current)` is the only authoritative description of what is currently release-approved.
+
+If a target statement conflicts with current implementation, the operations-handoff scope and release governance records take precedence.
+
 ### Core Promises
+
+Target-state note:
+- The following promises describe the intended product-complete vision and are not a claim that all capabilities are currently available in operations-handoff.
 
 - **Complete Privacy:** All audio processing happens locally. Zero transmission to cloud.
 - **Speaker Clarity:** Pre-meeting voice enrollment + live speaker identification with confidence scoring.
@@ -27,6 +50,9 @@ AYE Hear is a Windows desktop application for **local, offline-first meeting tra
 ---
 
 ## 🏗️ Architecture at a Glance (ADR-0001)
+
+Target-state note:
+- The architecture table below reflects the intended product-complete architecture baseline and not a statement that every component is fully implemented in the current operations-handoff release.
 
 | Component               | Tech                                  | Why                                                                            |
 | ----------------------- | ------------------------------------- | ------------------------------------------------------------------------------ |
@@ -42,6 +68,9 @@ AYE Hear is a Windows desktop application for **local, offline-first meeting tra
 ---
 
 ## 📋 User Workflow
+
+Target-state note:
+- The workflow below describes the intended product-complete flow. For currently available behavior, see `V1.0 Operations-Handoff Scope (Current)`.
 
 ```
 1. Start Meeting
@@ -86,17 +115,26 @@ AYE Hear is a Windows desktop application for **local, offline-first meeting tra
 
 ## 🚀 V1 Scope
 
-### In V1
+### V1.0 Operations-Handoff Scope (Current)
 
 - ✅ Windows 10/11 desktop app (standalone)
 - ✅ Standard Windows microphone capture
-- ✅ Speaker enrollment + identification
+- ✅ Speaker identification with confidence scoring and manual correction path
+- ⚠️ Enrollment remains a controlled placeholder path (no completed real microphone enrollment workflow in current release)
 - ✅ Live transcription
 - ✅ Real-time protocol generation (decisions, tasks, open items)
-- ✅ Export (MD, DOCX, PDF)
+- ✅ Export artifacts available as runtime text files
+- ⚠️ Markdown/DOCX/PDF parity is pending product-complete closure
 - ✅ Meeting history (local PostgreSQL)
 - ✅ Manual speaker correction
 - ✅ CPU & GPU adaptive (auto-profile at startup)
+
+### V1 Product-Complete Scope (Target)
+
+- ✅ Real microphone-based speaker enrollment workflow
+- ✅ Production speaker embedding backend (no deterministic stub in production path)
+- ✅ Export parity with Markdown, DOCX, PDF contract
+- ✅ All V1 capability matrix entries Green with linked evidence
 
 ### Out of V1 (Post-Release)
 
@@ -110,6 +148,10 @@ AYE Hear is a Windows desktop application for **local, offline-first meeting tra
 ---
 
 ## 🎯 Success Criteria (V1 Release)
+
+Status note:
+- Operations-handoff release criteria are currently met for controlled deployment.
+- Product-complete criteria remain blocked until B1/B2/B3 are closed.
 
 - **Usability:** End-to-end meeting protocol in <5 min (enroll + record + export)
 - **Accuracy:** Speaker identification ≥85% on target hardware (CPU-only laptop, GPU laptop)
@@ -144,7 +186,7 @@ AYE Hear is a Windows desktop application for **local, offline-first meeting tra
 
 - **Audio:** Remains on user's machine; never transmitted
 - **Speaker Profiles:** Stored in local PostgreSQL with repository-governed protection requirements
-- **Protocol Artifacts:** Local files only (Markdown, DOCX, PDF)
+- **Protocol Artifacts:** Local files only (current operations-handoff: TXT runtime artifacts; product-complete target: Markdown, DOCX, PDF)
 - **GDPR:** Users own all data; delete on-demand via local file removal
 - **Telemetry:** None by default; opt-in analytics for V2+
 
@@ -203,4 +245,4 @@ CI/CD:            GitHub Actions (planned)
 ---
 
 **Owner:** AYEHEAR_ARCHITECT  
-**Updated:** 2026-04-08
+**Updated:** 2026-04-16

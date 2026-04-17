@@ -1,8 +1,7 @@
 """Tests for DatabaseBootstrap (HEAR-008, HEAR-026, HEAR-027) — without a live PostgreSQL connection."""
 from __future__ import annotations
 
-from types import SimpleNamespace
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -142,7 +141,6 @@ def test_is_loopback_address_rejects(value: str) -> None:
 
 def _make_conn(listen_addresses: str):
     """Build a minimal mock connection that returns listen_addresses for SHOW."""
-    row = SimpleNamespace(**{"0": listen_addresses, "__getitem__": lambda s, i: listen_addresses})
     result = MagicMock()
     result.fetchone.return_value = (listen_addresses,)
     conn = MagicMock()

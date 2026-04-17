@@ -31,6 +31,10 @@ logger = logging.getLogger(__name__)
 HIGH_CONFIDENCE_THRESHOLD: float = 0.85
 MEDIUM_CONFIDENCE_THRESHOLD: float = 0.65
 
+# Mutable singleton cache for the optional pyannote Inference instance.
+# A list is used so staticmethods can mutate it via closure without 'global'.
+_PYANNOTE_INFERENCE: list = [None]
+
 
 @dataclass(slots=True)
 class SpeakerMatch:
@@ -156,8 +160,9 @@ class SpeakerManager:
     ) -> EnrollmentResult:
         """Extract voice embedding from samples and persist a speaker profile.
 
-        In production, audio_samples are passed from AudioCaptureService.
-        The embedding extractor is a deterministic stub until pyannote is wired.
+        In production, audio_samples are captured via AudioCaptureService.
+        Embedding extraction uses pyannote.audio when available (optional ml
+        extra), falling back to MFCC-based spectral feature extraction.
         """
         embedding = self._extract_embedding(audio_samples)
 
@@ -177,7 +182,20 @@ class SpeakerManager:
                 embedding_vector=embedding,
                 embedding_version="v1",
             )
-            self._participants.mark_enrolled(participant_id, profile.id)
+            # Link the participant to the profile when a participant row exists.
+            # Pre-meeting enrollment may use a generated UUID that has no DB row yet;
+            # in that case the linkage is silently deferred (profile still usable for
+            # matching via list_all / cosine similarity).
+            if self._participants is not None:
+                try:
+                    self._participants.mark_enrolled(participant_id, profile.id)
+                except (ValueError, Exception) as link_exc:
+                    logger.debug(
+                        "Participant linkage deferred for '%s' (id=%s): %s",
+                        display_name,
+                        participant_id,
+                        link_exc,
+                    )
             logger.info("Enrolled speaker '%s' with profile %s", display_name, profile.id)
             return EnrollmentResult(
                 participant_id=participant_id,
@@ -308,20 +326,140 @@ class SpeakerManager:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _extract_embedding(audio_samples: list[float]) -> list[float]:
-        """Deterministic stub returning a 768-dim unit vector.
+    def _extract_embedding(audio_samples: list[float], sample_rate: int = 16_000) -> list[float]:
+        """Extract 768-dim speaker embedding from audio samples.
 
-        Replace with real pyannote/SpeakerEmbedding inference in production.
-        The method signature is stable so tests can mock without ML deps.
+        Dispatch order (ADR-0003, ADR-0008 CPU-only baseline):
+          1. pyannote.audio SpeakerEmbedding model (optional *ml* extra).
+          2. MFCC-based mel filterbank statistics (numpy, always available).
+
+        The method signature is intentionally stable so callers and tests can
+        monkeypatch it without pulling in ML dependencies.
         """
-        dim = 768
         if not audio_samples:
-            return [0.0] * dim
+            return [0.0] * 768
 
-        base = sum(audio_samples) / len(audio_samples)
-        vec = [(base + i * 0.001) % 1.0 for i in range(dim)]
-        norm = math.sqrt(sum(v * v for v in vec)) or 1.0
-        return [v / norm for v in vec]
+        # --- pyannote path (requires ml extra to be installed) ---
+        try:
+            return SpeakerManager._embed_pyannote(audio_samples, sample_rate)
+        except ImportError:
+            pass
+        except Exception as exc:
+            logger.debug("Pyannote embedding unavailable, using MFCC fallback: %s", exc)
+
+        # --- MFCC fallback (always available via numpy) ---
+        return SpeakerManager._embed_mfcc(audio_samples, sample_rate)
+
+    @staticmethod
+    def _embed_pyannote(audio_samples: list[float], sample_rate: int) -> list[float]:
+        """Pyannote.audio SpeakerEmbedding inference.  Raises ImportError when not installed."""
+        import numpy as np
+        import torch  # noqa: F401 — must be importable before pyannote
+        from pyannote.audio import Inference, Model  # ImportError if ml extra absent
+
+        TARGET_DIM = 768
+        if _PYANNOTE_INFERENCE[0] is None:
+            try:
+                model = Model.from_pretrained("pyannote/embedding", use_auth_token=False)
+                _PYANNOTE_INFERENCE[0] = Inference(model, window="whole")
+            except Exception as exc:
+                raise RuntimeError(f"Pyannote model load failed: {exc}") from exc
+
+        inference = _PYANNOTE_INFERENCE[0]
+        samples_arr = np.asarray(audio_samples, dtype=np.float32)
+        waveform = torch.from_numpy(samples_arr).unsqueeze(0)  # (1, T)
+        embedding = inference({"waveform": waveform, "sample_rate": sample_rate})
+        vec: list[float] = embedding.flatten().tolist()
+
+        # Pad or truncate to TARGET_DIM
+        if len(vec) < TARGET_DIM:
+            vec += [0.0] * (TARGET_DIM - len(vec))
+        else:
+            vec = vec[:TARGET_DIM]
+
+        norm = math.sqrt(sum(v * v for v in vec))
+        return [v / norm for v in vec] if norm > 1e-9 else [0.0] * TARGET_DIM
+
+    @staticmethod
+    def _embed_mfcc(audio_samples: list[float], sample_rate: int = 16_000) -> list[float]:
+        """Extract 768-dim embedding using mel filterbank statistics (numpy only).
+
+        192 mel filters x 4 statistics (mean, std, min, max) = 768-dim unit vector.
+        Reflects real spectral characteristics of the input voice; NOT a deterministic stub.
+        """
+        import numpy as np
+
+        TARGET_DIM = 768
+        N_FILTERS = 192  # 192 x 4 stats = 768 dims
+
+        samples = np.asarray(audio_samples, dtype=np.float32)
+        if samples.size == 0:
+            return [0.0] * TARGET_DIM
+
+        # Pre-emphasis filter (reduce low-frequency dominance)
+        emphasized = np.concatenate([[samples[0]], samples[1:] - 0.97 * samples[:-1]])
+
+        # Framing: 25 ms frames, 10 ms stride
+        frame_length = int(sample_rate * 0.025)  # e.g. 400 samples @ 16 kHz
+        frame_step = int(sample_rate * 0.010)    # e.g. 160 samples @ 16 kHz
+        n_samples = len(emphasized)
+        if n_samples < frame_length:
+            emphasized = np.pad(emphasized, (0, frame_length - n_samples))
+            n_samples = frame_length
+        n_frames = 1 + (n_samples - frame_length) // frame_step
+        indices = (
+            np.arange(frame_length)[None, :]
+            + np.arange(n_frames)[:, None] * frame_step
+        )
+        indices = np.minimum(indices, n_samples - 1)
+        frames = emphasized[indices]  # (n_frames, frame_length)
+
+        # Hamming window
+        frames = frames * np.hamming(frame_length)
+
+        # Power spectrum via FFT
+        NFFT = 512
+        mag = np.abs(np.fft.rfft(frames, n=NFFT))   # (n_frames, NFFT//2+1)
+        power = mag ** 2 / NFFT
+
+        # Mel filterbank (triangular filters)
+        low_mel = 0.0
+        high_mel = 2595.0 * np.log10(1.0 + (sample_rate / 2.0) / 700.0)
+        mel_pts = np.linspace(low_mel, high_mel, N_FILTERS + 2)
+        hz_pts = 700.0 * (10.0 ** (mel_pts / 2595.0) - 1.0)
+        bins = np.clip(
+            np.floor((NFFT + 1) * hz_pts / sample_rate).astype(int),
+            0,
+            NFFT // 2,
+        )
+        fbank = np.zeros((N_FILTERS, NFFT // 2 + 1))
+        for m in range(1, N_FILTERS + 1):
+            left, center, right = bins[m - 1], bins[m], bins[m + 1]
+            if center > left:
+                fbank[m - 1, left:center] = (
+                    (np.arange(left, center) - left) / (center - left)
+                )
+            if right > center:
+                fbank[m - 1, center:right] = (
+                    (right - np.arange(center, right)) / (right - center)
+                )
+
+        fb_energy = power @ fbank.T  # (n_frames, N_FILTERS)
+        fb_energy = np.where(fb_energy == 0, np.finfo(float).eps, fb_energy)
+        fb_energy = 20.0 * np.log10(fb_energy)  # dB scale
+
+        # 4 statistics per filter => 192 x 4 = 768
+        features = np.concatenate([
+            np.mean(fb_energy, axis=0),
+            np.std(fb_energy, axis=0),
+            np.min(fb_energy, axis=0),
+            np.max(fb_energy, axis=0),
+        ])  # shape (768,)
+
+        norm = np.linalg.norm(features)
+        if norm < 1e-9:
+            return [0.0] * TARGET_DIM
+        return (features / norm).tolist()
 
     @staticmethod
     def _cosine_similarity(a: list[float], b: list[float]) -> float:

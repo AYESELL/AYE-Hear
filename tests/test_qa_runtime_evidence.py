@@ -24,7 +24,7 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 
-from ayehear.services.audio_capture import AudioCaptureProfile, AudioCaptureService
+from ayehear.services.audio_capture import AudioCaptureService
 from ayehear.services.protocol_engine import ProtocolEngine
 from ayehear.storage.database import DatabaseBootstrap, DatabaseConfig
 

@@ -1,7 +1,7 @@
 ---
 owner: AYEHEAR_DEVOPS
 status: active
-updated: 2026-04-09
+updated: 2026-04-16
 category: operational-runbook
 ---
 
@@ -32,23 +32,69 @@ startup health checks and release readiness baseline.
 
 ### 2.1 Install (Installer-managed — end-user path)
 
-The NSIS installer handles this automatically. Manual steps for reference:
+The Inno Setup and NSIS installers automate this entire lifecycle.
+The Inno Setup `[Run]` section (and NSIS `ExecWait` calls) execute
+`tools\scripts\Install-PostgresRuntime.ps1` automatically during installation.
+
+**What the script does:**
+1. Checks for existing binaries at `C:\AyeHear\pgsql`; installs EDB PostgreSQL 16 silently if absent.
+2. Runs `initdb` on `C:\AyeHear\data\pg16` (UTF-8, C locale, md5 auth).
+3. Enforces `listen_addresses = 'localhost'` in `postgresql.conf` (ADR-0006 loopback gate).
+4. Registers the `AyeHearDB` Windows service with auto-start via `pg_ctl register`.
+5. Starts the service and waits for readiness via `pg_isready`.
+6. Generates a **per-installation random password** for the `ayehear` role.
+7. Persists the DSN to `C:\AyeHear\runtime\pg.dsn` with ACL restricted to SYSTEM + Administrators.
+8. Creates the `ayehear` database and applies schema migrations.
+
+**Manual re-provisioning (e.g. after clean uninstall):**
 
 ```powershell
-# Download PostgreSQL 16 Windows installer
-# https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
+# Requires administrator privileges
+.\tools\scripts\Install-PostgresRuntime.ps1
+# Force re-init (DESTRUCTIVE — deletes existing data):
+.\tools\scripts\Install-PostgresRuntime.ps1 -Force
+```
 
-# Silent install to known local path
-postgresql-16.x-windows-x64.exe --mode unattended `
-  --prefix "C:\AyeHear\pgsql" `
-  --datadir "C:\AyeHear\data\pg16" `
-  --serverport 5433 `
-  --superpassword "" `  # Set via NSIS-generated local secret
-  --servicename "AyeHearDB"
+**Offline / enterprise deployment (bundled installer):**
+
+Place `postgresql-16.x-windows-x64.exe` in `build\installer\pg-installer\` before
+building the installer, then uncomment the `[Files]` source line for the bundled installer
+in `ayehear-installer.iss`. The provisioning script will prefer the bundled file over
+downloading.
+
+```powershell
+# Pass the path explicitly:
+.\tools\scripts\Install-PostgresRuntime.ps1 `
+    -BundledPgInstaller "C:\Temp\postgresql-16.4-1-windows-x64.exe"
 ```
 
 > **Security:** PostgreSQL binds `loopback only (127.0.0.1)` on port `5433`.
 > Never expose or change the bind address. See ADR-0006.
+
+### 2.1a Startup Health Check
+
+A dedicated health-check script validates the runtime before the application is allowed to launch.
+The installer runs it automatically as the final `[Run]` step.
+
+```powershell
+# Manual invocation (e.g. after service restart)
+.\tools\scripts\Start-AyeHearRuntime.ps1
+
+# Silent mode (exit code only — useful in CI / scripted environments)
+.\tools\scripts\Start-AyeHearRuntime.ps1 -Silent
+echo "Exit: $LASTEXITCODE"  # 0 = all checks passed
+```
+
+**Checks performed:**
+
+| # | Check | Pass condition |
+|---|-------|----------------|
+| 1 | Windows service registered | `AyeHearDB` service present |
+| 2 | Service running | Status = Running (auto-start attempted) |
+| 3 | DSN file accessible | `C:\AyeHear\runtime\pg.dsn` readable |
+| 4 | PostgreSQL accepts connections | `pg_isready -h 127.0.0.1 -p 5433` → exit 0 |
+| 5 | loopback-only (ADR-0006) | `SHOW listen_addresses` ∈ {localhost, 127.0.0.1, ::1} |
+| 6 | Schema baseline present | `meetings` table exists in `public` schema |
 
 ### 2.2 Initialize Data Directory (First Run)
 
@@ -149,44 +195,34 @@ The version string is embedded in `aye_hear_version.txt` inside the bundle and d
 
 ## 4. Startup Health Check Script
 
-> **Status:** `tools\scripts\Start-AyeHearRuntime.ps1` is planned for a future DevOps task.
-> Until it is implemented, use the manual sequence below.
+> **Status:** `tools\scripts\Start-AyeHearRuntime.ps1` — **IMPLEMENTED** (HEAR-049).
+> See Section 2.1a for full documentation and check matrix.
 
-Manual pre-launch check (PowerShell):
+The installer calls this script automatically as the final step. For manual
+pre-launch verification:
 
 ```powershell
-# Ensure PG service is up
-$svc = Get-Service -Name "AyeHearDB" -ErrorAction SilentlyContinue
-if (-not $svc -or $svc.Status -ne 'Running') {
-    Write-Warning "PostgreSQL service not running — attempting start"
-    Start-Service -Name "AyeHearDB"
-    Start-Sleep -Seconds 3
-}
-
-# Verify connection via DatabaseBootstrap
-$env:AYEHEAR_DB_DSN = "postgresql://ayehear:@127.0.0.1:5433/ayehear"
-python -c "
-from ayehear.storage import DatabaseBootstrap, DatabaseConfig
-cfg = DatabaseConfig(dsn='postgresql://ayehear:@127.0.0.1:5433/ayehear')
-db  = DatabaseBootstrap(cfg)
-db.bootstrap()
-print('DB check passed')
-"
-if ($LASTEXITCODE -ne 0) {
-    [System.Windows.Forms.MessageBox]::Show(
-        'Cannot connect to local database. Please check the AyeHearDB service.',
-        'AYE Hear – Database Error',
-        'OK',
-        'Error')
-    exit 1
-}
+.\tools\scripts\Start-AyeHearRuntime.ps1
+# Exit 0 = ready; Exit 1 = diagnostic output + remediation hints
 ```
 
 ---
 
 ## 5. NSIS Installer
 
-### 5.1 Generate Installer
+### 5.1 Generate Installer (Inno Setup — primary)
+
+```powershell
+# Full build: PyInstaller bundle + Inno Setup installer
+.\tools\scripts\Build-WindowsPackage.ps1 -BuildInstaller -Clean
+# Output: dist\AyeHear-Setup-<version>.exe
+```
+
+The installer script bundles the provisioning scripts automatically from
+`tools\scripts\`. No additional preparation is required unless you want an
+offline/bundled PG installer (see Section 2.1 — Offline path).
+
+### 5.2 Generate NSIS Installer (legacy baseline)
 
 ```powershell
 makensis /V2 build\installer\ayehear-installer.nsi
@@ -195,23 +231,25 @@ makensis /V2 build\installer\ayehear-installer.nsi
 
 Current repository baseline:
 
-- `build\installer\ayehear-installer.nsi` packages the PyInstaller `dist\AyeHear\` onedir bundle into a Windows installer.
-- The installer copies the app to `C:\AyeHear\app`, creates desktop and Start Menu shortcuts, and registers an uninstaller.
-- PostgreSQL provisioning, service registration and migration bootstrap remain release-readiness checks and are not yet automated by this NSIS baseline.
+- `build\installer\ayehear-installer.iss` (Inno Setup 6, primary) packages the PyInstaller `dist\AyeHear\` bundle and **automates PostgreSQL 16 provisioning** via `Install-PostgresRuntime.ps1` and `Start-AyeHearRuntime.ps1`.
+- `build\installer\ayehear-installer.nsi` (NSIS 3, legacy) provides the same provisioning automation via `ExecWait` calls.
+- Both installer scripts copy `tools\scripts\Install-PostgresRuntime.ps1` and `tools\scripts\Start-AyeHearRuntime.ps1` to `%APPDATA%\AYE Hear\scripts\` for post-install use.
 
-### 5.2 Installer Responsibilities
+### 5.3 Installer Responsibilities (Updated — HEAR-049)
 
-| Phase             | Action                                                     |
-| ----------------- | ---------------------------------------------------------- |
-| Pre-install check | Detect existing version; prompt for upgrade                |
-| Install PG        | Silent PostgreSQL 16 install to `C:\AyeHear\pgsql`         |
-| Init data dir     | Run `initdb` if data directory does not exist              |
-| Register service  | Register `AyeHearDB` Windows service via `pg_ctl register` |
-| Copy app bundle   | Copy PyInstaller `onedir` output to `C:\AyeHear\app`       |
-| Start service     | Start `AyeHearDB` service                                  |
-| Run migrations    | Launch once-off migration bootstrap                        |
-| Create shortcuts  | Desktop + Start Menu shortcuts                             |
-| Uninstall         | Stop service, optionally preserve data dir (user choice)   |
+| Phase             | Action                                                      | Status    |
+| ----------------- | ----------------------------------------------------------- | --------- |
+| Pre-install check | Detect existing version; prompt for upgrade                 | Planned   |
+| Install PG        | Silent PostgreSQL 16 install to `C:\AyeHear\pgsql`          | **Done**  |
+| Init data dir     | Run `initdb` if data directory does not exist               | **Done**  |
+| Register service  | Register `AyeHearDB` Windows service via `pg_ctl register`  | **Done**  |
+| Copy app bundle   | Copy PyInstaller `onedir` output to `C:\AyeHear\app`        | **Done**  |
+| Copy scripts      | Copy provisioning + health-check scripts to `%APPDATA%`     | **Done**  |
+| Start service     | Start `AyeHearDB` service + wait for `pg_isready`           | **Done**  |
+| Run migrations    | Launch once-off migration bootstrap via Python              | **Done**  |
+| Health check      | Run `Start-AyeHearRuntime.ps1` post-install                 | **Done**  |
+| Create shortcuts  | Desktop + Start Menu shortcuts                              | **Done**  |
+| Uninstall         | Stop service, optionally preserve data dir (user choice)    | **Done**  |
 
 ---
 
@@ -243,9 +281,32 @@ attach the output file to the release ticket (QA-DP-01):
 
 ### 6.3 Deployment Validation
 
-- [ ] PostgreSQL initialization verified from zero-state
+- [ ] PostgreSQL initialization verified from zero-state (`Install-PostgresRuntime.ps1` completes without error)
+- [ ] `Start-AyeHearRuntime.ps1` exits 0 on clean machine (all 6 checks PASS)
 - [ ] Startup health check passes end-to-end
 - [ ] Schema migrations apply cleanly on a fresh data directory
+- [ ] **Clean-machine validation:** Run the full installer on a fresh Windows 11 VM and confirm application-ready state (documented in release evidence artifact)
+
+**Clean-machine validation checklist (Windows 11 VM):**
+
+```powershell
+# 1. Run installer (no PostgreSQL pre-installed on the VM)
+.\dist\AyeHear-Setup-<version>.exe
+
+# 2. After install completes, verify health check passes
+& "$env:APPDATA\AYE Hear\scripts\Start-AyeHearRuntime.ps1"
+# Expected: "=== ALL CHECKS PASSED ==="
+
+# 3. Confirm service
+Get-Service AyeHearDB | Select-Object Name, Status, StartType
+# Expected: AyeHearDB, Running, Automatic
+
+# 4. Confirm DSN file exists with restricted ACL
+Get-Acl "C:\AyeHear\runtime\pg.dsn" | Format-List
+# Expected: only SYSTEM and Administrators have access
+
+# 5. Launch AyeHear.exe and confirm meeting list loads without errors
+```
 
 ### 6.4 Artifacts & Tagging
 
@@ -282,4 +343,4 @@ attach the output file to the release ticket (QA-DP-01):
 
 **Maintained by:** AYEHEAR_DEVOPS  
 **ADR references:** ADR-0002, ADR-0006, ADR-0008  
-**Task:** HEAR-017
+**Task:** HEAR-017, HEAR-049

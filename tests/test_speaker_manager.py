@@ -1,14 +1,10 @@
 """Tests for SpeakerManager enrollment, scoring, and diarization pipeline (HEAR-012/014)."""
 from __future__ import annotations
 
-import math
 
-import pytest
 
 from ayehear.services.speaker_manager import (
-    EnrollmentResult,
     SpeakerManager,
-    SpeakerMatch,
     HIGH_CONFIDENCE_THRESHOLD,
     MEDIUM_CONFIDENCE_THRESHOLD,
 )

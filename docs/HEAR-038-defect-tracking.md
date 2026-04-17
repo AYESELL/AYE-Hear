@@ -163,6 +163,45 @@ Actual behavior:
 
 ---
 
+### Defect #4: Kein sofortiges Live-Feedback bei aktiver Mikrofonaufnahme
+
+**ID:** HEAR-038-D004
+
+**Severity:** HIGH
+
+**Area:** Function / UX
+
+**Description:**
+- Nach Start von Enrollment/Meeting fehlt ein unmittelbar sichtbares Signal, ob das Mikrofon aktiv ist.
+- Nutzer erhalten zu spaet oder gar nicht verwertbares Feedback, wenn Eingangspegel zu leise oder zu laut ist.
+- Dadurch entsteht Unsicherheit, ob Audio tatsaechlich aufgenommen wird.
+
+**Reproducible Steps:**
+1. App starten.
+2. Sprecher hinzufuegen und Enrollment starten.
+3. Meeting starten und normal/leise/laut sprechen.
+4. Auf unmittelbare Rueckmeldung in der UI achten.
+
+**Expected:**
+- Sofort sichtbarer Mikrofon-Status (z. B. idle/active/error).
+- Live-Pegelanzeige mit kurzer Guidance (zu leise/ok/zu laut).
+- Deutliches Feedback, wenn fuer mehrere Sekunden kein Signal ankommt.
+
+**Actual:**
+- Kein ausreichend fruehes und kontinuierliches Live-Feedback zum Aufnahmezustand.
+
+**Affected Workflow:** Participant Selection / Enrollment / Meeting Start
+
+**Status:** ASSIGNED
+
+**Task Mapping:**
+- HEAR-043 (Architect gate)
+- HEAR-044 (Developer implementation)
+- HEAR-045 (QA evidence)
+- HEAR-046 (Security review)
+
+---
+
 ### Example Defect #1: Dialog Title Not Updated
 
 **Severity:** MEDIUM | **Area:** UI

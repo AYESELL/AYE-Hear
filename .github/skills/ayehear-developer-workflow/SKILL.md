@@ -12,3 +12,4 @@ Core references:
 - docs/quick-refs/DEVELOPMENT_SETUP_QUICKREF.md
 - docs/quick-refs/LOCAL_TESTING_QUICKREF.md
 - docs/governance/DEFINITIONS_OF_DONE.md
+- **Coding Quality (Karpathy Principles):** ../platform-tools/.github/skills/coding-quality/SKILL.md

@@ -1,0 +1,23 @@
+===================================================================
+AYE Hear — BitLocker Pre-Flight Evidence (QA-DP-01)
+===================================================================
+Date/Time  : 2026-04-16 13:55:56
+Drive      : C:
+Host       : SAM_ULTRA
+User       : sasch
+ADR        : ADR-0009
+Task       : HEAR-035
+===================================================================
+
+-- manage-bde -status C: --
+
+BitLocker-Laufwerkverschlüsselung: Konfigurationstool, Version 10.0.26100
+Copyright (C) 2013 Microsoft Corporation. Alle Rechte vorbehalten.
+
+FEHLER: Der Zugriff auf eine erforderliche Ressource wurde verweigert.
+
+Stellen Sie sicher, dass Sie für den Computer über Administratorrechte verfügen.
+
+-------------------------------------------------------------------
+VERDICT: [FAIL]  Drive C: — BitLocker Protection: Off / Not configured
+-------------------------------------------------------------------

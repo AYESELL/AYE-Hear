@@ -64,6 +64,60 @@ Write-Host "        pyinstaller $piOut  OK"
 $version = python -c "import tomllib; f=open('pyproject.toml','rb'); d=tomllib.load(f); print(d['project']['version'])"
 Write-Host "[version] $version"
 
+# ─── Whisper model staging (HEAR-062) ─────────────────────────────────────────
+# Stage the faster-whisper 'base' model from the HuggingFace cache into
+# config/models/whisper/base/ so PyInstaller can bundle it for offline use.
+# On CI / build agents the model must be pre-downloaded before running this script.
+$WhisperModelName   = 'base'
+$WhisperStagingDir  = 'config\models\whisper\base'
+$HfCacheRoot        = "$env:USERPROFILE\.cache\huggingface\hub"
+$HfModelDir         = Join-Path $HfCacheRoot 'models--Systran--faster-whisper-base'
+
+if (-not (Test-Path (Join-Path $WhisperStagingDir 'model.bin'))) {
+    if (Test-Path $HfModelDir) {
+        # Find the latest snapshot hash directory
+        $snapshotRoot = Join-Path $HfModelDir 'snapshots'
+        $snapshots = Get-ChildItem $snapshotRoot -Directory -ErrorAction SilentlyContinue
+        if ($snapshots) {
+            $latestSnap = ($snapshots | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
+            Write-Host "[model] Staging Whisper '$WhisperModelName' from $latestSnap ..."
+            if (-not (Test-Path $WhisperStagingDir)) {
+                New-Item -ItemType Directory -Path $WhisperStagingDir -Force | Out-Null
+            }
+            # Copy required CTranslate2 model files, resolving symlinks to actual blobs
+            foreach ($fname in @('config.json', 'model.bin', 'tokenizer.json', 'vocabulary.txt')) {
+                $src = Join-Path $latestSnap $fname
+                $dst = Join-Path $WhisperStagingDir $fname
+                if (Test-Path $src) {
+                    $resolved = (Get-Item $src -Force).Target
+                    if ($resolved) {
+                        # Symlink → resolve to blob
+                        $blobPath = Join-Path (Join-Path $HfModelDir 'blobs') (Split-Path $resolved -Leaf)
+                        if (-not (Test-Path $blobPath)) { $blobPath = $resolved }
+                        Copy-Item -Path $blobPath -Destination $dst -Force
+                    } else {
+                        Copy-Item -Path $src -Destination $dst -Force
+                    }
+                    $sizeMB = [math]::Round((Get-Item $dst).Length / 1MB, 1)
+                    Write-Host "        $fname  ($sizeMB MB)"
+                } else {
+                    Write-Warning "        $fname not found in snapshot — skipping"
+                }
+            }
+            Write-Host "[model] Whisper model staged to $WhisperStagingDir  OK"
+        } else {
+            Write-Warning "[model] No snapshot found in $snapshotRoot — Whisper model will not be bundled."
+            Write-Warning "        Run: python -c 'from faster_whisper import WhisperModel; WhisperModel(\"base\")' to pre-download."
+        }
+    } else {
+        Write-Warning "[model] HuggingFace cache not found at $HfModelDir — Whisper model will not be bundled."
+        Write-Warning "        Run: python -c 'from faster_whisper import WhisperModel; WhisperModel(\"base\")' to pre-download."
+    }
+} else {
+    $modelSize = [math]::Round((Get-Item (Join-Path $WhisperStagingDir 'model.bin')).Length / 1MB, 1)
+    Write-Host "[model] Whisper '$WhisperModelName' already staged ($modelSize MB)  OK"
+}
+
 # ─── PyInstaller spec ─────────────────────────────────────────────────────────
 if (-not (Test-Path "build")) { New-Item -ItemType Directory -Path "build" | Out-Null }
 $specPath = "build\aye-hear.spec"
@@ -72,7 +126,10 @@ if (-not (Test-Path $specPath)) {
     Write-Host "[spec] Generating $specPath ..."
     $spec = @"
 # -*- mode: python ; coding: utf-8 -*-
+import os as _os
 block_cipher = None
+_whisper_model_dir = _os.path.join(_os.path.dirname(_os.path.abspath(SPEC)), '..', 'config', 'models', 'whisper', 'base')
+_whisper_datas = [(_whisper_model_dir, 'models/whisper/base')] if _os.path.isfile(_os.path.join(_whisper_model_dir, 'model.bin')) else []
 a = Analysis(
     ['../src/ayehear/__main__.py'],
     pathex=['../src'],
@@ -80,7 +137,10 @@ a = Analysis(
     datas=[
         ('../config/', 'config'),
         ('../src/ayehear/storage/migrations/', 'ayehear/storage/migrations'),
-    ],
+    ] + _whisper_datas,
+    # NOTE: faster_whisper Python code is auto-detected via PYZ.
+    # ctranslate2 DLLs and tokenizers are included via their PyInstaller hooks.
+    # Whisper model files are staged via Build-WindowsPackage.ps1 (HEAR-062).
     hiddenimports=[
         'ayehear.storage',
         'ayehear.storage.orm',

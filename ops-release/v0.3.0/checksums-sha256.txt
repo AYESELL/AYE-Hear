@@ -1,0 +1,11 @@
+# AYE Hear v0.3.0 - Build Checksums
+# Generated: 2026-04-16 (SAM_ULTRA / Build-WindowsPackage.ps1 -Clean -BuildInstaller)
+# Algorithm: SHA256
+
+AyeHear-Setup-0.3.0.exe             8C4CBED954BF7EA62108861C763D1246472729E0BCC0AF79F5EA22E41F49E0A5
+AyeHear.exe (bundle)                A5FBB787496E6CDD3B08DE7C8F3CCF28F4BBC758258841D6BF39FE0CE4C97AEC
+models/whisper/base/model.bin       D01C3014881C9C6F3133C182F3D2887EB6CA1C789A7538C5C007196857A0A6A9
+
+# Bundle stats: 1073 files, 643.9 MB uncompressed
+# Installer size: 341.5 MB (lzma2/ultra64 compressed)
+# Python runtime: 3.12.10 / PyInstaller 6.19.0 / Inno Setup 6.7.1

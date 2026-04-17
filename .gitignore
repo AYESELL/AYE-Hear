@@ -27,3 +27,15 @@ SOURCES.txt
 data/
 exports/
 models/
+
+# Whisper model binaries (staged for bundling, not committed — HEAR-062)
+config/models/whisper/base/*.bin
+config/models/whisper/base/*.json
+config/models/whisper/base/vocabulary.txt
+
+# Application log files
+logs/
+*.log
+
+# Release artifacts (do not commit installer binaries)
+ops-release/**/*.exe

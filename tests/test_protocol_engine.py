@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from ayehear.services.protocol_engine import ProtocolEngine, ProtocolContent
+from ayehear.services.protocol_engine import ProtocolEngine
 
 
 # ---------------------------------------------------------------------------

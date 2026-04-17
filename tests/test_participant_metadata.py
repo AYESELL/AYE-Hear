@@ -10,13 +10,12 @@ Validates:
 from __future__ import annotations
 
 from pathlib import Path
-from types import SimpleNamespace
 
 import pytest
 
 from ayehear.models.meeting import Participant as MeetingParticipant
-from ayehear.storage.orm import Base, Meeting, Participant
-from ayehear.storage.repositories import MeetingRepository, ParticipantRepository
+from ayehear.storage.orm import Base, Meeting
+from ayehear.storage.repositories import ParticipantRepository
 
 MIGRATION_001 = (
     Path(__file__).resolve().parents[1]
@@ -96,7 +95,6 @@ def session() -> FakeSession:
 
 @pytest.fixture()
 def meeting(session) -> Meeting:
-    repo = MeetingRepository(session)
     m = Meeting(title="Test Meeting", mode="external", meeting_type="external", status="pending")
     m.id = "m-001"
     session.add(m)

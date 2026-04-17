@@ -11,7 +11,9 @@ Transcription profiles map to faster-whisper compute_type / beam_size settings:
 from __future__ import annotations
 
 import logging
+import sys
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -26,6 +28,16 @@ _PROFILES: dict[str, dict] = {
     "accurate": {"compute_type": "float16","beam_size": 5},
 }
 
+# HEAR-061: diagnostic codes surfaced in TranscriptResult.asr_diagnostic
+ASR_DIAG_NOT_INSTALLED = "not_installed"
+ASR_DIAG_MODEL_LOAD_ERROR = "model_load_error"
+ASR_DIAG_INFERENCE_ERROR = "inference_error"
+ASR_DIAG_EMPTY_RESULT = "empty_result"
+
+
+class AsrUnavailableError(RuntimeError):
+    """Raised when faster-whisper is not installed or cannot be imported (HEAR-061)."""
+
 
 @dataclass
 class TranscriptResult:
@@ -37,6 +49,8 @@ class TranscriptResult:
     segment_id: str | None = None
     requires_review: bool = False
     error: str | None = None
+    # HEAR-061: actionable diagnostic code — see ASR_DIAG_* constants
+    asr_diagnostic: str = ""
 
 
 @dataclass
@@ -76,18 +90,31 @@ class TranscriptionService:
         """
         try:
             text, language = self._run_asr(audio_segment.samples.tolist())
-        except Exception as exc:
-            logger.warning("ASR failed for segment [%d–%d]: %s", audio_segment.start_ms, audio_segment.end_ms, exc)
+        except AsrUnavailableError as exc:
+            logger.warning("ASR unavailable: %s", exc)
             return TranscriptResult(
                 text="",
                 confidence=0.0,
                 start_ms=audio_segment.start_ms,
                 end_ms=audio_segment.end_ms,
                 error=str(exc),
+                asr_diagnostic=ASR_DIAG_NOT_INSTALLED,
+                requires_review=False,
+            )
+        except Exception as exc:
+            logger.warning("ASR failed for segment [%d\u2013%d]: %s", audio_segment.start_ms, audio_segment.end_ms, exc)
+            return TranscriptResult(
+                text="",
+                confidence=0.0,
+                start_ms=audio_segment.start_ms,
+                end_ms=audio_segment.end_ms,
+                error=str(exc),
+                asr_diagnostic=ASR_DIAG_INFERENCE_ERROR,
                 requires_review=True,
             )
 
         requires_review = confidence_score < 0.65
+        asr_diagnostic = ASR_DIAG_EMPTY_RESULT if not text else ""
 
         result = TranscriptResult(
             text=text,
@@ -96,6 +123,7 @@ class TranscriptionService:
             end_ms=audio_segment.end_ms,
             language=language,
             requires_review=requires_review,
+            asr_diagnostic=asr_diagnostic,
         )
 
         if self.transcript_repo is not None and meeting_id:
@@ -118,22 +146,44 @@ class TranscriptionService:
     def _run_asr(self, samples: list[float]) -> tuple[str, str]:
         """Run faster-whisper inference synchronously.
 
-        Returns (text, detected_language). Falls back to an empty string
-        if the model is unavailable (no ML runtime installed).
+        Returns (text, detected_language). Raises AsrUnavailableError when
+        faster-whisper is not installed, and RuntimeError on model load failure.
+        Returns ("", language) when the model produces no speech segments.
         """
         try:
-            from faster_whisper import WhisperModel
-        except ModuleNotFoundError:
-            logger.warning("faster-whisper is not installed; returning empty transcript.")
-            return "", self.language
+            from faster_whisper import WhisperModel  # type: ignore[import-untyped]
+        except ImportError as exc:
+            raise AsrUnavailableError(
+                "faster-whisper ist nicht installiert. "
+                "Bitte 'pip install faster-whisper' ausf\u00fchren."
+            ) from exc
 
         if self._model is None:
             opts = _PROFILES[self.profile]
-            self._model = WhisperModel(
-                self.model_name,
-                device="cpu",
-                compute_type=opts["compute_type"],
-            )
+            # HEAR-062: prefer bundled model when running from a PyInstaller package
+            model_path: str = self.model_name
+            if getattr(sys, "frozen", False):
+                bundled = Path(sys._MEIPASS) / "models" / "whisper" / self.model_name  # type: ignore[attr-defined]
+                if bundled.is_dir() and (bundled / "model.bin").exists():
+                    model_path = str(bundled)
+                    logger.debug("Using bundled Whisper model: %s", model_path)
+                else:
+                    logger.warning(
+                        "Bundled Whisper model '%s' not found at %s — "
+                        "falling back to HuggingFace download (requires internet).",
+                        self.model_name, bundled,
+                    )
+            try:
+                self._model = WhisperModel(
+                    model_path,
+                    device="cpu",
+                    compute_type=opts["compute_type"],
+                )
+            except Exception as exc:
+                # Keep _model None so next call retries
+                raise RuntimeError(
+                    f"Whisper-Modell '{self.model_name}' konnte nicht geladen werden: {exc}"
+                ) from exc
 
         import numpy as np
 

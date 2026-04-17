@@ -1,0 +1,28 @@
+........................................................................ [ 24%]
+........................................................................ [ 48%]
+........................................................................ [ 72%]
+........................................................................ [ 96%]
+Windows fatal exception: access violation
+
+Thread 0x0000f104 (most recent call first):
+  <no Python frame>
+
+Thread 0x000109f0 (most recent call first):
+  <no Python frame>
+
+Current thread 0x000101e8 (most recent call first):
+  File "G:\Repo\aye-hear\tests\conftest.py", line 78 in pytest_sessionfinish
+  File "G:\Repo\aye-hear\.venv\Lib\site-packages\pluggy\_callers.py", line 121 in _multicall
+  File "G:\Repo\aye-hear\.venv\Lib\site-packages\pluggy\_manager.py", line 120 in _hookexec
+  File "G:\Repo\aye-hear\.venv\Lib\site-packages\pluggy\_hooks.py", line 512 in __call__
+  File "G:\Repo\aye-hear\.venv\Lib\site-packages\_pytest\main.py", line 353 in wrap_session
+  File "G:\Repo\aye-hear\.venv\Lib\site-packages\_pytest\main.py", line 365 in pytest_cmdline_main
+  File "G:\Repo\aye-hear\.venv\Lib\site-packages\pluggy\_callers.py", line 121 in _multicall
+  File "G:\Repo\aye-hear\.venv\Lib\site-packages\pluggy\_manager.py", line 120 in _hookexec
+  File "G:\Repo\aye-hear\.venv\Lib\site-packages\pluggy\_hooks.py", line 512 in __call__
+  File "G:\Repo\aye-hear\.venv\Lib\site-packages\_pytest\config\__init__.py", line 199 in main
+  File "G:\Repo\aye-hear\.venv\Lib\site-packages\_pytest\config\__init__.py", line 223 in console_main
+  File "G:\Repo\aye-hear\.venv\Lib\site-packages\pytest\__main__.py", line 9 in <module>
+  File "<frozen runpy>", line 88 in _run_code
+  File "<frozen runpy>", line 198 in _run_module_as_main
+.........                                                                [100%]
