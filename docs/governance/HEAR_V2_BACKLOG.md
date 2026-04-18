@@ -3,7 +3,7 @@ owner: AYEHEAR_ARCHITECT
 status: active
 updated: 2026-04-18
 category: v2-backlog
-version: 0.1.0
+version: 0.2.0
 ---
 
 # AYE Hear V2 Backlog
@@ -50,8 +50,9 @@ It is architecture-owned and must be updated whenever a V2 backlog item changes 
 | V2-08 | Live Moderator Assistant | Later | 13 | planned | AYEHEAR_DEVELOPER |
 | V2-09 | Missing-Information Detector | Later | 13 | planned | AYEHEAR_DEVELOPER |
 | V2-10 | Next-Meeting Necessity Predictor | Later | 8 | planned | AYEHEAR_DEVELOPER |
+| V2-11 | Classical German Protocol and AYE Brand Layout | Now | 8 | planned | AYEHEAR_DEVELOPER |
 
-**Total Estimated Scope:** 89 SP
+**Total Estimated Scope:** 97 SP
 
 ## Detailed Epics
 
@@ -155,9 +156,21 @@ Recommend whether a follow-up meeting is needed.
 - Explanation is explicit and user-readable.
 - Outcome classes: no follow-up, async follow-up, short decision meeting.
 
+### V2-11 Classical German Protocol and AYE Brand Layout (8 SP)
+
+**Goal**
+Deliver protocol exports in AYE visual style while following a classical German meeting-minutes structure.
+
+**Acceptance Criteria**
+- Output header includes mandatory metadata fields: meeting title, short summary, location, meeting date/time, participant list.
+- Output includes protocol metadata: protocol version and protocol creation date.
+- Output body keeps structured sections for results, decisions, protocol notes, tasks and open items.
+- Layout, typography and colors follow AYE design tokens and export style rules (ADR-0014 alignment).
+- Generated protocol template is consistent across Markdown, DOCX and PDF exports.
+
 ## Current Delivery Wave
 
-- Wave 1 (Now): V2-01 to V2-04
+- Wave 1 (Now): V2-01 to V2-04, V2-11
 - Wave 2 (Next): V2-05 to V2-07
 - Wave 3 (Later): V2-08 to V2-10
 
@@ -174,6 +187,12 @@ Use this checklist on every backlog update:
    - `docs(backlog): add V2-11 compliance assistant epic`
 
 ## Change Log
+
+### 2026-04-18 (v0.2.0)
+
+- Added V2-11 for classical German protocol structure with AYE brand-compliant styling.
+- Added mandatory protocol metadata requirements (version and creation date).
+- Updated delivery wave mapping and total scope from 89 SP to 97 SP.
 
 ### 2026-04-18 (v0.1.0)
 
