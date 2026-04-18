@@ -3,7 +3,7 @@ owner: AYEHEAR_ARCHITECT
 status: active
 updated: 2026-04-18
 category: v2-backlog
-version: 0.2.1
+version: 0.2.2
 ---
 
 # AYE Hear V2 Backlog
@@ -169,6 +169,8 @@ Deliver protocol exports in AYE visual style while following a classical German 
 - Generated protocol template is consistent across Markdown, DOCX and PDF exports.
 - Protocol footer contains product branding statement: "This protocol was automatically created with help from AYE Hear." (localized DE/EN/FR).
 - Protocol includes mandatory AI-assistance disclaimer stating that transcript/protocol quality can be affected by model limitations and acoustic issues, and that human review is required before official use.
+- Protocol may include a compliance statement for GDPR and EU AI Act alignment only when release evidence and active runtime configuration support that claim.
+- Compliance statement must include offline-processing attestation that no protocol/transcript content left the local application boundary during the recorded session.
 
 ## Current Delivery Wave
 
@@ -189,6 +191,11 @@ Use this checklist on every backlog update:
    - `docs(backlog): add V2-11 compliance assistant epic`
 
 ## Change Log
+
+### 2026-04-18 (v0.2.2)
+
+- Extended V2-11 with conditional GDPR/EU AI Act compliance statement requirement.
+- Added mandatory offline-processing attestation requirement for protocol compliance footer text.
 
 ### 2026-04-18 (v0.2.1)
 
