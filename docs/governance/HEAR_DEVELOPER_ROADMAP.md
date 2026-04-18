@@ -7,6 +7,10 @@ category: implementation-roadmap
 
 # AYE Hear Developer Roadmap
 
+## Related Planning Documents
+
+- V2 backlog baseline and status tracking: `docs/governance/HEAR_V2_BACKLOG.md`
+
 ## Purpose
 
 This roadmap defines the architecture-approved implementation order after Phase-1 architect decisions.
