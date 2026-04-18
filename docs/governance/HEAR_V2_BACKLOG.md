@@ -3,7 +3,7 @@ owner: AYEHEAR_ARCHITECT
 status: active
 updated: 2026-04-18
 category: v2-backlog
-version: 0.2.0
+version: 0.2.1
 ---
 
 # AYE Hear V2 Backlog
@@ -167,6 +167,8 @@ Deliver protocol exports in AYE visual style while following a classical German 
 - Output body keeps structured sections for results, decisions, protocol notes, tasks and open items.
 - Layout, typography and colors follow AYE design tokens and export style rules (ADR-0014 alignment).
 - Generated protocol template is consistent across Markdown, DOCX and PDF exports.
+- Protocol footer contains product branding statement: "This protocol was automatically created with help from AYE Hear." (localized DE/EN/FR).
+- Protocol includes mandatory AI-assistance disclaimer stating that transcript/protocol quality can be affected by model limitations and acoustic issues, and that human review is required before official use.
 
 ## Current Delivery Wave
 
@@ -187,6 +189,11 @@ Use this checklist on every backlog update:
    - `docs(backlog): add V2-11 compliance assistant epic`
 
 ## Change Log
+
+### 2026-04-18 (v0.2.1)
+
+- Extended V2-11 with mandatory product-branding footer text in protocol exports.
+- Extended V2-11 with mandatory AI-assistance disclaimer and explicit human-review requirement.
 
 ### 2026-04-18 (v0.2.0)
 
