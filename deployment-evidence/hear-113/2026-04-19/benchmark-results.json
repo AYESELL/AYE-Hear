@@ -1,0 +1,58 @@
+{
+  "benchmark": "HEAR-113",
+  "generated_at": "2026-04-19T15:05:53",
+  "audio": "G:\\Repo\\aye-hear\\deployment-evidence\\hear-113\\2026-04-19\\hear-113-reference.wav",
+  "reference": "G:\\Repo\\aye-hear\\exports\\test-baseline-transcript-HEAR-103.txt",
+  "compute_type": "int8",
+  "beam_size": 3,
+  "language": "de",
+  "results": [
+    {
+      "model": "small",
+      "model_source": "G:\\Repo\\aye-hear\\config\\models\\whisper\\small",
+      "compute_type": "int8",
+      "beam_size": 3,
+      "audio_seconds": 87.194,
+      "load_seconds": 1.073,
+      "transcribe_seconds": 10.613,
+      "total_seconds": 11.686,
+      "peak_ram_mb": 585.9,
+      "avg_cpu_pct": 391.1,
+      "peak_cpu_pct": 448.8,
+      "transcript_chars": 1004,
+      "transcript_words": 161,
+      "reference_words": 140,
+      "wer": 0.2571,
+      "accuracy_pct": 74.29,
+      "detected_language": "de",
+      "detected_language_probability": 1,
+      "transcript_path": "G:\\Repo\\aye-hear\\deployment-evidence\\hear-113\\2026-04-19\\whisper-small-transcript.txt"
+    },
+    {
+      "model": "base",
+      "model_source": "G:\\Repo\\aye-hear\\config\\models\\whisper\\base",
+      "compute_type": "int8",
+      "beam_size": 3,
+      "audio_seconds": 87.194,
+      "load_seconds": 0.339,
+      "transcribe_seconds": 3.566,
+      "total_seconds": 3.905,
+      "peak_ram_mb": 337.0,
+      "avg_cpu_pct": 397.2,
+      "peak_cpu_pct": 520.8,
+      "transcript_chars": 1008,
+      "transcript_words": 162,
+      "reference_words": 140,
+      "wer": 0.2857,
+      "accuracy_pct": 71.43,
+      "detected_language": "de",
+      "detected_language_probability": 1,
+      "transcript_path": "G:\\Repo\\aye-hear\\deployment-evidence\\hear-113\\2026-04-19\\whisper-base-transcript.txt"
+    }
+  ],
+  "summary": {
+    "best_accuracy_model": "small",
+    "fastest_model": "base",
+    "lowest_ram_model": "base"
+  }
+}

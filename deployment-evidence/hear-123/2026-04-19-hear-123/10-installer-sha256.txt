@@ -1,0 +1,6 @@
+
+Algorithm : SHA256
+Hash      : A7837B170CD066B42EBEE0C61A03B59F81A32C48DED7945A657F14093FFA71B6
+Path      : G:\Repo\aye-hear\dist\AyeHear-Setup-0.5.4.exe
+
+

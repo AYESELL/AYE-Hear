@@ -1,0 +1,4 @@
+VoiceName=Microsoft Hedda Desktop
+Culture=de-DE
+Gender=Female
+Age=Adult

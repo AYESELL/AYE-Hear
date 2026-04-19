@@ -1,0 +1,166 @@
+2026-04-19 16:40:02  DEBUG     ayehear.services.protocol_engine  LLM inference start — cpu_pct=23.1 ram_mb=452.0 model=mistral:7b
+2026-04-19 16:40:09  DEBUG     ayehear.services.protocol_engine  LLM inference end   — cpu_pct=42.8 ram_mb=452.2
+2026-04-19 16:40:09  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 16:40:09  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=29.2 ram_mb=456.9 model=small
+2026-04-19 16:40:09  INFO      faster_whisper  Processing audio with duration 00:06.272
+2026-04-19 16:40:09  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-19 16:40:10  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=40.0 ram_mb=455.5
+2026-04-19 16:40:10  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 16:40:10  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: active → degraded
+2026-04-19 16:40:10  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: degraded → active
+2026-04-19 16:40:14  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 16:40:14  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=20.7 ram_mb=458.2 model=small
+2026-04-19 16:40:14  INFO      faster_whisper  Processing audio with duration 00:02.688
+2026-04-19 16:40:14  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-19 16:40:15  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=40.5 ram_mb=459.7
+2026-04-19 16:40:15  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 16:40:17  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 16:40:17  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=24.2 ram_mb=457.1 model=small
+2026-04-19 16:40:17  INFO      faster_whisper  Processing audio with duration 00:02.080
+2026-04-19 16:40:17  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-19 16:40:18  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=43.9 ram_mb=459.4
+2026-04-19 16:40:18  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 16:40:22  DEBUG     ayehear.services.protocol_engine  LLM inference start — cpu_pct=21.7 ram_mb=459.4 model=mistral:7b
+2026-04-19 16:40:31  DEBUG     ayehear.services.protocol_engine  LLM inference end   — cpu_pct=46.7 ram_mb=459.7
+2026-04-19 16:40:31  ERROR     ayehear.app.window  Protocol rebuild failed: expected string or bytes-like object, got 'dict'
+2026-04-19 16:40:31  INFO      ayehear.app.window  Loading runtime DSN for persistence layer reload.
+2026-04-19 16:40:31  DEBUG     ayehear.storage.database  Could not register disconnect event listener: No such event 'disconnect' for target 'Engine(postgresql+psycopg://ayehear:***@127.0.0.1:5433/ayehear)'
+2026-04-19 16:40:31  DEBUG     ayehear.storage.database  PostgreSQL loopback-only check passed: listen_addresses='localhost'
+2026-04-19 16:40:31  DEBUG     ayehear.storage.database  PostgreSQL connection verified (loopback-only check passed).
+2026-04-19 16:40:31  DEBUG     ayehear.storage.database  Skipping already-applied migration: 001_initial_schema.sql
+2026-04-19 16:40:31  DEBUG     ayehear.storage.database  Skipping already-applied migration: 002_remove_segment_text_column.sql
+2026-04-19 16:40:31  DEBUG     ayehear.storage.database  Skipping already-applied migration: 003_participant_naming_constraints.sql
+2026-04-19 16:40:31  DEBUG     ayehear.storage.database  Skipping already-applied migration: 004_transcript_correction_log.sql
+2026-04-19 16:40:31  INFO      ayehear.storage.database  All migrations already applied; schema up to date.
+2026-04-19 16:40:31  INFO      ayehear.storage.database  Database bootstrap completed.
+2026-04-19 16:40:31  INFO      ayehear.app.window  Persistence layer reloaded successfully.
+2026-04-19 16:40:31  INFO      ayehear.app.window  Persistence recovered after 'Protocol rebuild failed'.
+2026-04-19 16:40:31  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=37.5 ram_mb=460.7 model=small
+2026-04-19 16:40:31  INFO      faster_whisper  Processing audio with duration 00:07.648
+2026-04-19 16:40:31  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-19 16:40:33  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=46.3 ram_mb=458.4
+2026-04-19 16:40:33  ERROR     ayehear.services.transcription  Failed to persist segment: (psycopg.errors.ForeignKeyViolation) Einfügen oder Aktualisieren in Tabelle »transcript_segments« verletzt Fremdschlüssel-Constraint »transcript_segments_meeting_id_fkey«
+2026-04-19 16:40:33  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: active → degraded
+2026-04-19 16:40:33  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: degraded → active
+2026-04-19 16:40:34  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=27.1 ram_mb=459.7 model=small
+2026-04-19 16:40:34  INFO      faster_whisper  Processing audio with duration 00:02.176
+2026-04-19 16:40:34  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-19 16:40:35  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=41.7 ram_mb=460.5
+2026-04-19 16:40:35  ERROR     ayehear.services.transcription  Failed to persist segment: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (psycopg.errors.ForeignKeyViolation) Einfügen oder Aktualisieren in Tabelle »transcript_segments« verletzt Fremdschlüssel-Constraint »transcript_segments_meeting_id_fkey«
+2026-04-19 16:40:38  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=20.7 ram_mb=460.8 model=small
+2026-04-19 16:40:38  INFO      faster_whisper  Processing audio with duration 00:02.144
+2026-04-19 16:40:38  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-19 16:40:39  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=39.0 ram_mb=460.6
+2026-04-19 16:40:39  ERROR     ayehear.services.transcription  Failed to persist segment: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (psycopg.errors.ForeignKeyViolation) Einfügen oder Aktualisieren in Tabelle »transcript_segments« verletzt Fremdschlüssel-Constraint »transcript_segments_meeting_id_fkey«
+2026-04-19 16:40:40  ERROR     ayehear.services.protocol_engine  Failed to load transcript for 4032d73f-6709-4a62-8a5b-b0cb2527cf06: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (psycopg.errors.ForeignKeyViolation) Einfügen oder Aktualisieren in Tabelle »transcript_segments« verletzt Fremdschlüssel-Constraint »transcript_segments_meeting_id_fkey«
+2026-04-19 16:40:40  ERROR     ayehear.app.window  Protocol rebuild failed: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (psycopg.errors.ForeignKeyViolation) Einfügen oder Aktualisieren in Tabelle »transcript_segments« verletzt Fremdschlüssel-Constraint »transcript_segments_meeting_id_fkey«
+2026-04-19 16:40:40  INFO      ayehear.app.window  Loading runtime DSN for persistence layer reload.
+2026-04-19 16:40:40  DEBUG     ayehear.storage.database  Could not register disconnect event listener: No such event 'disconnect' for target 'Engine(postgresql+psycopg://ayehear:***@127.0.0.1:5433/ayehear)'
+2026-04-19 16:40:40  DEBUG     ayehear.storage.database  PostgreSQL loopback-only check passed: listen_addresses='localhost'
+2026-04-19 16:40:40  DEBUG     ayehear.storage.database  PostgreSQL connection verified (loopback-only check passed).
+2026-04-19 16:40:40  DEBUG     ayehear.storage.database  Skipping already-applied migration: 001_initial_schema.sql
+2026-04-19 16:40:40  DEBUG     ayehear.storage.database  Skipping already-applied migration: 002_remove_segment_text_column.sql
+2026-04-19 16:40:40  DEBUG     ayehear.storage.database  Skipping already-applied migration: 003_participant_naming_constraints.sql
+2026-04-19 16:40:40  DEBUG     ayehear.storage.database  Skipping already-applied migration: 004_transcript_correction_log.sql
+2026-04-19 16:40:40  INFO      ayehear.storage.database  All migrations already applied; schema up to date.
+2026-04-19 16:40:40  INFO      ayehear.storage.database  Database bootstrap completed.
+2026-04-19 16:40:40  INFO      ayehear.app.window  Persistence layer reloaded successfully.
+2026-04-19 16:40:40  INFO      ayehear.app.window  Persistence recovered after 'Protocol rebuild failed'.
+2026-04-19 16:40:41  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=21.5 ram_mb=460.6 model=small
+2026-04-19 16:40:41  INFO      faster_whisper  Processing audio with duration 00:01.920
+2026-04-19 16:40:41  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-19 16:40:42  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=40.8 ram_mb=461.5
+2026-04-19 16:40:42  ERROR     ayehear.services.transcription  Failed to persist segment: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (psycopg.errors.ForeignKeyViolation) Einfügen oder Aktualisieren in Tabelle »transcript_segments« verletzt Fremdschlüssel-Constraint »transcript_segments_meeting_id_fkey«
+2026-04-19 16:40:44  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=34.9 ram_mb=461.5 model=small
+2026-04-19 16:40:44  INFO      faster_whisper  Processing audio with duration 00:01.920
+2026-04-19 16:40:44  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-19 16:40:45  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=47.6 ram_mb=460.6
+2026-04-19 16:40:45  ERROR     ayehear.services.transcription  Failed to persist segment: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (psycopg.errors.ForeignKeyViolation) Einfügen oder Aktualisieren in Tabelle »transcript_segments« verletzt Fremdschlüssel-Constraint »transcript_segments_meeting_id_fkey«
+2026-04-19 16:40:48  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=21.7 ram_mb=460.9 model=small
+2026-04-19 16:40:48  INFO      faster_whisper  Processing audio with duration 00:02.272
+2026-04-19 16:40:48  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-19 16:40:49  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=41.8 ram_mb=455.2
+2026-04-19 16:40:49  ERROR     ayehear.services.transcription  Failed to persist segment: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (psycopg.errors.ForeignKeyViolation) Einfügen oder Aktualisieren in Tabelle »transcript_segments« verletzt Fremdschlüssel-Constraint »transcript_segments_meeting_id_fkey«
+2026-04-19 16:40:50  ERROR     ayehear.services.protocol_engine  Failed to load transcript for 4032d73f-6709-4a62-8a5b-b0cb2527cf06: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (psycopg.errors.ForeignKeyViolation) Einfügen oder Aktualisieren in Tabelle »transcript_segments« verletzt Fremdschlüssel-Constraint »transcript_segments_meeting_id_fkey«
+2026-04-19 16:40:50  ERROR     ayehear.app.window  Protocol rebuild failed: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (psycopg.errors.ForeignKeyViolation) Einfügen oder Aktualisieren in Tabelle »transcript_segments« verletzt Fremdschlüssel-Constraint »transcript_segments_meeting_id_fkey«
+2026-04-19 16:40:50  INFO      ayehear.app.window  Loading runtime DSN for persistence layer reload.
+2026-04-19 16:40:50  DEBUG     ayehear.storage.database  Could not register disconnect event listener: No such event 'disconnect' for target 'Engine(postgresql+psycopg://ayehear:***@127.0.0.1:5433/ayehear)'
+2026-04-19 16:40:50  DEBUG     ayehear.storage.database  PostgreSQL loopback-only check passed: listen_addresses='localhost'
+2026-04-19 16:40:50  DEBUG     ayehear.storage.database  PostgreSQL connection verified (loopback-only check passed).
+2026-04-19 16:40:50  DEBUG     ayehear.storage.database  Skipping already-applied migration: 001_initial_schema.sql
+2026-04-19 16:40:50  DEBUG     ayehear.storage.database  Skipping already-applied migration: 002_remove_segment_text_column.sql
+2026-04-19 16:40:50  DEBUG     ayehear.storage.database  Skipping already-applied migration: 003_participant_naming_constraints.sql
+2026-04-19 16:40:50  DEBUG     ayehear.storage.database  Skipping already-applied migration: 004_transcript_correction_log.sql
+2026-04-19 16:40:50  INFO      ayehear.storage.database  All migrations already applied; schema up to date.
+2026-04-19 16:40:50  INFO      ayehear.storage.database  Database bootstrap completed.
+2026-04-19 16:40:50  INFO      ayehear.app.window  Persistence layer reloaded successfully.
+2026-04-19 16:40:50  INFO      ayehear.app.window  Persistence recovered after 'Protocol rebuild failed'.
+2026-04-19 16:40:56  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=21.2 ram_mb=459.9 model=small
+2026-04-19 16:40:56  INFO      faster_whisper  Processing audio with duration 00:02.624
+2026-04-19 16:40:56  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-19 16:40:57  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=38.7 ram_mb=455.3
+2026-04-19 16:40:57  ERROR     ayehear.services.transcription  Failed to persist segment: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (psycopg.errors.ForeignKeyViolation) Einfügen oder Aktualisieren in Tabelle »transcript_segments« verletzt Fremdschlüssel-Constraint »transcript_segments_meeting_id_fkey«
+2026-04-19 16:40:59  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=21.6 ram_mb=459.4 model=small
+2026-04-19 16:40:59  INFO      faster_whisper  Processing audio with duration 00:02.240
+2026-04-19 16:40:59  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-19 16:41:00  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=41.3 ram_mb=460.3
+2026-04-19 16:41:00  ERROR     ayehear.services.transcription  Failed to persist segment: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (psycopg.errors.ForeignKeyViolation) Einfügen oder Aktualisieren in Tabelle »transcript_segments« verletzt Fremdschlüssel-Constraint »transcript_segments_meeting_id_fkey«
+2026-04-19 16:41:00  ERROR     ayehear.services.protocol_engine  Failed to load transcript for 4032d73f-6709-4a62-8a5b-b0cb2527cf06: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (psycopg.errors.ForeignKeyViolation) Einfügen oder Aktualisieren in Tabelle »transcript_segments« verletzt Fremdschlüssel-Constraint »transcript_segments_meeting_id_fkey«
+2026-04-19 16:41:00  ERROR     ayehear.app.window  Protocol rebuild failed: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (psycopg.errors.ForeignKeyViolation) Einfügen oder Aktualisieren in Tabelle »transcript_segments« verletzt Fremdschlüssel-Constraint »transcript_segments_meeting_id_fkey«
+2026-04-19 16:41:00  INFO      ayehear.app.window  Loading runtime DSN for persistence layer reload.
+2026-04-19 16:41:00  DEBUG     ayehear.storage.database  Could not register disconnect event listener: No such event 'disconnect' for target 'Engine(postgresql+psycopg://ayehear:***@127.0.0.1:5433/ayehear)'
+2026-04-19 16:41:00  DEBUG     ayehear.storage.database  PostgreSQL loopback-only check passed: listen_addresses='localhost'
+2026-04-19 16:41:00  DEBUG     ayehear.storage.database  PostgreSQL connection verified (loopback-only check passed).
+2026-04-19 16:41:00  DEBUG     ayehear.storage.database  Skipping already-applied migration: 001_initial_schema.sql
+2026-04-19 16:41:00  DEBUG     ayehear.storage.database  Skipping already-applied migration: 002_remove_segment_text_column.sql
+2026-04-19 16:41:00  DEBUG     ayehear.storage.database  Skipping already-applied migration: 003_participant_naming_constraints.sql
+2026-04-19 16:41:00  DEBUG     ayehear.storage.database  Skipping already-applied migration: 004_transcript_correction_log.sql
+2026-04-19 16:41:00  INFO      ayehear.storage.database  All migrations already applied; schema up to date.
+2026-04-19 16:41:00  INFO      ayehear.storage.database  Database bootstrap completed.
+2026-04-19 16:41:00  INFO      ayehear.app.window  Persistence layer reloaded successfully.
+2026-04-19 16:41:00  INFO      ayehear.app.window  Persistence recovered after 'Protocol rebuild failed'.
+2026-04-19 16:41:03  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=20.9 ram_mb=461.2 model=small
+2026-04-19 16:41:03  INFO      faster_whisper  Processing audio with duration 00:02.528
+2026-04-19 16:41:03  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-19 16:41:04  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=39.9 ram_mb=455.2
+2026-04-19 16:41:04  ERROR     ayehear.services.transcription  Failed to persist segment: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (psycopg.errors.ForeignKeyViolation) Einfügen oder Aktualisieren in Tabelle »transcript_segments« verletzt Fremdschlüssel-Constraint »transcript_segments_meeting_id_fkey«
+2026-04-19 16:41:07  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: active → degraded
+2026-04-19 16:41:10  ERROR     ayehear.services.protocol_engine  Failed to load transcript for 4032d73f-6709-4a62-8a5b-b0cb2527cf06: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (psycopg.errors.ForeignKeyViolation) Einfügen oder Aktualisieren in Tabelle »transcript_segments« verletzt Fremdschlüssel-Constraint »transcript_segments_meeting_id_fkey«
+2026-04-19 16:41:10  ERROR     ayehear.app.window  Protocol rebuild failed: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (psycopg.errors.ForeignKeyViolation) Einfügen oder Aktualisieren in Tabelle »transcript_segments« verletzt Fremdschlüssel-Constraint »transcript_segments_meeting_id_fkey«
+2026-04-19 16:41:10  INFO      ayehear.app.window  Loading runtime DSN for persistence layer reload.
+2026-04-19 16:41:10  DEBUG     ayehear.storage.database  Could not register disconnect event listener: No such event 'disconnect' for target 'Engine(postgresql+psycopg://ayehear:***@127.0.0.1:5433/ayehear)'
+2026-04-19 16:41:10  DEBUG     ayehear.storage.database  PostgreSQL loopback-only check passed: listen_addresses='localhost'
+2026-04-19 16:41:10  DEBUG     ayehear.storage.database  PostgreSQL connection verified (loopback-only check passed).
+2026-04-19 16:41:10  DEBUG     ayehear.storage.database  Skipping already-applied migration: 001_initial_schema.sql
+2026-04-19 16:41:10  DEBUG     ayehear.storage.database  Skipping already-applied migration: 002_remove_segment_text_column.sql
+2026-04-19 16:41:10  DEBUG     ayehear.storage.database  Skipping already-applied migration: 003_participant_naming_constraints.sql
+2026-04-19 16:41:10  DEBUG     ayehear.storage.database  Skipping already-applied migration: 004_transcript_correction_log.sql
+2026-04-19 16:41:10  INFO      ayehear.storage.database  All migrations already applied; schema up to date.
+2026-04-19 16:41:10  INFO      ayehear.storage.database  Database bootstrap completed.
+2026-04-19 16:41:10  INFO      ayehear.app.window  Persistence layer reloaded successfully.
+2026-04-19 16:41:10  INFO      ayehear.app.window  Persistence recovered after 'Protocol rebuild failed'.
+2026-04-19 16:41:10  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=20.2 ram_mb=458.0 model=small
+2026-04-19 16:41:10  INFO      faster_whisper  Processing audio with duration 00:01.344
+2026-04-19 16:41:10  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-19 16:41:11  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=40.1 ram_mb=461.7
+2026-04-19 16:41:11  ERROR     ayehear.services.transcription  Failed to persist segment: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (psycopg.errors.ForeignKeyViolation) Einfügen oder Aktualisieren in Tabelle »transcript_segments« verletzt Fremdschlüssel-Constraint »transcript_segments_meeting_id_fkey«
+2026-04-19 16:41:11  INFO      ayehear.services.audio_capture  Audio stream finished (device closed or error).
+2026-04-19 16:41:19  INFO      ayehear.services.audio_capture  Audio capture stopped.
+2026-04-19 16:41:19  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: degraded → idle
+2026-04-19 16:41:20  ERROR     ayehear.app.window  Failed to end meeting in DB: Meeting '4032d73f-6709-4a62-8a5b-b0cb2527cf06' not found.
+2026-04-19 16:41:20  INFO      ayehear.app.window  Loading runtime DSN for persistence layer reload.
+2026-04-19 16:41:20  DEBUG     ayehear.storage.database  Could not register disconnect event listener: No such event 'disconnect' for target 'Engine(postgresql+psycopg://ayehear:***@127.0.0.1:5433/ayehear)'
+2026-04-19 16:41:20  DEBUG     ayehear.storage.database  PostgreSQL loopback-only check passed: listen_addresses='localhost'
+2026-04-19 16:41:20  DEBUG     ayehear.storage.database  PostgreSQL connection verified (loopback-only check passed).
+2026-04-19 16:41:20  DEBUG     ayehear.storage.database  Skipping already-applied migration: 001_initial_schema.sql
+2026-04-19 16:41:20  DEBUG     ayehear.storage.database  Skipping already-applied migration: 002_remove_segment_text_column.sql
+2026-04-19 16:41:20  DEBUG     ayehear.storage.database  Skipping already-applied migration: 003_participant_naming_constraints.sql
+2026-04-19 16:41:20  DEBUG     ayehear.storage.database  Skipping already-applied migration: 004_transcript_correction_log.sql
+2026-04-19 16:41:20  INFO      ayehear.storage.database  All migrations already applied; schema up to date.
+2026-04-19 16:41:20  INFO      ayehear.storage.database  Database bootstrap completed.
+2026-04-19 16:41:20  INFO      ayehear.app.window  Persistence layer reloaded successfully.
+2026-04-19 16:41:20  INFO      ayehear.app.window  Persistence recovered after 'Failed to end meeting in DB'.
+2026-04-19 16:41:20  DEBUG     ayehear.services.confidence_review  Review queue saved: D:\AYE\AyeHear\runtime\reviews\review-4032d73f-6709-4a62-8a5b-b0cb2527cf06.json (0 items)
+2026-04-19 16:41:20  DEBUG     ayehear.app.window  Review queue saved for meeting 4032d73f-6709-4a62-8a5b-b0cb2527cf06
+2026-04-19 16:41:20  DEBUG     ayehear.services.protocol_traceability  TraceabilityStore saved: D:\AYE\AyeHear\runtime\traces\trace-4032d73f-6709-4a62-8a5b-b0cb2527cf06.json (0 links)
+2026-04-19 16:41:20  DEBUG     ayehear.app.window  Trace store saved for meeting 4032d73f-6709-4a62-8a5b-b0cb2527cf06

@@ -1,0 +1,12 @@
+
+Name                      Length   LastWriteTime
+----                      ------   -------------
+_internal                          19.04.2026 16:34:20
+aye_hear_version.txt      7        19.04.2026 16:23:48
+AyeHear.exe               18442207 19.04.2026 16:23:46
+runtime-install-notes.txt 265      11.04.2026 08:53:02
+unins000.dat              3218832  19.04.2026 16:35:17
+unins000.exe              4448002  19.04.2026 16:33:28
+Uninstall.exe             55478    11.04.2026 08:49:27
+
+
