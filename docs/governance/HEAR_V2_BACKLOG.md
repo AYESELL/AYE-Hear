@@ -3,7 +3,7 @@ owner: AYEHEAR_ARCHITECT
 status: active
 updated: 2026-04-19
 category: v2-backlog
-version: 0.3.0
+version: 0.3.2
 ---
 
 # AYE Hear V2 Backlog
@@ -45,7 +45,7 @@ Related planning documents:
 
 | ID | Epic | Priority | SP | Status | Owner Role |
 |---|---|---|---:|---|---|
-| V2-01 | Action-Item Quality Engine | Now | 8 | planned | AYEHEAR_DEVELOPER |
+| V2-01 | Action-Item Quality Engine | Now | 8 | done | AYEHEAR_DEVELOPER |
 | V2-02 | Decision Risk Radar | Now | 8 | planned | AYEHEAR_DEVELOPER |
 | V2-03 | Persona Export Profiles | Now | 5 | planned | AYEHEAR_DEVELOPER |
 | V2-04 | Meeting ROI Score | Now | 5 | planned | AYEHEAR_DEVELOPER |
@@ -56,8 +56,8 @@ Related planning documents:
 | V2-09 | Missing-Information Detector | Later | 13 | planned | AYEHEAR_DEVELOPER |
 | V2-10 | Next-Meeting Necessity Predictor | Later | 8 | planned | AYEHEAR_DEVELOPER |
 | V2-11 | Classical German Protocol and AYE Brand Layout | Now | 8 | planned | AYEHEAR_DEVELOPER |
-| V2-12 | Confidence Review Workflow | Now | 8 | ready | AYEHEAR_DEVELOPER |
-| V2-13 | Evidence-Linked Protocol Traceability | Now | 13 | ready | AYEHEAR_DEVELOPER |
+| V2-12 | Confidence Review Workflow | Now | 8 | done | AYEHEAR_DEVELOPER |
+| V2-13 | Evidence-Linked Protocol Traceability | Now | 13 | done | AYEHEAR_DEVELOPER |
 
 **Total Estimated Scope:** 118 SP
 
@@ -222,6 +222,17 @@ Use this checklist on every backlog update:
    - `docs(backlog): add V2-11 compliance assistant epic`
 
 ## Change Log
+
+### 2026-04-19 (v0.3.2)
+
+- Marked V2-01, V2-12, and V2-13 as done after implementation, integrated QA validation, security approval, and architect readiness reconciliation.
+- Confirmed the next release candidate remains bounded to the quality-first trust wave and does not reopen deferred breadth epics.
+
+### 2026-04-19 (v0.3.1)
+
+- Marked V2-01 as ready after architect approval of the quality-first next release scope.
+- Confirmed the immediate implementation wave is V2-01, V2-12, and V2-13.
+- Deferred broader inference and presentation epics to a later release until ASR benchmark evidence and trust-layer validation are complete.
 
 ### 2026-04-19 (v0.3.0)
 

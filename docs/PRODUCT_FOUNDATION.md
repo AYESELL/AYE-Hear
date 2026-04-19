@@ -22,10 +22,10 @@ Current release governance uses two explicit states:
 
 | State | Current Status | Source |
 | --- | --- | --- |
-| Operations-Handoff Readiness | GO | HEAR-052 |
-| Product-Complete Readiness | NO-GO | HEAR-086 / HEAR-088 / HEAR-091 |
+| Operations-Handoff Readiness | GO | HEAR-052 / HEAR-112 |
+| Product-Complete Readiness | GO | HEAR-086 / HEAR-088 / HEAR-110 / HEAR-112 |
 
-This distinction is mandatory for all V1 scope claims until the required installed-package E2E evidence is complete and green.
+This distinction remains mandatory for all V1 scope claims, and both states are currently green for validation candidate `0.5.3`.
 
 ## Reading Guide: Current State vs Target State
 
@@ -128,7 +128,7 @@ Target-state note:
 - ✅ Meeting history (local PostgreSQL)
 - ✅ Manual speaker correction
 - ✅ CPU & GPU adaptive (auto-profile at startup)
-- ⚠️ Installed-package commissioning evidence for the full product path is still incomplete
+- ✅ Installed-package commissioning evidence bundle completed for validation candidate `0.5.3`
 
 ### V1 Product-Complete Scope (Target)
 
@@ -153,11 +153,11 @@ Target-state note:
 
 Status note:
 - Operations-handoff release criteria are currently met for controlled deployment.
-- Product-complete criteria remain blocked until the installed-package E2E evidence gate is fully satisfied.
+- Product-complete criteria are satisfied for validation candidate `0.5.3`.
 
-Current blocker note:
-- The remaining product-complete blocker is formal evidence completeness, not the original B1/B2/B3 feature-implementation gap.
-- Current package-level NO-GO evidence is documented in `docs/HEAR-086-qa-evidence.md`, `docs/HEAR-088-qa-evidence.md`, and `docs/HEAR-091-INSTALLED-E2E-CHECKLIST.md`.
+Current authority note:
+- Installed-package E2E evidence is complete and green for the current validation candidate.
+- Current release-state authority is documented in `docs/HEAR-112-readiness-reconciliation.md` with supporting evidence in `docs/HEAR-086-qa-evidence.md`, `docs/HEAR-088-qa-evidence.md`, `docs/HEAR-110-build-evidence.md`, and `deployment-evidence/hear-091/README.md`.
 
 - **Usability:** End-to-end meeting protocol in <5 min (enroll + record + export)
 - **Accuracy:** Speaker identification ≥85% on target hardware (CPU-only laptop, GPU laptop)
