@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aye-hear"
-version = "0.5.2"
+version = "0.5.3"
 description = "Offline-first Windows desktop app for meeting transcription and protocol generation."
 readme = "README.md"
 requires-python = ">=3.11"

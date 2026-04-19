@@ -111,6 +111,15 @@ All primary AYE Hear work happens locally in `AYE-Hear/` repository.
 
 ---
 
+## Platform Service Awareness (MANDATORY)
+
+- Read `../platform-tools/docs/quick-refs/PLATFORM_SERVICE_CATALOG.md` in Phase 2 before implementing cross-cutting features.
+- Decide explicitly per feature: `reuse`, `defer`, or `local`.
+- Document the decision in ADR, design doc, or task implementation notes.
+- Do not reimplement existing platform service capabilities without documented rationale.
+
+---
+
 ## 📚 Getting Started
 
 ### For Architects

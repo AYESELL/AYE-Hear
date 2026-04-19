@@ -2,14 +2,14 @@
 
 AYE Hear is a Windows-first desktop product for local meeting transcription, speaker identification and live protocol generation.
 
-## Current Scaffold
+## Current State
 
-- Offline-first desktop shell based on PySide6
+- Offline-first desktop application based on PySide6
 - Local runtime configuration in `config/default.yaml`
-- Python package scaffold under `src/ayehear`
-- Test scaffold under `tests`
+- Runtime path model and local persistence under `src/ayehear`
+- Automated regression coverage under `tests`
 - Role-specific agent configuration in `.github`
-- Windows CI smoke workflow in `.github/workflows/windows-build.yml`
+- Windows packaging path with installer evidence in `docs/HEAR-100-build-evidence.md`
 
 ## Local Development
 
@@ -31,8 +31,8 @@ python -m ayehear protocol-replay --baseline exports\My_Meeting_20260416_201958-
 - `docs/governance/QUALITY_GATES.md`
 - `docs/governance/7-PHASE-WORKFLOW.md`
 
-## Next Build Targets
+## Formal Closure Targets
 
-1. Replace placeholder services with real audio capture and enrollment flows.
-2. Add PostgreSQL persistence for meetings, speakers and protocol revisions.
-3. Integrate faster-whisper, diarization and local LLM orchestration.
+1. Complete the installed-package E2E evidence bundle for non-default path commissioning per `docs/HEAR-091-INSTALLED-E2E-CHECKLIST.md`.
+2. Reconcile release/readiness communication so product-complete status is derived from installed E2E evidence, not only from code-level feature closure.
+3. Finish Phase-1B benchmark closure and default-model documentation alignment for the packaged runtime path.

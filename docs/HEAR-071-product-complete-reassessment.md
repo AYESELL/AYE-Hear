@@ -1,7 +1,7 @@
 ---
 owner: AYEHEAR_QA
-status: final
-updated: 2026-04-16
+status: superseded
+updated: 2026-04-19
 category: release-governance
 task: HEAR-071
 ---
@@ -10,11 +10,24 @@ task: HEAR-071
 
 ## Executive Decision
 
-**UPDATED DECISION: GO for "Product-Complete V1"**
+**CURRENT AUTHORITATIVE STATUS: NO-GO for a release-level "Product-Complete V1" claim.**
 
-Previous decision in HEAR-066: NO-GO (blocker B1/B2/B3 outstanding).
+Historical note:
+- This document remains valid as evidence that the original technical blockers B1/B2/B3 were resolved in code and test scope.
+- It is no longer the authoritative source for release communication about product-complete readiness.
+- Subsequent governance guardrails require installed-package E2E evidence for any product-complete claim.
 
-Current decision after HEAR-068/069/070 closure: **GO** — All three blockers have been resolved with production-grade implementations.
+Superseding authority:
+- `docs/HEAR-052-release-decision.md` (HEAR-082 addendum)
+- `docs/governance/QUALITY_GATES.md`
+- `docs/governance/DEFINITIONS_OF_DONE.md`
+- `docs/HEAR-086-qa-evidence.md`
+- `docs/HEAR-088-qa-evidence.md`
+- `docs/HEAR-091-INSTALLED-E2E-CHECKLIST.md`
+
+Current interpretation:
+- B1/B2/B3 closure remains **confirmed**.
+- The original GO conclusion is **withdrawn for formal release/readiness use** until the required installed-package E2E evidence bundle is complete and green.
 
 ---
 
@@ -112,7 +125,10 @@ Legend:
 
 ## Quality Gates Status
 
-All mandatory quality gates for product-complete V1 are now **PASSED**:
+The table below reflects the blocker-focused evaluation performed after HEAR-068/069/070.
+It is **not sufficient anymore** for a product-complete release claim because later governance added an installed-package E2E gate.
+
+Blocker-focused quality gates after B1/B2/B3 closure:
 
 | Gate | Requirement | Status | Evidence |
 |------|-------------|--------|----------|
@@ -185,24 +201,28 @@ All mandatory quality gates for product-complete V1 are now **PASSED**:
 | Dimension | Status | Owner | Date |
 |-----------|--------|-------|------|
 | **Operations-Handoff Readiness** | ✅ GO (per HEAR-052) | AYEHEAR_ARCHITECT | 2026-04-16 |
-| **Product-Complete Readiness** | ✅ GO (per HEAR-071) | AYEHEAR_QA | 2026-04-16 |
-| **V1 Capability Matrix** | ✅ GREEN (per this assessment) | AYEHEAR_QA | 2026-04-16 |
+| **Product-Complete Readiness** | ❌ NO-GO (authoritative current state) | AYEHEAR_ARCHITECT + AYEHEAR_QA | 2026-04-19 |
+| **B1/B2/B3 Technical Closure** | ✅ CONFIRMED | AYEHEAR_QA | 2026-04-16 |
+| **Installed Package E2E Evidence** | ❌ INCOMPLETE | AYEHEAR_QA | 2026-04-19 |
 | **Residual Risks** | ✅ DOCUMENTED (R1–R3 above) | AYEHEAR_QA | 2026-04-16 |
 
 ---
 
 ## Conclusion
 
-AYE Hear V1.0 is now **Product-Complete** by all defined V1 success criteria:
+AYE Hear V1.0 is **not currently authorized** to be described as product-complete in release/governance communication.
 
-1. ✅ Real microphone-based speaker enrollment workflow (B1 resolved)
-2. ✅ Production speaker embedding backend (B2 resolved)
-3. ✅ Export parity with Markdown, DOCX, PDF contract (B3 resolved)
-4. ✅ All V1 capability matrix entries green with linked evidence
-5. ✅ Quality gates passed; offline-first boundary validated
-6. ✅ Residual risks identified and owned
+What this document still proves:
+1. ✅ Real microphone-based speaker enrollment workflow exists (B1 resolved)
+2. ✅ Production speaker embedding backend exists (B2 resolved)
+3. ✅ Export parity with Markdown, DOCX, PDF exists in code/runtime path (B3 resolved)
 
-**Recommendation:** Proceed to General Availability (GA) with documented residual risks (R1–R3) as post-release refinement items.
+What is still missing for a formal product-complete statement:
+1. ❌ Complete installed-package E2E evidence for setup, enrollment, transcription, speaker attribution, protocol drafting, export, and runtime bootstrap/persistence
+2. ❌ Fresh screenshot/log bundle for the packaged non-default install path per HEAR-091
+3. ❌ Reconciled release communication that points to the installed-evidence-based NO-GO/GO authority instead of this historical blocker-closure record
+
+**Recommendation:** Use this document only as historical evidence of technical blocker closure, not as the current decision record for product-complete readiness.
 
 ---
 

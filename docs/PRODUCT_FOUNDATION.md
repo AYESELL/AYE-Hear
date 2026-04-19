@@ -23,9 +23,9 @@ Current release governance uses two explicit states:
 | State | Current Status | Source |
 | --- | --- | --- |
 | Operations-Handoff Readiness | GO | HEAR-052 |
-| Product-Complete Readiness | NO-GO | HEAR-066 |
+| Product-Complete Readiness | NO-GO | HEAR-086 / HEAR-088 / HEAR-091 |
 
-This distinction is mandatory for all V1 scope claims until B1/B2/B3 blockers are closed.
+This distinction is mandatory for all V1 scope claims until the required installed-package E2E evidence is complete and green.
 
 ## Reading Guide: Current State vs Target State
 
@@ -120,14 +120,15 @@ Target-state note:
 - ✅ Windows 10/11 desktop app (standalone)
 - ✅ Standard Windows microphone capture
 - ✅ Speaker identification with confidence scoring and manual correction path
-- ⚠️ Enrollment remains a controlled placeholder path (no completed real microphone enrollment workflow in current release)
+- ✅ Real microphone-based enrollment workflow implemented in code/runtime path
 - ✅ Live transcription
 - ✅ Real-time protocol generation (decisions, tasks, open items)
-- ✅ Export artifacts available as runtime text files
-- ⚠️ Markdown/DOCX/PDF parity is pending product-complete closure
+- ✅ Protocol export implementation for Markdown, DOCX and PDF
+- ✅ Transcript export as runtime TXT artifact
 - ✅ Meeting history (local PostgreSQL)
 - ✅ Manual speaker correction
 - ✅ CPU & GPU adaptive (auto-profile at startup)
+- ⚠️ Installed-package commissioning evidence for the full product path is still incomplete
 
 ### V1 Product-Complete Scope (Target)
 
@@ -135,6 +136,7 @@ Target-state note:
 - ✅ Production speaker embedding backend (no deterministic stub in production path)
 - ✅ Export parity with Markdown, DOCX, PDF contract
 - ✅ All V1 capability matrix entries Green with linked evidence
+- ✅ Installed-package E2E evidence bundle for setup, enrollment, transcription, attribution, protocol drafting, export, and runtime bootstrap/persistence
 
 ### Out of V1 (Post-Release)
 
@@ -151,7 +153,11 @@ Target-state note:
 
 Status note:
 - Operations-handoff release criteria are currently met for controlled deployment.
-- Product-complete criteria remain blocked until B1/B2/B3 are closed.
+- Product-complete criteria remain blocked until the installed-package E2E evidence gate is fully satisfied.
+
+Current blocker note:
+- The remaining product-complete blocker is formal evidence completeness, not the original B1/B2/B3 feature-implementation gap.
+- Current package-level NO-GO evidence is documented in `docs/HEAR-086-qa-evidence.md`, `docs/HEAR-088-qa-evidence.md`, and `docs/HEAR-091-INSTALLED-E2E-CHECKLIST.md`.
 
 - **Usability:** End-to-end meeting protocol in <5 min (enroll + record + export)
 - **Accuracy:** Speaker identification ≥85% on target hardware (CPU-only laptop, GPU laptop)
@@ -186,7 +192,7 @@ Status note:
 
 - **Audio:** Remains on user's machine; never transmitted
 - **Speaker Profiles:** Stored in local PostgreSQL with repository-governed protection requirements
-- **Protocol Artifacts:** Local files only (current operations-handoff: TXT runtime artifacts; product-complete target: Markdown, DOCX, PDF)
+- **Protocol Artifacts:** Local files only; protocol export implementation supports Markdown, DOCX and PDF, while transcript export remains TXT
 - **GDPR:** Users own all data; delete on-demand via local file removal
 - **Telemetry:** None by default; opt-in analytics for V2+
 

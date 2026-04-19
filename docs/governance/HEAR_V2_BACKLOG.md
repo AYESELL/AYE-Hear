@@ -1,9 +1,9 @@
 ---
 owner: AYEHEAR_ARCHITECT
 status: active
-updated: 2026-04-18
+updated: 2026-04-19
 category: v2-backlog
-version: 0.2.2
+version: 0.3.0
 ---
 
 # AYE Hear V2 Backlog
@@ -12,6 +12,11 @@ version: 0.2.2
 
 This file is the single source of truth for V2 product backlog planning.
 It is architecture-owned and must be updated whenever a V2 backlog item changes status.
+
+Related planning documents:
+
+- docs/governance/HEAR_V2_IMPROVEMENT_IDEA_REGISTER.md
+- docs/architecture/SHORT_TERM_QUALITY_AND_TRACEABILITY_PACK.md
 
 ## Governance Rules
 
@@ -51,8 +56,10 @@ It is architecture-owned and must be updated whenever a V2 backlog item changes 
 | V2-09 | Missing-Information Detector | Later | 13 | planned | AYEHEAR_DEVELOPER |
 | V2-10 | Next-Meeting Necessity Predictor | Later | 8 | planned | AYEHEAR_DEVELOPER |
 | V2-11 | Classical German Protocol and AYE Brand Layout | Now | 8 | planned | AYEHEAR_DEVELOPER |
+| V2-12 | Confidence Review Workflow | Now | 8 | ready | AYEHEAR_DEVELOPER |
+| V2-13 | Evidence-Linked Protocol Traceability | Now | 13 | ready | AYEHEAR_DEVELOPER |
 
-**Total Estimated Scope:** 97 SP
+**Total Estimated Scope:** 118 SP
 
 ## Detailed Epics
 
@@ -63,8 +70,10 @@ Automatically evaluate action items for execution quality.
 
 **Acceptance Criteria**
 - Every action item gets a score for owner, due date, verb clarity, measurability.
-- Weak action items are flagged as "needs sharpening" in export.
+- Weak action items are flagged as "needs sharpening" in export with explicit reason labels.
+- Reason labels cover at least missing owner, missing due date, weak verb, and low measurability.
 - Score logic works language-agnostic with localized labels (DE/EN/FR).
+- Scoring remains deterministic and explainable without requiring an additional cloud or model path.
 
 ### V2-02 Decision Risk Radar (8 SP)
 
@@ -172,9 +181,31 @@ Deliver protocol exports in AYE visual style while following a classical German 
 - Protocol may include a compliance statement for GDPR and EU AI Act alignment only when release evidence and active runtime configuration support that claim.
 - Compliance statement must include offline-processing attestation that no protocol/transcript content left the local application boundary during the recorded session.
 
+### V2-12 Confidence Review Workflow (8 SP)
+
+**Goal**
+Reduce review effort by focusing the user on the most uncertain protocol statements before final export.
+
+**Acceptance Criteria**
+- Review queue ranks uncertain items by explicit reason and severity.
+- Uncertainty reasons include at least low speaker confidence, low transcript confidence, conflicting extraction signals, and fallback-path usage.
+- User can accept, edit, or dismiss flagged items and the final protocol reflects the reviewed decision.
+- Workflow remains fully local and does not require any external service.
+
+### V2-13 Evidence-Linked Protocol Traceability (13 SP)
+
+**Goal**
+Make protocol statements auditable by linking decisions, tasks, and risks back to the transcript context that produced them.
+
+**Acceptance Criteria**
+- Decisions, action items, and risks can be opened with transcript excerpt, speaker attribution, and time range context.
+- Traceability links are persisted locally and survive app restart and protocol revision changes.
+- Review UI makes it clear whether a protocol item has direct transcript backing or was inferred from aggregation.
+- Export and review behavior remains compliant with offline-first and local-storage-only principles.
+
 ## Current Delivery Wave
 
-- Wave 1 (Now): V2-01 to V2-04, V2-11
+- Wave 1 (Now): V2-01 to V2-04, V2-11 to V2-13
 - Wave 2 (Next): V2-05 to V2-07
 - Wave 3 (Later): V2-08 to V2-10
 
@@ -191,6 +222,14 @@ Use this checklist on every backlog update:
    - `docs(backlog): add V2-11 compliance assistant epic`
 
 ## Change Log
+
+### 2026-04-19 (v0.3.0)
+
+- Added planning references for the V2 idea register and short-term design pack.
+- Refined V2-01 acceptance criteria with explicit reason labels and deterministic scoring expectations.
+- Added V2-12 Confidence Review Workflow as ready short-term scope.
+- Added V2-13 Evidence-Linked Protocol Traceability as ready short-term scope.
+- Updated Wave 1 and total estimated scope from 97 SP to 118 SP.
 
 ### 2026-04-18 (v0.2.2)
 
