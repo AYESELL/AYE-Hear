@@ -93,6 +93,20 @@ def runtime_dir(install_root: Path | None = None) -> Path:
     return path
 
 
+def reviews_dir(install_root: Path | None = None) -> Path:
+    """Return ``<install_root>/runtime/reviews``, creating it if necessary."""
+    path = runtime_dir(install_root) / "reviews"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
+def traces_dir(install_root: Path | None = None) -> Path:
+    """Return ``<install_root>/runtime/traces``, creating it if necessary."""
+    path = runtime_dir(install_root) / "traces"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
 def exports_dir(install_root: Path | None = None) -> Path:
     """Return ``<install_root>/exports``, creating it if necessary."""
     path = resolve_install_root(install_root) / "exports"
