@@ -1,0 +1,10 @@
+
+LocalAddress LocalPort OwningProcess  State
+------------ --------- -------------  -----
+::1               5433         28976 Listen
+127.0.0.1         5433         28976 Listen
+::1              11434         38984 Listen
+::               11434         64412 Listen
+127.0.0.1        11434         74048 Listen
+
+

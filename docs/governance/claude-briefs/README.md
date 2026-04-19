@@ -21,6 +21,7 @@ Purpose:
 - HEAR-116: [HEAR-116-action-item-quality-engine.md](HEAR-116-action-item-quality-engine.md)
 - HEAR-117: [HEAR-117-confidence-review-workflow.md](HEAR-117-confidence-review-workflow.md)
 - HEAR-118: [HEAR-118-protocol-traceability.md](HEAR-118-protocol-traceability.md)
+- HEAR-126 Follow-up: [HEAR-126-followup-persistence-hotfix.md](HEAR-126-followup-persistence-hotfix.md)
 
 ## Usage Rule
 

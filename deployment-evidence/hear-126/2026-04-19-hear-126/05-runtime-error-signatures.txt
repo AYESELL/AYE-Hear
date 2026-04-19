@@ -1,0 +1,744 @@
+
+LineNumber Line
+---------- ----
+         7 2026-04-16 21:07:32  INFO      ayehear.services.audio_capture  Audio
+           stream finished (device closed or error).
+       124 2026-04-16 21:09:28  INFO      ayehear.services.audio_capture  Audio
+           stream finished (device closed or error).
+       131 2026-04-17 00:16:05  ERROR     ayehear.app.main  Database bootstrap
+           failed; starting in degraded local-only mode: No module named
+           'psycopg2'
+       133 2026-04-17 00:16:20  ERROR     ayehear.app.main  Database bootstrap
+           failed; starting in degraded local-only mode: No module named
+           'psycopg2'
+       135 2026-04-17 00:28:33  ERROR     ayehear.app.main  Database bootstrap
+           failed; starting in degraded local-only mode: No module named
+           'psycopg2'
+       137 2026-04-17 00:33:17  ERROR     ayehear.app.main  Database bootstrap
+           failed; starting in degraded local-only mode: No module named
+           'psycopg2'
+       139 2026-04-17 00:35:02  ERROR     ayehear.app.main  Database bootstrap
+           failed; starting in degraded local-only mode: No module named
+           'psycopg2'
+       141 2026-04-17 08:00:05  ERROR     ayehear.app.main  Database bootstrap
+           failed; starting in degraded local-only mode: No module named
+           'psycopg2'
+       143 2026-04-17 08:00:06  ERROR     ayehear.app.window  Failed to reload
+           persistence layer: No module named 'psycopg2'
+       145 2026-04-17 08:00:49  ERROR     ayehear.app.window  Failed to reload
+           persistence layer: No module named 'psycopg2'
+       147 2026-04-17 08:00:51  ERROR     ayehear.app.window  Failed to reload
+           persistence layer: No module named 'psycopg2'
+       149 2026-04-17 08:00:52  ERROR     ayehear.app.window  Failed to reload
+           persistence layer: No module named 'psycopg2'
+       151 2026-04-17 08:00:52  ERROR     ayehear.app.window  Failed to reload
+           persistence layer: No module named 'psycopg2'
+       153 2026-04-17 08:00:53  ERROR     ayehear.app.window  Failed to reload
+           persistence layer: No module named 'psycopg2'
+       155 2026-04-17 08:00:53  ERROR     ayehear.app.window  Failed to reload
+           persistence layer: No module named 'psycopg2'
+       157 2026-04-17 08:00:53  ERROR     ayehear.app.window  Failed to reload
+           persistence layer: No module named 'psycopg2'
+       159 2026-04-17 08:00:53  ERROR     ayehear.app.window  Failed to reload
+           persistence layer: No module named 'psycopg2'
+       176 2026-04-17 09:03:28  INFO      ayehear.services.audio_capture  Audio
+           stream finished (device closed or error).
+       192 2026-04-17 09:04:03  INFO      ayehear.services.protocol_engine
+           Ollama unavailable (HTTP Error 404: Not Found), using rule-based
+           extraction.
+       197 2026-04-17 09:04:13  INFO      ayehear.services.protocol_engine
+           Ollama unavailable (HTTP Error 404: Not Found), using rule-based
+           extraction.
+       202 2026-04-17 09:04:22  INFO      ayehear.services.protocol_engine
+           Ollama unavailable (HTTP Error 404: Not Found), using rule-based
+           extraction.
+       209 2026-04-17 09:04:33  INFO      ayehear.services.protocol_engine
+           Ollama unavailable (HTTP Error 404: Not Found), using rule-based
+           extraction.
+       212 2026-04-17 09:04:43  INFO      ayehear.services.protocol_engine
+           Ollama unavailable (HTTP Error 404: Not Found), using rule-based
+           extraction.
+       217 2026-04-17 09:04:52  INFO      ayehear.services.protocol_engine
+           Ollama unavailable (HTTP Error 404: Not Found), using rule-based
+           extraction.
+       233 2026-04-17 09:05:03  INFO      ayehear.services.protocol_engine
+           Ollama unavailable (HTTP Error 404: Not Found), using rule-based
+           extraction.
+       240 2026-04-17 09:05:12  INFO      ayehear.services.protocol_engine
+           Ollama unavailable (HTTP Error 404: Not Found), using rule-based
+           extraction.
+       247 2026-04-17 09:05:22  INFO      ayehear.services.protocol_engine
+           Ollama unavailable (HTTP Error 404: Not Found), using rule-based
+           extraction.
+       252 2026-04-17 09:05:32  INFO      ayehear.services.protocol_engine
+           Ollama unavailable (HTTP Error 404: Not Found), using rule-based
+           extraction.
+       259 2026-04-17 09:05:43  INFO      ayehear.services.protocol_engine
+           Ollama unavailable (HTTP Error 404: Not Found), using rule-based
+           extraction.
+       264 2026-04-17 09:05:50  INFO      ayehear.services.audio_capture  Audio
+           stream finished (device closed or error).
+       285 2026-04-17 10:14:26  INFO      ayehear.services.audio_capture  Audio
+           stream finished (device closed or error).
+       457 2026-04-17 10:18:27  INFO      ayehear.services.audio_capture  Audio
+           stream finished (device closed or error).
+       477 2026-04-18 14:28:16  ERROR     ayehear.app.main  Database bootstrap
+           failed; starting in degraded local-only mode:
+           (psycopg.errors.LockNotAvailable) storniere Anfrage wegen
+           Zeitüberschreitung einer Sperre
+       486 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+       492 2026-04-18 14:28:23  ERROR     ayehear.app.window  Failed to reload
+           persistence layer: (psycopg.errors.LockNotAvailable) storniere
+           Anfrage wegen Zeitüberschreitung einer Sperre
+       501 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+       507 2026-04-18 14:28:58  ERROR     ayehear.app.window  Failed to reload
+           persistence layer: (psycopg.errors.LockNotAvailable) storniere
+           Anfrage wegen Zeitüberschreitung einer Sperre
+       516 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+       522 2026-04-18 14:29:07  ERROR     ayehear.app.window  Failed to reload
+           persistence layer: (psycopg.errors.LockNotAvailable) storniere
+           Anfrage wegen Zeitüberschreitung einer Sperre
+       531 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+       537 2026-04-18 17:07:45  ERROR     ayehear.app.window  Failed to reload
+           persistence layer: (psycopg.errors.LockNotAvailable) storniere
+           Anfrage wegen Zeitüberschreitung einer Sperre
+       546 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+       559 2026-04-18 17:47:37  INFO      ayehear.services.audio_capture  Audio
+           stream finished (device closed or error).
+       565 2026-04-18 17:51:40  ERROR     ayehear.app.window  Failed to persist
+           meeting to DB: (psycopg.OperationalError) consuming input failed:
+           server closed the connection unexpectedly
+       570 (Background on this error at: https://sqlalche.me/e/20/e3q8) — using
+           in-memory id
+       571 2026-04-18 17:51:40  ERROR     ayehear.app.window  Failed to persist
+           participant 'Herr Merczak': This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.OperationalError) consuming input
+           failed: server closed the connection unexpectedly
+       576 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       578 2026-04-18 17:51:40  ERROR     ayehear.app.window  Failed to load
+           review queue: This Session's transaction has been rolled back due to
+           a previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.OperationalError) consuming input failed: server
+           closed the connection unexpectedly
+       583 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       587 2026-04-18 17:51:40  ERROR     ayehear.app.window  Protocol refresh
+           failed: This Session's transaction has been rolled back due to a
+           previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.OperationalError) consuming input failed: server
+           closed the connection unexpectedly
+       592 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       593 2026-04-18 17:51:40  ERROR     ayehear.app.window  Protocol refresh
+           failed: This Session's transaction has been rolled back due to a
+           previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.OperationalError) consuming input failed: server
+           closed the connection unexpectedly
+       598 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       599 2026-04-18 17:51:50  ERROR     ayehear.app.window  Failed to load
+           review queue: This Session's transaction has been rolled back due to
+           a previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.OperationalError) consuming input failed: server
+           closed the connection unexpectedly
+       604 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       605 2026-04-18 17:51:50  ERROR     ayehear.services.protocol_engine
+           Failed to load transcript for 375a3f3d-6247-48a5-9b61-49ea87891147:
+           This Session's transaction has been rolled back due to a previous
+           exception during flush. To begin a new transaction with this
+           Session, first issue Session.rollback(). Original exception was:
+           (psycopg.OperationalError) consuming input failed: server closed the
+           connection unexpectedly
+       610 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       611 2026-04-18 17:51:50  ERROR     ayehear.app.window  Protocol rebuild
+           failed: This Session's transaction has been rolled back due to a
+           previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.OperationalError) consuming input failed: server
+           closed the connection unexpectedly
+       616 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       617 2026-04-18 17:52:00  ERROR     ayehear.app.window  Failed to load
+           review queue: This Session's transaction has been rolled back due to
+           a previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.OperationalError) consuming input failed: server
+           closed the connection unexpectedly
+       622 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       623 2026-04-18 17:52:00  ERROR     ayehear.services.protocol_engine
+           Failed to load transcript for 375a3f3d-6247-48a5-9b61-49ea87891147:
+           This Session's transaction has been rolled back due to a previous
+           exception during flush. To begin a new transaction with this
+           Session, first issue Session.rollback(). Original exception was:
+           (psycopg.OperationalError) consuming input failed: server closed the
+           connection unexpectedly
+       628 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       629 2026-04-18 17:52:00  ERROR     ayehear.app.window  Protocol rebuild
+           failed: This Session's transaction has been rolled back due to a
+           previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.OperationalError) consuming input failed: server
+           closed the connection unexpectedly
+       634 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       635 2026-04-18 17:52:10  ERROR     ayehear.app.window  Failed to load
+           review queue: This Session's transaction has been rolled back due to
+           a previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.OperationalError) consuming input failed: server
+           closed the connection unexpectedly
+       640 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       641 2026-04-18 17:52:10  ERROR     ayehear.services.protocol_engine
+           Failed to load transcript for 375a3f3d-6247-48a5-9b61-49ea87891147:
+           This Session's transaction has been rolled back due to a previous
+           exception during flush. To begin a new transaction with this
+           Session, first issue Session.rollback(). Original exception was:
+           (psycopg.OperationalError) consuming input failed: server closed the
+           connection unexpectedly
+       646 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       647 2026-04-18 17:52:10  ERROR     ayehear.app.window  Protocol rebuild
+           failed: This Session's transaction has been rolled back due to a
+           previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.OperationalError) consuming input failed: server
+           closed the connection unexpectedly
+       652 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       653 2026-04-18 17:52:20  ERROR     ayehear.app.window  Failed to load
+           review queue: This Session's transaction has been rolled back due to
+           a previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.OperationalError) consuming input failed: server
+           closed the connection unexpectedly
+       658 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       659 2026-04-18 17:52:20  ERROR     ayehear.services.protocol_engine
+           Failed to load transcript for 375a3f3d-6247-48a5-9b61-49ea87891147:
+           This Session's transaction has been rolled back due to a previous
+           exception during flush. To begin a new transaction with this
+           Session, first issue Session.rollback(). Original exception was:
+           (psycopg.OperationalError) consuming input failed: server closed the
+           connection unexpectedly
+       664 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       665 2026-04-18 17:52:20  ERROR     ayehear.app.window  Protocol rebuild
+           failed: This Session's transaction has been rolled back due to a
+           previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.OperationalError) consuming input failed: server
+           closed the connection unexpectedly
+       670 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       671 2026-04-18 17:52:30  ERROR     ayehear.app.window  Failed to load
+           review queue: This Session's transaction has been rolled back due to
+           a previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.OperationalError) consuming input failed: server
+           closed the connection unexpectedly
+       676 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       677 2026-04-18 17:52:30  ERROR     ayehear.services.protocol_engine
+           Failed to load transcript for 375a3f3d-6247-48a5-9b61-49ea87891147:
+           This Session's transaction has been rolled back due to a previous
+           exception during flush. To begin a new transaction with this
+           Session, first issue Session.rollback(). Original exception was:
+           (psycopg.OperationalError) consuming input failed: server closed the
+           connection unexpectedly
+       682 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       683 2026-04-18 17:52:30  ERROR     ayehear.app.window  Protocol rebuild
+           failed: This Session's transaction has been rolled back due to a
+           previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.OperationalError) consuming input failed: server
+           closed the connection unexpectedly
+       688 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       689 2026-04-18 17:52:31  INFO      ayehear.services.audio_capture  Audio
+           stream finished (device closed or error).
+       692 2026-04-18 17:52:40  ERROR     ayehear.app.window  Failed to end
+           meeting in DB: This Session's transaction has been rolled back due
+           to a previous exception during flush. To begin a new transaction
+           with this Session, first issue Session.rollback(). Original
+           exception was: (psycopg.OperationalError) consuming input failed:
+           server closed the connection unexpectedly
+       697 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       710 2026-04-18 18:52:50  INFO      ayehear.services.audio_capture  Audio
+           stream finished (device closed or error).
+       716 2026-04-18 18:53:08  ERROR     ayehear.app.window  Failed to persist
+           meeting to DB; using in-memory id: (psycopg.errors.LockNotAvailable)
+           storniere Anfrage wegen Zeitüberschreitung einer Sperre
+       721 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+       742 2026-04-18 18:53:23  ERROR     ayehear.services.transcription
+           Failed to persist segment: (psycopg.errors.LockNotAvailable)
+           storniere Anfrage wegen Zeitüberschreitung einer Sperre
+       747 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+       749 2026-04-18 18:53:23  ERROR     ayehear.services.protocol_engine
+           Failed to load transcript for 608caf34-0c36-4949-bebe-6dc277ead1cc:
+           This Session's transaction has been rolled back due to a previous
+           exception during flush. To begin a new transaction with this
+           Session, first issue Session.rollback(). Original exception was:
+           (psycopg.errors.LockNotAvailable) storniere Anfrage wegen
+           Zeitüberschreitung einer Sperre
+       754 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       755 2026-04-18 18:53:23  ERROR     ayehear.app.window  Protocol rebuild
+           failed: This Session's transaction has been rolled back due to a
+           previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.errors.LockNotAvailable) storniere Anfrage wegen
+           Zeitüberschreitung einer Sperre
+       760 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       777 2026-04-18 18:53:24  ERROR     ayehear.services.transcription
+           Failed to persist segment: This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.errors.LockNotAvailable) storniere
+           Anfrage wegen Zeitüberschreitung einer Sperre
+       782 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       783 2026-04-18 18:53:28  ERROR     ayehear.services.protocol_engine
+           Failed to load transcript for 608caf34-0c36-4949-bebe-6dc277ead1cc:
+           This Session's transaction has been rolled back due to a previous
+           exception during flush. To begin a new transaction with this
+           Session, first issue Session.rollback(). Original exception was:
+           (psycopg.errors.LockNotAvailable) storniere Anfrage wegen
+           Zeitüberschreitung einer Sperre
+       788 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       789 2026-04-18 18:53:28  ERROR     ayehear.app.window  Protocol rebuild
+           failed: This Session's transaction has been rolled back due to a
+           previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.errors.LockNotAvailable) storniere Anfrage wegen
+           Zeitüberschreitung einer Sperre
+       794 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       810 2026-04-18 18:53:30  ERROR     ayehear.services.transcription
+           Failed to persist segment: This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.errors.LockNotAvailable) storniere
+           Anfrage wegen Zeitüberschreitung einer Sperre
+       815 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       820 2026-04-18 18:53:33  ERROR     ayehear.services.transcription
+           Failed to persist segment: This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.errors.LockNotAvailable) storniere
+           Anfrage wegen Zeitüberschreitung einer Sperre
+       825 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       830 2026-04-18 18:53:37  ERROR     ayehear.services.transcription
+           Failed to persist segment: This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.errors.LockNotAvailable) storniere
+           Anfrage wegen Zeitüberschreitung einer Sperre
+       835 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       836 2026-04-18 18:53:38  ERROR     ayehear.services.protocol_engine
+           Failed to load transcript for 608caf34-0c36-4949-bebe-6dc277ead1cc:
+           This Session's transaction has been rolled back due to a previous
+           exception during flush. To begin a new transaction with this
+           Session, first issue Session.rollback(). Original exception was:
+           (psycopg.errors.LockNotAvailable) storniere Anfrage wegen
+           Zeitüberschreitung einer Sperre
+       841 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       842 2026-04-18 18:53:38  ERROR     ayehear.app.window  Protocol rebuild
+           failed: This Session's transaction has been rolled back due to a
+           previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.errors.LockNotAvailable) storniere Anfrage wegen
+           Zeitüberschreitung einer Sperre
+       847 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       863 2026-04-18 18:53:40  ERROR     ayehear.services.transcription
+           Failed to persist segment: This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.errors.LockNotAvailable) storniere
+           Anfrage wegen Zeitüberschreitung einer Sperre
+       868 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       871 2026-04-18 18:53:48  ERROR     ayehear.services.protocol_engine
+           Failed to load transcript for 608caf34-0c36-4949-bebe-6dc277ead1cc:
+           This Session's transaction has been rolled back due to a previous
+           exception during flush. To begin a new transaction with this
+           Session, first issue Session.rollback(). Original exception was:
+           (psycopg.errors.LockNotAvailable) storniere Anfrage wegen
+           Zeitüberschreitung einer Sperre
+       876 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       877 2026-04-18 18:53:48  ERROR     ayehear.app.window  Protocol rebuild
+           failed: This Session's transaction has been rolled back due to a
+           previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.errors.LockNotAvailable) storniere Anfrage wegen
+           Zeitüberschreitung einer Sperre
+       882 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       898 2026-04-18 18:53:50  ERROR     ayehear.services.transcription
+           Failed to persist segment: This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.errors.LockNotAvailable) storniere
+           Anfrage wegen Zeitüberschreitung einer Sperre
+       903 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       908 2026-04-18 18:53:55  ERROR     ayehear.services.transcription
+           Failed to persist segment: This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.errors.LockNotAvailable) storniere
+           Anfrage wegen Zeitüberschreitung einer Sperre
+       913 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       914 2026-04-18 18:53:58  ERROR     ayehear.services.protocol_engine
+           Failed to load transcript for 608caf34-0c36-4949-bebe-6dc277ead1cc:
+           This Session's transaction has been rolled back due to a previous
+           exception during flush. To begin a new transaction with this
+           Session, first issue Session.rollback(). Original exception was:
+           (psycopg.errors.LockNotAvailable) storniere Anfrage wegen
+           Zeitüberschreitung einer Sperre
+       919 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       920 2026-04-18 18:53:58  ERROR     ayehear.app.window  Protocol rebuild
+           failed: This Session's transaction has been rolled back due to a
+           previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.errors.LockNotAvailable) storniere Anfrage wegen
+           Zeitüberschreitung einer Sperre
+       925 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       950 2026-04-18 18:54:05  ERROR     ayehear.services.transcription
+           Failed to persist segment: This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.errors.LockNotAvailable) storniere
+           Anfrage wegen Zeitüberschreitung einer Sperre
+       955 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       962 2026-04-18 18:54:06  ERROR     ayehear.services.transcription
+           Failed to persist segment: This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.errors.LockNotAvailable) storniere
+           Anfrage wegen Zeitüberschreitung einer Sperre
+       967 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       968 2026-04-18 18:54:08  ERROR     ayehear.services.protocol_engine
+           Failed to load transcript for 608caf34-0c36-4949-bebe-6dc277ead1cc:
+           This Session's transaction has been rolled back due to a previous
+           exception during flush. To begin a new transaction with this
+           Session, first issue Session.rollback(). Original exception was:
+           (psycopg.errors.LockNotAvailable) storniere Anfrage wegen
+           Zeitüberschreitung einer Sperre
+       973 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       974 2026-04-18 18:54:08  ERROR     ayehear.app.window  Protocol rebuild
+           failed: This Session's transaction has been rolled back due to a
+           previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.errors.LockNotAvailable) storniere Anfrage wegen
+           Zeitüberschreitung einer Sperre
+       979 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+       995 2026-04-18 18:54:10  ERROR     ayehear.services.transcription
+           Failed to persist segment: This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.errors.LockNotAvailable) storniere
+           Anfrage wegen Zeitüberschreitung einer Sperre
+      1000 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1005 2026-04-18 18:54:14  ERROR     ayehear.services.transcription
+           Failed to persist segment: This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.errors.LockNotAvailable) storniere
+           Anfrage wegen Zeitüberschreitung einer Sperre
+      1010 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1015 2026-04-18 18:54:17  ERROR     ayehear.services.transcription
+           Failed to persist segment: This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.errors.LockNotAvailable) storniere
+           Anfrage wegen Zeitüberschreitung einer Sperre
+      1020 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1021 2026-04-18 18:54:18  ERROR     ayehear.services.protocol_engine
+           Failed to load transcript for 608caf34-0c36-4949-bebe-6dc277ead1cc:
+           This Session's transaction has been rolled back due to a previous
+           exception during flush. To begin a new transaction with this
+           Session, first issue Session.rollback(). Original exception was:
+           (psycopg.errors.LockNotAvailable) storniere Anfrage wegen
+           Zeitüberschreitung einer Sperre
+      1026 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1027 2026-04-18 18:54:18  ERROR     ayehear.app.window  Protocol rebuild
+           failed: This Session's transaction has been rolled back due to a
+           previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.errors.LockNotAvailable) storniere Anfrage wegen
+           Zeitüberschreitung einer Sperre
+      1032 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1048 2026-04-18 18:54:23  ERROR     ayehear.services.transcription
+           Failed to persist segment: This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.errors.LockNotAvailable) storniere
+           Anfrage wegen Zeitüberschreitung einer Sperre
+      1053 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1058 2026-04-18 18:54:26  ERROR     ayehear.services.transcription
+           Failed to persist segment: This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.errors.LockNotAvailable) storniere
+           Anfrage wegen Zeitüberschreitung einer Sperre
+      1063 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1064 2026-04-18 18:54:28  ERROR     ayehear.services.protocol_engine
+           Failed to load transcript for 608caf34-0c36-4949-bebe-6dc277ead1cc:
+           This Session's transaction has been rolled back due to a previous
+           exception during flush. To begin a new transaction with this
+           Session, first issue Session.rollback(). Original exception was:
+           (psycopg.errors.LockNotAvailable) storniere Anfrage wegen
+           Zeitüberschreitung einer Sperre
+      1069 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1070 2026-04-18 18:54:28  ERROR     ayehear.app.window  Protocol rebuild
+           failed: This Session's transaction has been rolled back due to a
+           previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.errors.LockNotAvailable) storniere Anfrage wegen
+           Zeitüberschreitung einer Sperre
+      1075 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1091 2026-04-18 18:54:30  ERROR     ayehear.services.transcription
+           Failed to persist segment: This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.errors.LockNotAvailable) storniere
+           Anfrage wegen Zeitüberschreitung einer Sperre
+      1096 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1097 2026-04-18 18:54:32  INFO      ayehear.services.audio_capture  Audio
+           stream finished (device closed or error).
+      1100 2026-04-18 18:54:45  ERROR     ayehear.app.window  Failed to end
+           meeting in DB: (psycopg.errors.LockNotAvailable) storniere Anfrage
+           wegen Zeitüberschreitung einer Sperre
+      1107 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+      1118 2026-04-18 18:54:45  INFO      ayehear.app.window  Persistence
+           recovered after 'Failed to end meeting in DB'.
+      1132 2026-04-19 13:16:38  INFO      ayehear.services.audio_capture  Audio
+           stream finished (device closed or error).
+      1246 2026-04-19 13:19:07  INFO      ayehear.services.audio_capture  Audio
+           stream finished (device closed or error).
+      1304 2026-04-19 16:38:06  INFO      ayehear.services.audio_capture  Audio
+           stream finished (device closed or error).
+      1312 2026-04-19 16:38:25  INFO      ayehear.services.audio_capture  Audio
+           stream finished (device closed or error).
+      1440 2026-04-19 16:40:31  ERROR     ayehear.app.window  Protocol rebuild
+           failed: expected string or bytes-like object, got 'dict'
+      1457 2026-04-19 16:40:33  ERROR     ayehear.services.transcription
+           Failed to persist segment: (psycopg.errors.ForeignKeyViolation)
+           Einfügen oder Aktualisieren in Tabelle »transcript_segments«
+           verletzt Fremdschlüssel-Constraint
+           »transcript_segments_meeting_id_fkey«
+      1461 (Background on this error at: https://sqlalche.me/e/20/gkpj)
+      1468 2026-04-19 16:40:35  ERROR     ayehear.services.transcription
+           Failed to persist segment: This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.errors.ForeignKeyViolation)
+           Einfügen oder Aktualisieren in Tabelle »transcript_segments«
+           verletzt Fremdschlüssel-Constraint
+           »transcript_segments_meeting_id_fkey«
+      1472 (Background on this error at: https://sqlalche.me/e/20/gkpj)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1477 2026-04-19 16:40:39  ERROR     ayehear.services.transcription
+           Failed to persist segment: This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.errors.ForeignKeyViolation)
+           Einfügen oder Aktualisieren in Tabelle »transcript_segments«
+           verletzt Fremdschlüssel-Constraint
+           »transcript_segments_meeting_id_fkey«
+      1481 (Background on this error at: https://sqlalche.me/e/20/gkpj)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1482 2026-04-19 16:40:40  ERROR     ayehear.services.protocol_engine
+           Failed to load transcript for 4032d73f-6709-4a62-8a5b-b0cb2527cf06:
+           This Session's transaction has been rolled back due to a previous
+           exception during flush. To begin a new transaction with this
+           Session, first issue Session.rollback(). Original exception was:
+           (psycopg.errors.ForeignKeyViolation) Einfügen oder Aktualisieren in
+           Tabelle »transcript_segments« verletzt Fremdschlüssel-Constraint
+           »transcript_segments_meeting_id_fkey«
+      1486 (Background on this error at: https://sqlalche.me/e/20/gkpj)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1487 2026-04-19 16:40:40  ERROR     ayehear.app.window  Protocol rebuild
+           failed: This Session's transaction has been rolled back due to a
+           previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.errors.ForeignKeyViolation) Einfügen oder
+           Aktualisieren in Tabelle »transcript_segments« verletzt
+           Fremdschlüssel-Constraint »transcript_segments_meeting_id_fkey«
+      1491 (Background on this error at: https://sqlalche.me/e/20/gkpj)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1508 2026-04-19 16:40:42  ERROR     ayehear.services.transcription
+           Failed to persist segment: This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.errors.ForeignKeyViolation)
+           Einfügen oder Aktualisieren in Tabelle »transcript_segments«
+           verletzt Fremdschlüssel-Constraint
+           »transcript_segments_meeting_id_fkey«
+      1512 (Background on this error at: https://sqlalche.me/e/20/gkpj)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1517 2026-04-19 16:40:45  ERROR     ayehear.services.transcription
+           Failed to persist segment: This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.errors.ForeignKeyViolation)
+           Einfügen oder Aktualisieren in Tabelle »transcript_segments«
+           verletzt Fremdschlüssel-Constraint
+           »transcript_segments_meeting_id_fkey«
+      1521 (Background on this error at: https://sqlalche.me/e/20/gkpj)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1526 2026-04-19 16:40:49  ERROR     ayehear.services.transcription
+           Failed to persist segment: This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.errors.ForeignKeyViolation)
+           Einfügen oder Aktualisieren in Tabelle »transcript_segments«
+           verletzt Fremdschlüssel-Constraint
+           »transcript_segments_meeting_id_fkey«
+      1530 (Background on this error at: https://sqlalche.me/e/20/gkpj)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1531 2026-04-19 16:40:50  ERROR     ayehear.services.protocol_engine
+           Failed to load transcript for 4032d73f-6709-4a62-8a5b-b0cb2527cf06:
+           This Session's transaction has been rolled back due to a previous
+           exception during flush. To begin a new transaction with this
+           Session, first issue Session.rollback(). Original exception was:
+           (psycopg.errors.ForeignKeyViolation) Einfügen oder Aktualisieren in
+           Tabelle »transcript_segments« verletzt Fremdschlüssel-Constraint
+           »transcript_segments_meeting_id_fkey«
+      1535 (Background on this error at: https://sqlalche.me/e/20/gkpj)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1536 2026-04-19 16:40:50  ERROR     ayehear.app.window  Protocol rebuild
+           failed: This Session's transaction has been rolled back due to a
+           previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.errors.ForeignKeyViolation) Einfügen oder
+           Aktualisieren in Tabelle »transcript_segments« verletzt
+           Fremdschlüssel-Constraint »transcript_segments_meeting_id_fkey«
+      1540 (Background on this error at: https://sqlalche.me/e/20/gkpj)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1557 2026-04-19 16:40:57  ERROR     ayehear.services.transcription
+           Failed to persist segment: This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.errors.ForeignKeyViolation)
+           Einfügen oder Aktualisieren in Tabelle »transcript_segments«
+           verletzt Fremdschlüssel-Constraint
+           »transcript_segments_meeting_id_fkey«
+      1561 (Background on this error at: https://sqlalche.me/e/20/gkpj)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1566 2026-04-19 16:41:00  ERROR     ayehear.services.transcription
+           Failed to persist segment: This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.errors.ForeignKeyViolation)
+           Einfügen oder Aktualisieren in Tabelle »transcript_segments«
+           verletzt Fremdschlüssel-Constraint
+           »transcript_segments_meeting_id_fkey«
+      1570 (Background on this error at: https://sqlalche.me/e/20/gkpj)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1571 2026-04-19 16:41:00  ERROR     ayehear.services.protocol_engine
+           Failed to load transcript for 4032d73f-6709-4a62-8a5b-b0cb2527cf06:
+           This Session's transaction has been rolled back due to a previous
+           exception during flush. To begin a new transaction with this
+           Session, first issue Session.rollback(). Original exception was:
+           (psycopg.errors.ForeignKeyViolation) Einfügen oder Aktualisieren in
+           Tabelle »transcript_segments« verletzt Fremdschlüssel-Constraint
+           »transcript_segments_meeting_id_fkey«
+      1575 (Background on this error at: https://sqlalche.me/e/20/gkpj)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1576 2026-04-19 16:41:00  ERROR     ayehear.app.window  Protocol rebuild
+           failed: This Session's transaction has been rolled back due to a
+           previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.errors.ForeignKeyViolation) Einfügen oder
+           Aktualisieren in Tabelle »transcript_segments« verletzt
+           Fremdschlüssel-Constraint »transcript_segments_meeting_id_fkey«
+      1580 (Background on this error at: https://sqlalche.me/e/20/gkpj)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1597 2026-04-19 16:41:04  ERROR     ayehear.services.transcription
+           Failed to persist segment: This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.errors.ForeignKeyViolation)
+           Einfügen oder Aktualisieren in Tabelle »transcript_segments«
+           verletzt Fremdschlüssel-Constraint
+           »transcript_segments_meeting_id_fkey«
+      1601 (Background on this error at: https://sqlalche.me/e/20/gkpj)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1603 2026-04-19 16:41:10  ERROR     ayehear.services.protocol_engine
+           Failed to load transcript for 4032d73f-6709-4a62-8a5b-b0cb2527cf06:
+           This Session's transaction has been rolled back due to a previous
+           exception during flush. To begin a new transaction with this
+           Session, first issue Session.rollback(). Original exception was:
+           (psycopg.errors.ForeignKeyViolation) Einfügen oder Aktualisieren in
+           Tabelle »transcript_segments« verletzt Fremdschlüssel-Constraint
+           »transcript_segments_meeting_id_fkey«
+      1607 (Background on this error at: https://sqlalche.me/e/20/gkpj)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1608 2026-04-19 16:41:10  ERROR     ayehear.app.window  Protocol rebuild
+           failed: This Session's transaction has been rolled back due to a
+           previous exception during flush. To begin a new transaction with
+           this Session, first issue Session.rollback(). Original exception
+           was: (psycopg.errors.ForeignKeyViolation) Einfügen oder
+           Aktualisieren in Tabelle »transcript_segments« verletzt
+           Fremdschlüssel-Constraint »transcript_segments_meeting_id_fkey«
+      1612 (Background on this error at: https://sqlalche.me/e/20/gkpj)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1629 2026-04-19 16:41:11  ERROR     ayehear.services.transcription
+           Failed to persist segment: This Session's transaction has been
+           rolled back due to a previous exception during flush. To begin a new
+           transaction with this Session, first issue Session.rollback().
+           Original exception was: (psycopg.errors.ForeignKeyViolation)
+           Einfügen oder Aktualisieren in Tabelle »transcript_segments«
+           verletzt Fremdschlüssel-Constraint
+           »transcript_segments_meeting_id_fkey«
+      1633 (Background on this error at: https://sqlalche.me/e/20/gkpj)
+           (Background on this error at: https://sqlalche.me/e/20/7s2a)
+      1634 2026-04-19 16:41:11  INFO      ayehear.services.audio_capture  Audio
+           stream finished (device closed or error).
+      1637 2026-04-19 16:41:20  ERROR     ayehear.app.window  Failed to end
+           meeting in DB: Meeting '4032d73f-6709-4a62-8a5b-b0cb2527cf06' not
+           found.
+      1649 2026-04-19 16:41:20  INFO      ayehear.app.window  Persistence
+           recovered after 'Failed to end meeting in DB'.
+
+
