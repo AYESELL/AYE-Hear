@@ -15,7 +15,7 @@ import re
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -57,6 +57,10 @@ class ProtocolSnapshot:
     snapshot_id: str | None = None
 
 
+class OllamaModelUnavailableError(RuntimeError):
+    """Raised when the configured Ollama model is not available locally."""
+
+
 class ProtocolEngine:
     """Generates protocol snapshots from transcript data.
 
@@ -68,14 +72,23 @@ class ProtocolEngine:
         snapshot_repo: "ProtocolSnapshotRepository | None" = None,
         transcript_repo: "TranscriptSegmentRepository | None" = None,
         ollama_base_url: str = "http://localhost:11434",
-        ollama_model: str = "mistral",
+        ollama_model: str = "mistral:7b",
         language: str = "Deutsch",
+        fallback_enabled: bool = True,
     ) -> None:
         self._snapshots = snapshot_repo
         self._transcripts = transcript_repo
         self._ollama_base_url = self._validate_loopback_url(ollama_base_url)
         self._ollama_model = ollama_model
         self._language = language
+        self._fallback_enabled = fallback_enabled
+        self._last_diagnostics: dict[str, Any] = {
+            "status": "idle",
+            "reason": "",
+            "fallback_used": False,
+            "model": self._ollama_model,
+            "available_models": [],
+        }
 
     @staticmethod
     def _validate_loopback_url(url: str) -> str:
@@ -98,7 +111,23 @@ class ProtocolEngine:
     # Public API
     # ------------------------------------------------------------------
 
-    def generate(self, meeting_id: str, db_session: "Session | None" = None) -> ProtocolSnapshot:
+    @property
+    def last_diagnostics(self) -> dict[str, Any]:
+        return {
+            "status": self._last_diagnostics["status"],
+            "reason": self._last_diagnostics["reason"],
+            "fallback_used": self._last_diagnostics["fallback_used"],
+            "model": self._last_diagnostics["model"],
+            "available_models": list(self._last_diagnostics["available_models"]),
+        }
+
+    def generate(
+        self,
+        meeting_id: str,
+        db_session: "Session | None" = None,
+        *,
+        allow_fallback: bool | None = None,
+    ) -> ProtocolSnapshot:
         """Generate a new immutable protocol snapshot for the given meeting.
 
         Reads all non-silence, reviewed transcript segments, extracts structured
@@ -106,7 +135,7 @@ class ProtocolEngine:
         snapshot to the repository.
         """
         lines = self._load_transcript_lines(meeting_id)
-        content = self._extract_content(lines)
+        content = self._extract_content(lines, allow_fallback=allow_fallback)
 
         if self._snapshots is None:
             return ProtocolSnapshot(
@@ -138,15 +167,39 @@ class ProtocolEngine:
             snapshot_id=snapshot_row.id,
         )
 
-    def summarize_window(self, transcript_window: list[str]) -> dict[str, list[str]]:
+    def summarize_window(
+        self,
+        transcript_window: list[str],
+        *,
+        allow_fallback: bool | None = None,
+    ) -> dict[str, list[str]]:
         """Backward-compatible method used by existing tests and UI callers."""
-        content = self._extract_content(transcript_window)
+        content = self._extract_content(transcript_window, allow_fallback=allow_fallback)
         return {
             "decisions": content.decisions,
             "action_items": content.action_items,
             "open_questions": content.open_questions,
             "summary": content.summary,
         }
+
+    def available_models(self) -> list[str]:
+        """Return the locally available Ollama model names."""
+        req = urllib.request.Request(
+            f"{self._ollama_base_url}/api/tags",
+            headers={"Content-Type": "application/json"},
+            method="GET",
+        )
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            body = json.loads(resp.read().decode())
+
+        models: list[str] = []
+        for entry in body.get("models", []):
+            if not isinstance(entry, dict):
+                continue
+            model_name = entry.get("model") or entry.get("name")
+            if isinstance(model_name, str) and model_name and model_name not in models:
+                models.append(model_name)
+        return models
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -169,15 +222,73 @@ class ProtocolEngine:
             logger.error("Failed to load transcript for %s: %s", meeting_id, exc)
             return []
 
-    def _extract_content(self, lines: list[str]) -> ProtocolContent:
+    def _set_diagnostics(
+        self,
+        *,
+        status: str,
+        reason: str,
+        fallback_used: bool,
+        available_models: list[str] | None = None,
+    ) -> None:
+        self._last_diagnostics = {
+            "status": status,
+            "reason": reason,
+            "fallback_used": fallback_used,
+            "model": self._ollama_model,
+            "available_models": list(available_models or []),
+        }
+
+    def _ensure_model_available(self) -> list[str]:
+        available_models = self.available_models()
+        if not available_models:
+            raise OllamaModelUnavailableError("No local Ollama models are available.")
+        if self._ollama_model not in available_models:
+            available = ", ".join(available_models)
+            raise OllamaModelUnavailableError(
+                f"Configured Ollama model '{self._ollama_model}' is unavailable. "
+                f"Available models: {available}."
+            )
+        return available_models
+
+    def _extract_content(
+        self,
+        lines: list[str],
+        *,
+        allow_fallback: bool | None = None,
+    ) -> ProtocolContent:
         if not lines:
             return ProtocolContent(
                 summary=["No transcript content available."],
             )
 
+        use_fallback = self._fallback_enabled if allow_fallback is None else allow_fallback
+
         try:
-            return self._extract_via_ollama(lines)
+            available_models = self._ensure_model_available()
+            content = self._extract_via_ollama(lines)
+            self._set_diagnostics(
+                status="ollama",
+                reason="Structured extraction completed.",
+                fallback_used=False,
+                available_models=available_models,
+            )
+            return content
         except Exception as exc:
+            available_models = self._last_diagnostics.get("available_models", [])
+            self._set_diagnostics(
+                status="failed",
+                reason=str(exc),
+                fallback_used=False,
+                available_models=available_models,
+            )
+            if not use_fallback:
+                raise
+            self._set_diagnostics(
+                status="rule_based_fallback",
+                reason=str(exc),
+                fallback_used=True,
+                available_models=available_models,
+            )
             logger.info("Ollama unavailable (%s), using rule-based extraction.", exc)
             return self._extract_rule_based(lines)
 

@@ -304,7 +304,8 @@ class TestDsnEnvironmentInjection:
         """DatabaseConfig must accept a DSN from env var (development / CI path)."""
         from ayehear.storage.database import DatabaseConfig
         cfg = DatabaseConfig(dsn=DSN_LOOPBACK)
-        assert cfg.dsn == DSN_LOOPBACK
+        # DatabaseConfig normalises plain postgresql:// → postgresql+psycopg://
+        assert cfg.dsn == DSN_LOOPBACK.replace("postgresql://", "postgresql+psycopg://")
 
     def test_empty_dsn_raises(self):
         """DatabaseConfig must reject an empty DSN (fail closed)."""

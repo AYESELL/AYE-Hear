@@ -153,6 +153,67 @@ class TestMeetingPersistenceOnStart:
         assert list_uuid in win._participant_id_map
         assert win._participant_id_map[list_uuid].startswith("db-part-")
 
+    def test_pre_meeting_enrollment_is_reconciled_on_start(self, qapp):
+        meeting_repo = _mock_meeting_repo("meet-reconcile")
+        participant_repo = _mock_participant_repo("db-reconcile-")
+        win = _make_window(qapp, meeting_repo=meeting_repo, participant_repo=participant_repo)
+
+        from PySide6.QtWidgets import QListWidgetItem, QMessageBox
+        from PySide6.QtCore import Qt
+        win._meeting_title.setText("Reconcile Test")
+        win._speakers_list.clear()
+
+        list_uuid = "list-pre-enrolled-1"
+        item = QListWidgetItem("Herr Merczak | Customer GmbH | enrolled (id: prof12345)")
+        item.setData(Qt.ItemDataRole.UserRole, list_uuid)
+        win._speakers_list.addItem(item)
+        win._enrolled_speakers[list_uuid] = "profile-abc-123"
+
+        with patch.object(QMessageBox, "information"), \
+             patch.object(win, "_start_audio_pipeline", return_value="ok"):
+            win._start_meeting()
+
+        participant_repo.mark_enrolled.assert_called_once_with(
+            "db-reconcile-001", "profile-abc-123"
+        )
+
+    def test_start_registers_meeting_profile_scope(self, qapp):
+        meeting_repo = _mock_meeting_repo("meet-scope")
+        participant_repo = _mock_participant_repo("db-scope-")
+        from ayehear.services.speaker_manager import SpeakerManager
+        mock_sm = MagicMock(spec=SpeakerManager)
+        mock_sm.match_segment.return_value = MagicMock()
+        mock_sm.resolve_speaker_from_segment.return_value = MagicMock()
+
+        win = _make_window(
+            qapp,
+            meeting_repo=meeting_repo,
+            participant_repo=participant_repo,
+            speaker_manager=mock_sm,
+        )
+
+        from PySide6.QtWidgets import QListWidgetItem, QMessageBox
+        from PySide6.QtCore import Qt
+        win._meeting_title.setText("Scope Test")
+        win._speakers_list.clear()
+
+        pid_1 = "list-scope-1"
+        item_1 = QListWidgetItem("Alice Example | Org | enrolled (id: p1)")
+        item_1.setData(Qt.ItemDataRole.UserRole, pid_1)
+        win._speakers_list.addItem(item_1)
+        win._enrolled_speakers[pid_1] = "profile-scope-001"
+
+        pid_2 = "list-scope-2"
+        item_2 = QListWidgetItem("Bob Example | Org | pending enrollment")
+        item_2.setData(Qt.ItemDataRole.UserRole, pid_2)
+        win._speakers_list.addItem(item_2)
+
+        with patch.object(QMessageBox, "information"), \
+             patch.object(win, "_start_audio_pipeline", return_value="ok"):
+            win._start_meeting()
+
+        mock_sm.register_meeting_profiles.assert_called_once_with(["profile-scope-001"])
+
     def test_meeting_without_repo_uses_uuid_fallback(self, qapp):
         """Without repos, _start_meeting still works (degraded/local-only mode)."""
         win = _make_window(qapp)

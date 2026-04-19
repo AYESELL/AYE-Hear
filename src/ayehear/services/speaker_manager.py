@@ -81,6 +81,9 @@ class SpeakerManager:
         self._participants = participant_repo
         # Stage 0: constrained participant set for the active meeting session
         self._meeting_participants: list[str] = []
+        # Optional profile-id scope for the active meeting. When populated,
+        # embedding matching is restricted to enrolled profiles of this meeting.
+        self._meeting_profile_ids: set[str] = set()
 
     # ------------------------------------------------------------------
     # Stage 0: Meeting context — participant-constrained matching (HEAR-021)
@@ -101,6 +104,21 @@ class SpeakerManager:
     def clear_meeting_context(self) -> None:
         """Remove the registered participant list when a meeting session ends."""
         self._meeting_participants = []
+        self._meeting_profile_ids = set()
+
+    def register_meeting_profiles(self, profile_ids: list[str]) -> None:
+        """Register enrolled profile IDs for meeting-scoped embedding matching.
+
+        This improves attribution quality when historical profiles exist in the
+        database by limiting candidate profiles to currently enrolled speakers.
+        """
+        self._meeting_profile_ids = {
+            pid.strip() for pid in profile_ids if isinstance(pid, str) and pid.strip()
+        }
+        logger.info(
+            "Registered %d enrolled profile(s) for constrained embedding matching.",
+            len(self._meeting_profile_ids),
+        )
 
     def resolve_speaker_from_segment(
         self,
@@ -262,6 +280,19 @@ class SpeakerManager:
             )
 
         profiles = self._profiles.list_all()
+        if self._meeting_profile_ids:
+            scoped_profiles = [p for p in profiles if p.id in self._meeting_profile_ids]
+            if scoped_profiles:
+                profiles = scoped_profiles
+                logger.debug(
+                    "Matching segment against %d meeting-scoped profile(s).",
+                    len(profiles),
+                )
+            else:
+                logger.debug(
+                    "Meeting profile scope set but no matching profiles found; "
+                    "falling back to full profile set."
+                )
         best_score = 0.0
         best_profile = None
 

@@ -40,7 +40,7 @@ SolidCompression=yes
 ; Visuals
 WizardStyle=modern
 WizardSizePercent=120
-WizardImageFile=..\..\assets\installer-sidebar.bmp
+WizardImageFile=..\..\assets\AYE HEAR Installer Grafik 164x314.png
 WizardSmallImageFile=..\..\assets\installer-header.bmp
 SetupIconFile=..\..\assets\ayehear.ico
 UninstallDisplayIcon={app}\AyeHear.exe

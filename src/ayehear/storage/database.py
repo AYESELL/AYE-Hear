@@ -18,6 +18,13 @@ logger = logging.getLogger(__name__)
 _MIGRATIONS_DIR = Path(__file__).parent / "migrations"
 _RUNTIME_DSN_ENV = "AYEHEAR_DB_DSN"
 
+# Fail-fast guards for startup bootstrap/migrations.
+# Prevents indefinite waiting on blocked DDL/locks during app launch.
+_PG_CONNECT_TIMEOUT_SECONDS = 5
+_PG_LOCK_TIMEOUT_MS = 5000
+_PG_STATEMENT_TIMEOUT_MS = 30000
+_PG_IDLE_TX_TIMEOUT_MS = 30000
+
 # Addresses that are unambiguously loopback-only.
 _LOOPBACK_LITERALS = frozenset({"localhost", "127.0.0.1", "::1", ""})
 
@@ -135,6 +142,14 @@ class DatabaseBootstrap:
             pool_pre_ping=True,
             pool_size=5,
             max_overflow=10,
+            connect_args={
+                "connect_timeout": _PG_CONNECT_TIMEOUT_SECONDS,
+                "options": (
+                    f"-c lock_timeout={_PG_LOCK_TIMEOUT_MS} "
+                    f"-c statement_timeout={_PG_STATEMENT_TIMEOUT_MS} "
+                    f"-c idle_in_transaction_session_timeout={_PG_IDLE_TX_TIMEOUT_MS}"
+                ),
+            },
         )
         # Disable automatic schema creation — migrations own the schema
         return engine
@@ -191,12 +206,17 @@ class DatabaseBootstrap:
         return all(_addr_is_loopback_safe(addr) for addr in parts)
 
     def _run_migrations(self) -> None:
-        """Apply SQL migration files in order. Idempotent via IF NOT EXISTS.
+        """Apply SQL migration files in order with tracking to prevent re-runs.
 
-        Each file is split into individual statements before execution so that
-        multi-statement migration scripts (DDL + triggers + DO blocks) work
-        correctly with PostgreSQL / psycopg via SQLAlchemy, which does not
-        support passing multiple statements to a single text() call.
+        A ``schema_migrations`` table is created on first use to record which
+        files have already been applied.  Migrations are only executed once;
+        subsequent bootstrap calls skip already-applied files entirely, avoiding
+        DDL lock contention when multiple bootstrap attempts run concurrently
+        (e.g. startup + "Refresh Status").
+
+        For existing installs where the schema was deployed before tracking was
+        introduced, all pending migration files are pre-marked as applied if the
+        core schema tables already exist — so no DDL is re-executed.
         """
         assert self._engine is not None
         migration_files = sorted(_MIGRATIONS_DIR.glob("*.sql"))
@@ -205,19 +225,77 @@ class DatabaseBootstrap:
             return
 
         with self._engine.begin() as conn:
-            for migration_path in migration_files:
-                logger.info("Applying migration: %s", migration_path.name)
-                sql = migration_path.read_text(encoding="utf-8")
-                statements = self._split_sql_statements(sql)
-                logger.debug(
-                    "Migration %s: executing %d statement(s).",
-                    migration_path.name,
-                    len(statements),
+            # Ensure tracking table exists.
+            conn.execute(text(
+                "CREATE TABLE IF NOT EXISTS schema_migrations ("
+                "  filename   TEXT        PRIMARY KEY,"
+                "  applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()"
+                ")"
+            ))
+            applied: set[str] = {
+                row[0]
+                for row in conn.execute(
+                    text("SELECT filename FROM schema_migrations")
                 )
+            }
+
+            # Detect existing-install scenario: schema deployed before tracking.
+            # If the core 'meetings' table exists but no migrations are recorded,
+            # pre-mark all files as applied without re-executing DDL.
+            if not applied:
+                schema_exists = conn.execute(text(
+                    "SELECT 1 FROM information_schema.tables "
+                    "WHERE table_schema = 'public' AND table_name = 'meetings'"
+                )).fetchone()
+                if schema_exists:
+                    logger.info(
+                        "Existing schema detected without migration records; "
+                        "pre-marking %d migration(s) as applied.",
+                        len(migration_files),
+                    )
+                    for mf in migration_files:
+                        conn.execute(
+                            text(
+                                "INSERT INTO schema_migrations (filename) VALUES (:fn) "
+                                "ON CONFLICT (filename) DO NOTHING"
+                            ),
+                            {"fn": mf.name},
+                        )
+                    logger.info("Schema up to date (pre-existing install).")
+                    return
+
+        applied_count = 0
+        for migration_path in migration_files:
+            if migration_path.name in applied:
+                logger.debug(
+                    "Skipping already-applied migration: %s", migration_path.name
+                )
+                continue
+
+            logger.info("Applying migration: %s", migration_path.name)
+            sql = migration_path.read_text(encoding="utf-8")
+            statements = self._split_sql_statements(sql)
+            logger.debug(
+                "Migration %s: executing %d statement(s).",
+                migration_path.name,
+                len(statements),
+            )
+            with self._engine.begin() as conn:
                 for stmt in statements:
                     conn.execute(text(stmt))
+                conn.execute(
+                    text(
+                        "INSERT INTO schema_migrations (filename) VALUES (:fn) "
+                        "ON CONFLICT (filename) DO NOTHING"
+                    ),
+                    {"fn": migration_path.name},
+                )
+            applied_count += 1
 
-        logger.info("Migrations applied: %d file(s).", len(migration_files))
+        if applied_count:
+            logger.info("Migrations applied: %d file(s).", applied_count)
+        else:
+            logger.info("All migrations already applied; schema up to date.")
 
     @staticmethod
     def _split_sql_statements(sql: str) -> list[str]:

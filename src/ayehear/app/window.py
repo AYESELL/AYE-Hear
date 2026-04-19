@@ -102,6 +102,7 @@ class MainWindow(QMainWindow):
         self._protocol_engine = ProtocolEngine(
             snapshot_repo=snapshot_repo,
             transcript_repo=transcript_repo,
+            ollama_model=self.runtime_config.models.ollama_model,
         )
         # HEAR-087: system readiness checker + widget (built in _build_setup_panel)
         self._readiness_checker = ReadinessChecker()
@@ -222,6 +223,9 @@ class MainWindow(QMainWindow):
             item.setData(Qt.ItemDataRole.UserRole, str(_uuid.uuid4()))
             self._speakers_list.addItem(item)
         speakers_layout.addWidget(self._speakers_list)
+        # Guard flag: set True while programmatic list updates are in progress to
+        # suppress spurious itemChanged feedback (HEAR-040).
+        self._speaker_list_updating = False
         # HEAR-040: update status label after any user-committed inline edit
         self._speakers_list.itemChanged.connect(self._on_speaker_item_changed)
 
@@ -329,12 +333,12 @@ class MainWindow(QMainWindow):
             participant_repo=self._participant_repo,
             transcript_repo=self._transcript_repo,
             snapshot_repo=self._snapshot_repo,
-            speaker_profile_repo=self._speaker_manager._profiles,
+            speaker_profile_repo=getattr(self._speaker_manager, '_profiles', None),
             runtime_config=self.runtime_config,
         )
         self._readiness_widget.update_status(components, aggregate)
 
-    def _reload_persistence_layer(self) -> None:
+    def _reload_persistence_layer(self) -> bool:
         """Attempt to load or reload the persistence layer from DSN.
         
         Called by _refresh_readiness() to support dynamic DSN discovery
@@ -377,8 +381,46 @@ class MainWindow(QMainWindow):
                 self._protocol_engine._transcript_repo = self._transcript_repo
                 
                 logger.info("Persistence layer reloaded successfully.")
+                return True
         except Exception as exc:
             logger.error("Failed to reload persistence layer: %s", exc)
+        return False
+
+    def _disable_persistence(self, reason: str) -> None:
+        """Drop repository bindings and keep app operational in local-only mode."""
+        logger.warning("Persistence disabled; falling back to local-only mode: %s", reason)
+        if self._db_session is not None:
+            try:
+                self._db_session.close()
+            except Exception:
+                pass
+        self._db_session = None
+        self._meeting_repo = None
+        self._participant_repo = None
+        self._transcript_repo = None
+        self._snapshot_repo = None
+        self._transcription_service._transcript_repo = None
+        self._protocol_engine._snapshot_repo = None
+        self._protocol_engine._transcript_repo = None
+        if self._active_meeting_id is not None:
+            self._refresh_protocol_display()
+
+    def _handle_persistence_error(self, source: str, exc: Exception) -> None:
+        """Recover from DB/session errors to avoid repeated failure cascades."""
+        logger.error("%s: %s", source, exc)
+        if self._db_session is not None:
+            try:
+                self._db_session.rollback()
+            except Exception as rollback_exc:
+                logger.warning("Session rollback after '%s' failed: %s", source, rollback_exc)
+
+        # Connection drops are usually recoverable by rebuilding session/repositories.
+        if self._reload_persistence_layer():
+            logger.info("Persistence recovered after '%s'.", source)
+            return
+
+        # If recovery fails, continue in local-only mode rather than failing every refresh.
+        self._disable_persistence(source)
 
 
     # ------------------------------------------------------------------
@@ -393,6 +435,8 @@ class MainWindow(QMainWindow):
 
     def _on_speaker_item_changed(self, item: QListWidgetItem) -> None:
         """Update feedback label after user commits an inline edit (HEAR-040)."""
+        if self._speaker_list_updating:
+            return
         self._set_speaker_status(f"Gespeichert: {item.text()[:40]}")
 
     def _set_speaker_status(self, message: str) -> None:
@@ -557,8 +601,8 @@ class MainWindow(QMainWindow):
         """Parse a speaker list entry into (name, org, status) tuple."""
         parts = [p.strip() for p in raw.split("|")]
         name = parts[0] if parts else raw
-        org = parts[1] if len(parts) > 1 else "Organisation"
-        status = parts[2] if len(parts) > 2 else ""
+        org = parts[1] if len(parts) > 1 else ""
+        status = parts[2] if len(parts) > 2 else "pending enrollment"
         return name, org, status
 
     def _start_meeting(self) -> None:
@@ -602,6 +646,7 @@ class MainWindow(QMainWindow):
 
         # HEAR-084 AC1: persist meeting + participants to DB when repos available
         self._participant_id_map = {}
+        meeting_persisted = False
         if self._meeting_repo is not None:
             try:
                 db_meeting = self._meeting_repo.create(
@@ -611,11 +656,15 @@ class MainWindow(QMainWindow):
                 )
                 self._meeting_repo.start(db_meeting.id)
                 meeting_id = db_meeting.id
+                meeting_persisted = True
                 logger.info("Meeting persisted to DB: %s", meeting_id)
             except Exception as exc:
-                logger.error("Failed to persist meeting to DB: %s — using in-memory id", exc)
+                self._handle_persistence_error(
+                    "Failed to persist meeting to DB; using in-memory id",
+                    exc,
+                )
 
-        if self._participant_repo is not None and self._session is not None:
+        if meeting_persisted and self._participant_repo is not None and self._session is not None:
             # Build participant_id_map: list-item UUID -> DB Participant.id
             for i in range(self._speakers_list.count()):
                 item = self._speakers_list.item(i)
@@ -638,7 +687,17 @@ class MainWindow(QMainWindow):
                     self._participant_id_map[list_uuid] = db_participant.id
                     logger.debug("Participant persisted: %s -> %s", p_name, db_participant.id)
                 except Exception as exc:
-                    logger.error("Failed to persist participant '%s': %s", p_name, exc)
+                    self._handle_persistence_error(
+                        f"Failed to persist participant '{p_name}'",
+                        exc,
+                    )
+                    break
+
+        # Reconcile enrollment state collected before meeting start:
+        # 1) persist participant->profile linkage now that DB participant IDs exist
+        # 2) restrict live matching to enrolled profiles of this meeting
+        self._reconcile_enrollment_links_after_start()
+        self._register_meeting_profile_scope()
 
         known_speakers = [p.display_name for p in self._session.participants]
         # ADR-0003 Stage 0: register participant names for constrained intro matching
@@ -697,7 +756,7 @@ class MainWindow(QMainWindow):
                 self._meeting_repo.end(meeting_id)
                 logger.info("Meeting ended in DB: %s", meeting_id)
             except Exception as exc:
-                logger.error("Failed to end meeting in DB: %s", exc)
+                self._handle_persistence_error("Failed to end meeting in DB", exc)
 
         self.stop_active_meeting()
         self._session = None
@@ -965,6 +1024,41 @@ class MainWindow(QMainWindow):
         self._active_meeting_id = None
         self._speaker_manager.clear_meeting_context()
 
+    def _reconcile_enrollment_links_after_start(self) -> None:
+        """Persist deferred participant->profile links once DB IDs are available."""
+        if self._participant_repo is None:
+            return
+
+        for list_uuid, profile_id in self._enrolled_speakers.items():
+            db_participant_id = self._participant_id_map.get(list_uuid)
+            if not db_participant_id:
+                continue
+            try:
+                self._participant_repo.mark_enrolled(db_participant_id, profile_id)
+                logger.debug(
+                    "Enrollment linkage reconciled after meeting start: participant=%s profile=%s",
+                    db_participant_id,
+                    profile_id,
+                )
+            except Exception as exc:
+                self._handle_persistence_error(
+                    f"Failed to reconcile enrollment linkage for participant '{db_participant_id}'",
+                    exc,
+                )
+
+    def _register_meeting_profile_scope(self) -> None:
+        """Scope live embedding matching to enrolled profiles in the current meeting."""
+        scoped_profile_ids: list[str] = []
+        for i in range(self._speakers_list.count()):
+            item = self._speakers_list.item(i)
+            list_uuid = item.data(Qt.ItemDataRole.UserRole)
+            if not list_uuid:
+                continue
+            profile_id = self._enrolled_speakers.get(list_uuid)
+            if profile_id:
+                scoped_profile_ids.append(profile_id)
+        self._speaker_manager.register_meeting_profiles(scoped_profile_ids)
+
     def _refresh_review_queue(self) -> None:
         """Reload low-confidence and uncorrected segments from the repository."""
         self._review_list.clear()
@@ -981,7 +1075,7 @@ class MainWindow(QMainWindow):
                 threshold=self.runtime_config.protocol.minimum_confidence,
             )
         except Exception as exc:
-            logger.error("Failed to load review queue: %s", exc)
+            self._handle_persistence_error("Failed to load review queue", exc)
             return
 
         for seg in segments:
@@ -1058,7 +1152,7 @@ class MainWindow(QMainWindow):
 
             self._protocol_view.setPlainText("\n".join(lines).strip())
         except Exception as exc:
-            logger.error("Protocol refresh failed: %s", exc)
+            self._handle_persistence_error("Protocol refresh failed", exc)
 
     def _rebuild_protocol_from_persistence(self) -> None:
         """Generate a new protocol snapshot from persisted transcript data (HEAR-085 AC2).
@@ -1078,7 +1172,7 @@ class MainWindow(QMainWindow):
             self._protocol_engine.generate(self._active_meeting_id)
             self._refresh_protocol_display()
         except Exception as exc:
-            logger.error("Protocol rebuild failed: %s", exc)
+            self._handle_persistence_error("Protocol rebuild failed", exc)
 
     # ------------------------------------------------------------------
     # HEAR-070 / HEAR-075: Protocol export (multi-format)
@@ -1271,14 +1365,12 @@ class MainWindow(QMainWindow):
             # With DB: refresh the structured snapshot view
             self._refresh_protocol_display()
             return
-        # Without DB: ensure degraded label is visible (do NOT mirror transcript)
+        # Without DB: append transcript line under a "## Transcript" section
         current = self._protocol_view.toPlainText()
-        if not current.startswith(_PROTOCOL_DEGRADED_PREFIX):
-            self._protocol_view.setPlainText(
-                f"{_PROTOCOL_DEGRADED_PREFIX} Protokollentwurf nicht verf\u00fcgbar \u2014 "
-                "Persistenz-Backend nicht verbunden.\n\n"
-                "Live-Transkript siehe Transkript-Panel."
-            )
+        _TRANSCRIPT_SECTION = "## Transcript"
+        if _TRANSCRIPT_SECTION not in current:
+            current = current.rstrip() + f"\n\n{_TRANSCRIPT_SECTION}\n"
+        self._protocol_view.setPlainText(current.rstrip() + "\n" + transcript_line)
 
     def append_transcript_line(self, line: str) -> None:
         """Append a new transcribed line to the live transcript view (HEAR-075: also updates protocol)."""

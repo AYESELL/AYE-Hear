@@ -19,6 +19,9 @@ python -m venv .venv
 pip install -r requirements.txt
 python -m ayehear.app
 pytest tests -q
+
+# Deterministic multi-model protocol replay
+python -m ayehear protocol-replay --baseline exports\My_Meeting_20260416_201958-transcript.txt --title "Replay Run"
 ```
 
 ## Core Documentation

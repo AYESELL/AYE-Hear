@@ -146,6 +146,32 @@ def test_resolve_with_profiles_returns_best_match() -> None:
     assert match.confidence >= HIGH_CONFIDENCE_THRESHOLD
 
 
+def test_match_segment_scoped_to_registered_meeting_profiles() -> None:
+    """When meeting profile scope is set, only those profiles are considered."""
+    target_emb = [1.0, 0.0, 0.0, 0.0]
+    scoped_emb = [0.8, 0.6, 0.0, 0.0]
+
+    mock_p1 = MagicMock()
+    mock_p1.id = "id-anna"
+    mock_p1.display_name = "Anna"
+    mock_p1.embedding_vector = target_emb
+
+    mock_p2 = MagicMock()
+    mock_p2.id = "id-bob"
+    mock_p2.display_name = "Bob"
+    mock_p2.embedding_vector = scoped_emb
+
+    mock_profiles = MagicMock()
+    mock_profiles.list_all.return_value = [mock_p1, mock_p2]
+
+    sm = SpeakerManager(profile_repo=mock_profiles)
+    sm.register_meeting_profiles(["id-bob"])
+
+    match = sm.match_segment(target_emb)
+    assert match.speaker_name == "Bob"
+    assert match.profile_id == "id-bob"
+
+
 # ---------------------------------------------------------------------------
 # Review-queue integration — requires_review flag
 # ---------------------------------------------------------------------------

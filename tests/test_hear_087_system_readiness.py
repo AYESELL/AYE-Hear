@@ -97,7 +97,10 @@ class TestReadinessCheckerEnrollment:
 class TestReadinessCheckerLLM:
     def test_llm_ready_when_ollama_reachable_and_snapshot_connected(self):
         checker = ReadinessChecker()
-        with patch("socket.create_connection"):
+        with patch("socket.create_connection"), patch(
+            "ayehear.services.protocol_engine.ProtocolEngine.available_models",
+            return_value=["mistral:7b"],
+        ):
             status = checker.check_llm_path(MagicMock())
         assert status.state == ReadinessState.READY
 
@@ -110,9 +113,22 @@ class TestReadinessCheckerLLM:
 
     def test_llm_degraded_when_ollama_reachable_but_no_snapshot_repo(self):
         checker = ReadinessChecker()
-        with patch("socket.create_connection"):
+        with patch("socket.create_connection"), patch(
+            "ayehear.services.protocol_engine.ProtocolEngine.available_models",
+            return_value=["mistral:7b"],
+        ):
             status = checker.check_llm_path(None)
         assert status.state == ReadinessState.DEGRADED
+
+    def test_llm_degraded_when_configured_model_missing(self):
+        checker = ReadinessChecker()
+        with patch("socket.create_connection"), patch(
+            "ayehear.services.protocol_engine.ProtocolEngine.available_models",
+            return_value=["llama3:8b"],
+        ):
+            status = checker.check_llm_path(MagicMock())
+        assert status.state == ReadinessState.DEGRADED
+        assert "configured ollama model" in status.reason.lower()
 
     def test_llm_reason_not_empty(self):
         checker = ReadinessChecker()
@@ -305,7 +321,9 @@ class TestMainWindowReadinessIntegration:
                      transcript_repo=None, snapshot_repo=None, speaker_manager=None):
         from ayehear.app.window import MainWindow
         from ayehear.models.runtime import RuntimeConfig
-        with patch.dict(sys.modules, {"sounddevice": None, "faster_whisper": None}):
+        with patch.dict(sys.modules, {"sounddevice": None, "faster_whisper": None}), patch(
+            "ayehear.app.window.QTimer.singleShot"
+        ):
             win = MainWindow(
                 runtime_config=RuntimeConfig(),
                 meeting_repo=meeting_repo,
@@ -327,8 +345,10 @@ class TestMainWindowReadinessIntegration:
         win._refresh_readiness()
 
     def test_refresh_readiness_blocked_when_no_repos(self, qapp):
-        win = self._make_window(qapp)
-        win._refresh_readiness()
+        with patch("ayehear.app.window.load_runtime_dsn", return_value=None):
+            win = self._make_window(qapp)
+            win._refresh_readiness()
+            qapp.processEvents()
         text = win._readiness_widget._aggregate_label.text()
         assert "Blocked" in text
 
@@ -346,7 +366,11 @@ class TestMainWindowReadinessIntegration:
         with patch("socket.create_connection"), \
              patch("ayehear.utils.paths.exports_dir", return_value=tmp_path), \
              patch("ayehear.services.audio_capture.enumerate_input_devices", return_value=[(0, "Mic")]), \
-             patch("ayehear.storage.database.load_runtime_dsn", return_value="postgresql://localhost/ayehear"):
+               patch("ayehear.app.window.load_runtime_dsn", return_value="postgresql://localhost/ayehear"), \
+             patch(
+                 "ayehear.services.protocol_engine.ProtocolEngine.available_models",
+                 return_value=["mistral:7b"],
+             ):
             win._refresh_readiness()
         text = win._readiness_widget._aggregate_label.text()
         assert "Ready" in text

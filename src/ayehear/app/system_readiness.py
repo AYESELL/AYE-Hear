@@ -16,6 +16,7 @@ An aggregate top-line state is derived per the spec aggregation rule.
 from __future__ import annotations
 
 import logging
+import time
 from dataclasses import dataclass
 from enum import Enum
 from typing import TYPE_CHECKING
@@ -71,6 +72,10 @@ _BLOCKING_COMPONENTS = {
     "Speaker Enrollment Persistence",
 }
 
+# TTL for the Ollama model-list probe.  Avoids re-probing on every periodic
+# refresh call, which would block the Qt main thread for up to timeout seconds.
+_OLLAMA_MODEL_CACHE_TTL = 30  # seconds
+
 
 class ReadinessChecker:
     """Evaluates the runtime readiness of each system component.
@@ -80,6 +85,31 @@ class ReadinessChecker:
     check_all_async(), but a direct check_all() is provided for simplicity in
     tests and startup.
     """
+
+    def __init__(self) -> None:
+        # Cache: configured_model -> (model_list, expires_at)
+        self._model_probe_cache: dict[str, tuple[list[str], float]] = {}
+
+    def _cached_available_models(self, configured_model: str) -> list[str]:
+        """Return available Ollama models, caching the result for TTL seconds.
+
+        This avoids a synchronous HTTP probe on every Qt-timer-triggered
+        readiness refresh, which would block the UI thread.
+        """
+        now = time.monotonic()
+        if configured_model in self._model_probe_cache:
+            cached_models, expires_at = self._model_probe_cache[configured_model]
+            if now < expires_at:
+                return cached_models
+        try:
+            from ayehear.services.protocol_engine import ProtocolEngine  # noqa: PLC0415
+
+            models = ProtocolEngine(ollama_model=configured_model).available_models()
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("Ollama model probe failed: %s", exc)
+            models = []
+        self._model_probe_cache[configured_model] = (models, now + _OLLAMA_MODEL_CACHE_TTL)
+        return models
 
     def check_database(
         self,
@@ -158,33 +188,65 @@ class ReadinessChecker:
             reason="Enrollment cannot produce persistent V1 speaker profiles",
         )
 
-    def check_llm_path(self, snapshot_repo: "ProtocolSnapshotRepository | None") -> ComponentStatus:
-        """Probe the local Ollama loopback endpoint (quick TCP check)."""
+    def check_llm_path(
+        self,
+        snapshot_repo: "ProtocolSnapshotRepository | None",
+        runtime_config: "RuntimeConfig | None" = None,
+    ) -> ComponentStatus:
+        """Probe the local Ollama loopback endpoint and verify the configured model."""
         import socket
+
         ollama_host = "127.0.0.1"
         ollama_port = 11434
+        configured_model = "mistral:7b"
+        if runtime_config is not None:
+            configured_model = runtime_config.models.ollama_model
+
         try:
             with socket.create_connection((ollama_host, ollama_port), timeout=0.5):
                 reachable = True
         except OSError:
             reachable = False
 
+        if reachable:
+            available_models = self._cached_available_models(configured_model)
+
+            if not available_models:
+                return ComponentStatus(
+                    name="Local LLM / Protocol Engine",
+                    state=ReadinessState.DEGRADED,
+                    reason="Ollama reachable but no local models installed — rule-based fallback",
+                )
+            if configured_model not in available_models:
+                available = ", ".join(available_models)
+                return ComponentStatus(
+                    name="Local LLM / Protocol Engine",
+                    state=ReadinessState.DEGRADED,
+                    reason=(
+                        f"Configured Ollama model '{configured_model}' unavailable — "
+                        f"available: {available}"
+                    ),
+                )
+
         if reachable and snapshot_repo is not None:
             return ComponentStatus(
                 name="Local LLM / Protocol Engine",
                 state=ReadinessState.READY,
-                reason="Local protocol engine ready",
+                reason=f"Local protocol engine ready ({configured_model})",
             )
         if reachable and snapshot_repo is None:
             return ComponentStatus(
                 name="Local LLM / Protocol Engine",
                 state=ReadinessState.DEGRADED,
-                reason="Ollama reachable but protocol persistence unavailable \u2014 rule-based fallback",
+                reason=(
+                    f"Ollama reachable and model '{configured_model}' available but "
+                    "protocol persistence unavailable — rule-based fallback"
+                ),
             )
         return ComponentStatus(
             name="Local LLM / Protocol Engine",
             state=ReadinessState.DEGRADED,
-            reason="Ollama unavailable \u2014 rule-based protocol fallback",
+            reason="Ollama unavailable — rule-based protocol fallback",
         )
 
     def check_audio_input(self) -> ComponentStatus:
@@ -248,7 +310,7 @@ class ReadinessChecker:
             self.check_database(meeting_repo, participant_repo),
             self.check_transcript_persistence(transcript_repo),
             self.check_enrollment_persistence(participant_repo, speaker_profile_repo),
-            self.check_llm_path(snapshot_repo),
+            self.check_llm_path(snapshot_repo, runtime_config),
             self.check_audio_input(),
             self.check_export_target(runtime_config),
         ]
