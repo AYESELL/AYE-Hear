@@ -17,7 +17,8 @@ a = Analysis(
     pathex=['../src'],
     binaries=[],
     datas=[
-        ('../config/', 'config'),
+        ('../config/default.yaml', 'config'),
+        ('../config/models/README.md', 'config/models'),
         ('../src/ayehear/storage/migrations/', 'ayehear/storage/migrations'),
     ] + _whisper_datas,
     # NOTE: faster_whisper Python code reaches the bundle via PYZ (auto-detected).
