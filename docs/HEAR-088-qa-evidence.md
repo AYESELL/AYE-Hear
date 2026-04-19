@@ -1,7 +1,7 @@
 ---
 owner: AYEHEAR_QA
 status: draft
-updated: 2026-04-16
+updated: 2026-04-19
 category: qa-evidence
 ---
 
@@ -147,3 +147,41 @@ Validate runtime readiness indicators against the architecture spec and verify t
 
 ### Blocking Follow-up
 - Developer blocker opened: **HEAR-092** (runtime DSN bootstrap in packaged install).
+
+---
+
+## HEAR-111 Readiness Revalidation Update (2026-04-19, v0.5.3)
+
+### Installed Runtime Re-Observation
+- Installed app started from `D:\AYE\AyeHear\app\AyeHear.exe`
+- Installed log path confirmed: `D:\AYE\AyeHear\logs\ayehear.log`
+- Installed runtime persistence assets confirmed present (`runtime\pg.dsn`)
+
+### Readiness/Boundary Evidence from Installed Log
+- `AYE Hear logging initialised ... frozen=True`
+- `PostgreSQL loopback-only check passed: listen_addresses='localhost'`
+- `Database bootstrap completed.`
+- `Persistence bootstrap completed; review queue and protocol snapshots enabled.`
+
+### Offline-First Boundary Check
+- Runtime process connection observed as loopback-only DB session (`127.0.0.1` to `127.0.0.1:5433`).
+- No evidence in this pass of remote DB endpoint usage.
+
+### HEAR-111 Acceptance-Criteria Perspective (Readiness Doc)
+1. Readiness semantics reflected in installed runtime evidence
+- Status: **PASS (bootstrap + loopback checks confirmed in installed log)**
+
+2. Persistence path no longer false-green due missing DSN/bootstrap
+- Status: **PASS in this run**
+- Evidence: installed runtime has DSN and successful bootstrap log entries.
+
+3. Continue/abort decision documented
+- Status: **PASS**
+
+4. Screenshot + log correlation bundle complete
+- Status: **PASS**
+- Evidence: screenshot/log/artifact bundle completed under `deployment-evidence/hear-091/2026-04-19-hear-111/` and indexed in `deployment-evidence/hear-091/README.md`.
+
+### QA Gate Decision (HEAR-111, Readiness Scope)
+- **Readiness semantics / runtime bootstrap:** **GO**
+- **Final installed E2E checklist closure:** **GO (HEAR-111 checklist closed)**

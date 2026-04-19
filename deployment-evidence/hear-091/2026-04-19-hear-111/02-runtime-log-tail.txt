@@ -1,0 +1,220 @@
+LINE 1: INSERT INTO transcript_segments (id, meeting_id, participant...
+                    ^
+[SQL: INSERT INTO transcript_segments (id, meeting_id, participant_id, start_ms, end_ms, speaker_name, text, confidence_score, is_silence, manual_correction, created_at, updated_at) VALUES (%(id)s::VARCHAR, %(meeting_id)s::VARCHAR, %(participant_id)s::VARCHAR, %(start_ms)s::INTEGER, %(end_ms)s::INTEGER, %(speaker_name)s::VARCHAR, %(text)s::VARCHAR, %(confidence_score)s, %(is_silence)s, %(manual_correction)s, %(created_at)s::TIMESTAMP WITH TIME ZONE, %(updated_at)s::TIMESTAMP WITH TIME ZONE)]
+[parameters: {'id': '7bbb6eea-3910-4ad5-b104-a3648cb0ee39', 'meeting_id': '608caf34-0c36-4949-bebe-6dc277ead1cc', 'participant_id': None, 'start_ms': 32, 'end_ms': 6016, 'speaker_name': 'Unknown Speaker', 'text': 'Vielen Dank für den Min und ihre Teilnahme.', 'confidence_score': 0.0, 'is_silence': False, 'manual_correction': False, 'created_at': datetime.datetime(2026, 4, 18, 16, 53, 18, 3949, tzinfo=datetime.timezone.utc), 'updated_at': datetime.datetime(2026, 4, 18, 16, 53, 18, 3949, tzinfo=datetime.timezone.utc)}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8) (Background on this error at: https://sqlalche.me/e/20/7s2a)
+2026-04-18 18:54:28  INFO      ayehear.app.window  Loading runtime DSN for persistence layer reload.
+2026-04-18 18:54:28  DEBUG     ayehear.storage.database  PostgreSQL loopback-only check passed: listen_addresses='localhost'
+2026-04-18 18:54:28  DEBUG     ayehear.storage.database  PostgreSQL connection verified (loopback-only check passed).
+2026-04-18 18:54:28  DEBUG     ayehear.storage.database  Skipping already-applied migration: 001_initial_schema.sql
+2026-04-18 18:54:28  DEBUG     ayehear.storage.database  Skipping already-applied migration: 002_remove_segment_text_column.sql
+2026-04-18 18:54:28  DEBUG     ayehear.storage.database  Skipping already-applied migration: 003_participant_naming_constraints.sql
+2026-04-18 18:54:28  DEBUG     ayehear.storage.database  Skipping already-applied migration: 004_transcript_correction_log.sql
+2026-04-18 18:54:28  INFO      ayehear.storage.database  All migrations already applied; schema up to date.
+2026-04-18 18:54:28  INFO      ayehear.storage.database  Database bootstrap completed.
+2026-04-18 18:54:28  INFO      ayehear.app.window  Persistence layer reloaded successfully.
+2026-04-18 18:54:28  INFO      ayehear.app.window  Persistence recovered after 'Protocol rebuild failed'.
+2026-04-18 18:54:29  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=10.0 ram_mb=519.5 model=small
+2026-04-18 18:54:29  INFO      faster_whisper  Processing audio with duration 00:02.112
+2026-04-18 18:54:29  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-18 18:54:30  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=29.2 ram_mb=522.1
+2026-04-18 18:54:30  ERROR     ayehear.services.transcription  Failed to persist segment: This Session's transaction has been rolled back due to a previous exception during flush. To begin a new transaction with this Session, first issue Session.rollback(). Original exception was: (psycopg.errors.LockNotAvailable) storniere Anfrage wegen Zeitüberschreitung einer Sperre
+LINE 1: INSERT INTO transcript_segments (id, meeting_id, participant...
+                    ^
+[SQL: INSERT INTO transcript_segments (id, meeting_id, participant_id, start_ms, end_ms, speaker_name, text, confidence_score, is_silence, manual_correction, created_at, updated_at) VALUES (%(id)s::VARCHAR, %(meeting_id)s::VARCHAR, %(participant_id)s::VARCHAR, %(start_ms)s::INTEGER, %(end_ms)s::INTEGER, %(speaker_name)s::VARCHAR, %(text)s::VARCHAR, %(confidence_score)s, %(is_silence)s, %(manual_correction)s, %(created_at)s::TIMESTAMP WITH TIME ZONE, %(updated_at)s::TIMESTAMP WITH TIME ZONE)]
+[parameters: {'id': '7bbb6eea-3910-4ad5-b104-a3648cb0ee39', 'meeting_id': '608caf34-0c36-4949-bebe-6dc277ead1cc', 'participant_id': None, 'start_ms': 32, 'end_ms': 6016, 'speaker_name': 'Unknown Speaker', 'text': 'Vielen Dank für den Min und ihre Teilnahme.', 'confidence_score': 0.0, 'is_silence': False, 'manual_correction': False, 'created_at': datetime.datetime(2026, 4, 18, 16, 53, 18, 3949, tzinfo=datetime.timezone.utc), 'updated_at': datetime.datetime(2026, 4, 18, 16, 53, 18, 3949, tzinfo=datetime.timezone.utc)}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8) (Background on this error at: https://sqlalche.me/e/20/7s2a)
+2026-04-18 18:54:32  INFO      ayehear.services.audio_capture  Audio stream finished (device closed or error).
+2026-04-18 18:54:40  INFO      ayehear.services.audio_capture  Audio capture stopped.
+2026-04-18 18:54:40  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: active → idle
+2026-04-18 18:54:45  ERROR     ayehear.app.window  Failed to end meeting in DB: (psycopg.errors.LockNotAvailable) storniere Anfrage wegen Zeitüberschreitung einer Sperre
+LINE 2: FROM meetings 
+             ^
+[SQL: SELECT meetings.id AS meetings_id, meetings.title AS meetings_title, meetings.mode AS meetings_mode, meetings.meeting_type AS meetings_meeting_type, meetings.status AS meetings_status, meetings.started_at AS meetings_started_at, meetings.ended_at AS meetings_ended_at, meetings.created_at AS meetings_created_at, meetings.updated_at AS meetings_updated_at 
+FROM meetings 
+WHERE meetings.id = %(pk_1)s::VARCHAR]
+[parameters: {'pk_1': '608caf34-0c36-4949-bebe-6dc277ead1cc'}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-04-18 18:54:45  INFO      ayehear.app.window  Loading runtime DSN for persistence layer reload.
+2026-04-18 18:54:45  DEBUG     ayehear.storage.database  PostgreSQL loopback-only check passed: listen_addresses='localhost'
+2026-04-18 18:54:45  DEBUG     ayehear.storage.database  PostgreSQL connection verified (loopback-only check passed).
+2026-04-18 18:54:45  DEBUG     ayehear.storage.database  Skipping already-applied migration: 001_initial_schema.sql
+2026-04-18 18:54:45  DEBUG     ayehear.storage.database  Skipping already-applied migration: 002_remove_segment_text_column.sql
+2026-04-18 18:54:45  DEBUG     ayehear.storage.database  Skipping already-applied migration: 003_participant_naming_constraints.sql
+2026-04-18 18:54:45  DEBUG     ayehear.storage.database  Skipping already-applied migration: 004_transcript_correction_log.sql
+2026-04-18 18:54:45  INFO      ayehear.storage.database  All migrations already applied; schema up to date.
+2026-04-18 18:54:45  INFO      ayehear.storage.database  Database bootstrap completed.
+2026-04-18 18:54:45  INFO      ayehear.app.window  Persistence layer reloaded successfully.
+2026-04-18 18:54:45  INFO      ayehear.app.window  Persistence recovered after 'Failed to end meeting in DB'.
+2026-04-18 18:56:01  INFO      ayehear.app.window  Protocol exported to D:\AYE\AyeHear\exports\protocol_20260418_185601.md
+2026-04-19 13:15:20  INFO      ayehear.utils.logging  AYE Hear logging initialised  |  log=D:\AYE\AyeHear\logs\ayehear.log  |  frozen=True
+2026-04-19 13:15:20  DEBUG     ayehear.storage.database  PostgreSQL loopback-only check passed: listen_addresses='localhost'
+2026-04-19 13:15:20  DEBUG     ayehear.storage.database  PostgreSQL connection verified (loopback-only check passed).
+2026-04-19 13:15:20  DEBUG     ayehear.storage.database  Skipping already-applied migration: 001_initial_schema.sql
+2026-04-19 13:15:20  DEBUG     ayehear.storage.database  Skipping already-applied migration: 002_remove_segment_text_column.sql
+2026-04-19 13:15:20  DEBUG     ayehear.storage.database  Skipping already-applied migration: 003_participant_naming_constraints.sql
+2026-04-19 13:15:20  DEBUG     ayehear.storage.database  Skipping already-applied migration: 004_transcript_correction_log.sql
+2026-04-19 13:15:20  INFO      ayehear.storage.database  All migrations already applied; schema up to date.
+2026-04-19 13:15:20  INFO      ayehear.storage.database  Database bootstrap completed.
+2026-04-19 13:15:20  INFO      ayehear.app.main  Persistence bootstrap completed; review queue and protocol snapshots enabled.
+2026-04-19 13:16:31  INFO      ayehear.services.audio_capture  Audio capture started: 16000 Hz, 1 ch, frame=512
+2026-04-19 13:16:31  INFO      ayehear.app.enrollment_dialog  Enrollment recording started for speaker 'Herr Merczak'
+2026-04-19 13:16:38  INFO      ayehear.services.audio_capture  Audio stream finished (device closed or error).
+2026-04-19 13:16:40  INFO      ayehear.services.audio_capture  Audio capture stopped.
+2026-04-19 13:16:40  INFO      ayehear.app.enrollment_dialog  Recording finished for 'Herr Merczak': 7.0 seconds captured
+2026-04-19 13:16:40  DEBUG     ayehear.services.speaker_manager  Participant linkage deferred for 'Herr Merczak' (id=912191aa-3d41-442f-8e56-8c4fb01f208e): Participant '912191aa-3d41-442f-8e56-8c4fb01f208e' not found.
+2026-04-19 13:16:40  INFO      ayehear.services.speaker_manager  Enrolled speaker 'Herr Merczak' with profile 512a9d0b-2290-4fbd-9826-f74e64bca0e4
+2026-04-19 13:16:40  INFO      ayehear.app.enrollment_dialog  Speaker 'Herr Merczak' enrolled: profile_id=512a9d0b-2290-4fbd-9826-f74e64bca0e4 embedding_dim=768
+2026-04-19 13:16:58  DEBUG     ayehear.storage.repositories  Created meeting 57385fdd-07c0-4a0b-abe7-4fa874a77e19
+2026-04-19 13:16:58  INFO      ayehear.app.window  Meeting persisted to DB: 57385fdd-07c0-4a0b-abe7-4fa874a77e19
+2026-04-19 13:16:58  DEBUG     ayehear.app.window  Participant persisted: Herr Merczak -> 14a8db92-11ba-4b4d-a1ba-a541e93e6c16
+2026-04-19 13:16:58  DEBUG     ayehear.app.window  Enrollment linkage reconciled after meeting start: participant=14a8db92-11ba-4b4d-a1ba-a541e93e6c16 profile=512a9d0b-2290-4fbd-9826-f74e64bca0e4
+2026-04-19 13:16:58  INFO      ayehear.services.speaker_manager  Registered 1 enrolled profile(s) for constrained embedding matching.
+2026-04-19 13:16:58  INFO      ayehear.services.speaker_manager  Registered 1 participant(s) for constrained intro matching.
+2026-04-19 13:16:58  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: idle → initializing
+2026-04-19 13:16:58  INFO      ayehear.services.audio_capture  Audio capture started: 16000 Hz, 1 ch, frame=512
+2026-04-19 13:16:58  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: initializing → active
+2026-04-19 13:17:03  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: active → degraded
+2026-04-19 13:17:03  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: degraded → active
+2026-04-19 13:17:06  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 13:17:08  DEBUG     ayehear.services.transcription  Using bundled Whisper model: D:\AYE\AyeHear\app\_internal\models\whisper\small
+2026-04-19 13:17:09  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=0.0 ram_mb=506.3 model=small
+2026-04-19 13:17:09  INFO      faster_whisper  Processing audio with duration 00:02.080
+2026-04-19 13:17:09  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-19 13:17:10  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=40.2 ram_mb=520.0
+2026-04-19 13:17:10  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 13:17:12  DEBUG     ayehear.services.protocol_engine  LLM inference start — cpu_pct=22.2 ram_mb=520.0 model=mistral:7b
+2026-04-19 13:17:21  DEBUG     ayehear.services.protocol_engine  LLM inference end   — cpu_pct=34.2 ram_mb=455.2
+2026-04-19 13:17:21  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: active → degraded
+2026-04-19 13:17:21  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: degraded → active
+2026-04-19 13:17:21  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 13:17:21  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=24.2 ram_mb=458.3 model=small
+2026-04-19 13:17:21  INFO      faster_whisper  Processing audio with duration 00:06.336
+2026-04-19 13:17:21  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-19 13:17:23  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=39.2 ram_mb=458.5
+2026-04-19 13:17:23  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 13:17:24  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: active → degraded
+2026-04-19 13:17:26  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: degraded → active
+2026-04-19 13:17:30  DEBUG     ayehear.services.protocol_engine  LLM inference start — cpu_pct=19.2 ram_mb=458.6 model=mistral:7b
+2026-04-19 13:17:36  DEBUG     ayehear.services.protocol_engine  LLM inference end   — cpu_pct=36.2 ram_mb=458.5
+2026-04-19 13:17:36  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 13:17:36  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=31.6 ram_mb=454.8 model=small
+2026-04-19 13:17:36  INFO      faster_whisper  Processing audio with duration 00:04.768
+2026-04-19 13:17:36  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-19 13:17:37  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=40.1 ram_mb=454.9
+2026-04-19 13:17:37  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 13:17:37  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: active → degraded
+2026-04-19 13:17:37  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: degraded → active
+2026-04-19 13:17:40  DEBUG     ayehear.services.protocol_engine  LLM inference start — cpu_pct=18.8 ram_mb=454.0 model=mistral:7b
+2026-04-19 13:17:45  DEBUG     ayehear.services.protocol_engine  LLM inference end   — cpu_pct=35.1 ram_mb=454.0
+2026-04-19 13:17:45  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 13:17:45  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=28.9 ram_mb=457.0 model=small
+2026-04-19 13:17:45  INFO      faster_whisper  Processing audio with duration 00:03.264
+2026-04-19 13:17:45  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-19 13:17:47  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=38.0 ram_mb=459.6
+2026-04-19 13:17:47  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 13:17:47  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: active → degraded
+2026-04-19 13:17:47  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: degraded → active
+2026-04-19 13:17:50  DEBUG     ayehear.services.protocol_engine  LLM inference start — cpu_pct=18.5 ram_mb=453.1 model=mistral:7b
+2026-04-19 13:17:57  DEBUG     ayehear.services.protocol_engine  LLM inference end   — cpu_pct=40.1 ram_mb=453.2
+2026-04-19 13:17:57  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 13:17:57  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=33.3 ram_mb=456.5 model=small
+2026-04-19 13:17:57  INFO      faster_whisper  Processing audio with duration 00:05.472
+2026-04-19 13:17:57  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-19 13:17:58  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=39.0 ram_mb=458.0
+2026-04-19 13:17:58  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 13:17:59  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: active → degraded
+2026-04-19 13:17:59  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: degraded → active
+2026-04-19 13:18:00  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 13:18:00  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=21.5 ram_mb=457.0 model=small
+2026-04-19 13:18:00  INFO      faster_whisper  Processing audio with duration 00:02.400
+2026-04-19 13:18:00  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-19 13:18:01  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=39.1 ram_mb=453.4
+2026-04-19 13:18:01  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 13:18:03  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 13:18:03  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=20.5 ram_mb=456.5 model=small
+2026-04-19 13:18:03  INFO      faster_whisper  Processing audio with duration 00:02.400
+2026-04-19 13:18:03  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-19 13:18:04  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=39.8 ram_mb=453.2
+2026-04-19 13:18:04  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 13:18:07  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 13:18:07  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=20.0 ram_mb=457.0 model=small
+2026-04-19 13:18:07  INFO      faster_whisper  Processing audio with duration 00:02.528
+2026-04-19 13:18:07  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-19 13:18:08  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=37.6 ram_mb=457.4
+2026-04-19 13:18:08  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 13:18:11  DEBUG     ayehear.services.protocol_engine  LLM inference start — cpu_pct=24.3 ram_mb=457.4 model=mistral:7b
+2026-04-19 13:18:21  DEBUG     ayehear.services.protocol_engine  LLM inference end   — cpu_pct=42.4 ram_mb=457.4
+2026-04-19 13:18:21  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: active → degraded
+2026-04-19 13:18:21  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: degraded → active
+2026-04-19 13:18:22  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 13:18:22  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=19.9 ram_mb=462.0 model=small
+2026-04-19 13:18:22  INFO      faster_whisper  Processing audio with duration 00:08.928
+2026-04-19 13:18:22  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-19 13:18:24  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=43.3 ram_mb=459.5
+2026-04-19 13:18:24  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 13:18:30  DEBUG     ayehear.services.protocol_engine  LLM inference start — cpu_pct=20.2 ram_mb=456.5 model=mistral:7b
+2026-04-19 13:18:41  DEBUG     ayehear.services.protocol_engine  LLM inference end   — cpu_pct=44.3 ram_mb=456.6
+2026-04-19 13:18:41  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 13:18:41  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=20.3 ram_mb=459.1 model=small
+2026-04-19 13:18:41  INFO      faster_whisper  Processing audio with duration 00:06.528
+2026-04-19 13:18:41  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-19 13:18:42  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=39.0 ram_mb=458.2
+2026-04-19 13:18:42  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 13:18:42  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: active → degraded
+2026-04-19 13:18:42  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: degraded → active
+2026-04-19 13:18:45  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: active → degraded
+2026-04-19 13:18:50  DEBUG     ayehear.services.protocol_engine  LLM inference start — cpu_pct=19.5 ram_mb=458.2 model=mistral:7b
+2026-04-19 13:19:03  DEBUG     ayehear.services.protocol_engine  LLM inference end   — cpu_pct=44.4 ram_mb=458.2
+2026-04-19 13:19:03  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 13:19:03  DEBUG     ayehear.services.transcription  ASR inference start — cpu_pct=33.3 ram_mb=459.8 model=small
+2026-04-19 13:19:03  INFO      faster_whisper  Processing audio with duration 00:03.360
+2026-04-19 13:19:03  DEBUG     faster_whisper  Processing segment at 00:00.000
+2026-04-19 13:19:05  DEBUG     ayehear.services.transcription  ASR inference end   — cpu_pct=38.5 ram_mb=460.5
+2026-04-19 13:19:05  DEBUG     ayehear.services.speaker_manager  Matching segment against 1 meeting-scoped profile(s).
+2026-04-19 13:19:05  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: degraded → active
+2026-04-19 13:19:07  INFO      ayehear.services.audio_capture  Audio stream finished (device closed or error).
+2026-04-19 13:19:15  INFO      ayehear.services.audio_capture  Audio capture stopped.
+2026-04-19 13:19:15  DEBUG     ayehear.app.mic_level_widget  MicLevelWidget: active → idle
+2026-04-19 13:19:16  INFO      ayehear.app.window  Meeting ended in DB: 57385fdd-07c0-4a0b-abe7-4fa874a77e19
+2026-04-19 13:20:01  INFO      ayehear.app.window  Protocol exported to D:\AYE\AyeHear\exports\protocol_20260419_132001.md
+2026-04-19 13:29:58  INFO      ayehear.utils.logging  AYE Hear logging initialised  |  log=D:\AYE\AyeHear\logs\ayehear.log  |  frozen=True
+2026-04-19 13:29:59  DEBUG     ayehear.storage.database  PostgreSQL loopback-only check passed: listen_addresses='localhost'
+2026-04-19 13:29:59  DEBUG     ayehear.storage.database  PostgreSQL connection verified (loopback-only check passed).
+2026-04-19 13:29:59  DEBUG     ayehear.storage.database  Skipping already-applied migration: 001_initial_schema.sql
+2026-04-19 13:29:59  DEBUG     ayehear.storage.database  Skipping already-applied migration: 002_remove_segment_text_column.sql
+2026-04-19 13:29:59  DEBUG     ayehear.storage.database  Skipping already-applied migration: 003_participant_naming_constraints.sql
+2026-04-19 13:29:59  DEBUG     ayehear.storage.database  Skipping already-applied migration: 004_transcript_correction_log.sql
+2026-04-19 13:29:59  INFO      ayehear.storage.database  All migrations already applied; schema up to date.
+2026-04-19 13:29:59  INFO      ayehear.storage.database  Database bootstrap completed.
+2026-04-19 13:29:59  INFO      ayehear.app.main  Persistence bootstrap completed; review queue and protocol snapshots enabled.
+2026-04-19 13:34:40  INFO      ayehear.utils.logging  AYE Hear logging initialised  |  log=D:\AYE\AyeHear\logs\ayehear.log  |  frozen=False
+2026-04-19 13:34:41  DEBUG     ayehear.storage.database  PostgreSQL loopback-only check passed: listen_addresses='localhost'
+2026-04-19 13:34:41  DEBUG     ayehear.storage.database  PostgreSQL connection verified (loopback-only check passed).
+2026-04-19 13:34:41  DEBUG     ayehear.storage.database  Skipping already-applied migration: 001_initial_schema.sql
+2026-04-19 13:34:41  DEBUG     ayehear.storage.database  Skipping already-applied migration: 002_remove_segment_text_column.sql
+2026-04-19 13:34:41  DEBUG     ayehear.storage.database  Skipping already-applied migration: 003_participant_naming_constraints.sql
+2026-04-19 13:34:41  DEBUG     ayehear.storage.database  Skipping already-applied migration: 004_transcript_correction_log.sql
+2026-04-19 13:34:41  INFO      ayehear.storage.database  All migrations already applied; schema up to date.
+2026-04-19 13:34:41  INFO      ayehear.storage.database  Database bootstrap completed.
+2026-04-19 13:34:41  INFO      ayehear.app.main  Persistence bootstrap completed; review queue and protocol snapshots enabled.
+2026-04-19 14:06:26  INFO      ayehear.utils.logging  AYE Hear logging initialised  |  log=D:\AYE\AyeHear\logs\ayehear.log  |  frozen=True
+2026-04-19 14:06:27  DEBUG     ayehear.storage.database  PostgreSQL loopback-only check passed: listen_addresses='localhost'
+2026-04-19 14:06:27  DEBUG     ayehear.storage.database  PostgreSQL connection verified (loopback-only check passed).
+2026-04-19 14:06:27  DEBUG     ayehear.storage.database  Skipping already-applied migration: 001_initial_schema.sql
+2026-04-19 14:06:27  DEBUG     ayehear.storage.database  Skipping already-applied migration: 002_remove_segment_text_column.sql
+2026-04-19 14:06:27  DEBUG     ayehear.storage.database  Skipping already-applied migration: 003_participant_naming_constraints.sql
+2026-04-19 14:06:27  DEBUG     ayehear.storage.database  Skipping already-applied migration: 004_transcript_correction_log.sql
+2026-04-19 14:06:27  INFO      ayehear.storage.database  All migrations already applied; schema up to date.
+2026-04-19 14:06:27  INFO      ayehear.storage.database  Database bootstrap completed.
+2026-04-19 14:06:27  INFO      ayehear.app.main  Persistence bootstrap completed; review queue and protocol snapshots enabled.
+2026-04-19 14:17:50  INFO      ayehear.utils.logging  AYE Hear logging initialised  |  log=D:\AYE\AyeHear\logs\ayehear.log  |  frozen=True
+2026-04-19 14:17:50  DEBUG     ayehear.storage.database  PostgreSQL loopback-only check passed: listen_addresses='localhost'
+2026-04-19 14:17:50  DEBUG     ayehear.storage.database  PostgreSQL connection verified (loopback-only check passed).
+2026-04-19 14:17:50  DEBUG     ayehear.storage.database  Skipping already-applied migration: 001_initial_schema.sql
+2026-04-19 14:17:50  DEBUG     ayehear.storage.database  Skipping already-applied migration: 002_remove_segment_text_column.sql
+2026-04-19 14:17:50  DEBUG     ayehear.storage.database  Skipping already-applied migration: 003_participant_naming_constraints.sql
+2026-04-19 14:17:50  DEBUG     ayehear.storage.database  Skipping already-applied migration: 004_transcript_correction_log.sql
+2026-04-19 14:17:50  INFO      ayehear.storage.database  All migrations already applied; schema up to date.
+2026-04-19 14:17:50  INFO      ayehear.storage.database  Database bootstrap completed.
+2026-04-19 14:17:50  INFO      ayehear.app.main  Persistence bootstrap completed; review queue and protocol snapshots enabled.

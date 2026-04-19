@@ -1,7 +1,7 @@
 ---
 owner: AYEHEAR_QA
 status: draft
-updated: 2026-04-16
+updated: 2026-04-19
 category: qa-evidence
 ---
 
@@ -130,3 +130,51 @@ Validate packaged-runtime end-to-end behavior from a non-default install locatio
 ### Updated Decision
 - **Package commissioning:** **NO-GO (confirmed with real installed run evidence)**
 - **Reason:** Runtime DSN/bootstrap provisioning is not operational in packaged installed runtime.
+
+---
+
+## HEAR-111 Validation Candidate Re-Run (2026-04-19, v0.5.3)
+
+### Executed on Installed Runtime
+- Installer artifact rebuilt and used: `dist\AyeHear-Setup-0.5.3.exe`
+- Installed runtime root observed and verified on disk: `D:\AYE\AyeHear`
+- Installed executable launch: `D:\AYE\AyeHear\app\AyeHear.exe`
+- Runtime files present:
+  - `D:\AYE\AyeHear\runtime\pg.dsn`
+  - `D:\AYE\AyeHear\logs\ayehear.log`
+  - `D:\AYE\AyeHear\exports\...` (protocol/transcript artifacts)
+
+### Runtime/Network Evidence
+- Startup bootstrap in installed app (`frozen=True`) succeeded:
+  - `PostgreSQL loopback-only check passed: listen_addresses='localhost'`
+  - `Database bootstrap completed.`
+  - `Persistence bootstrap completed; review queue and protocol snapshots enabled.`
+- Network boundary observed at runtime process level:
+  - App process has loopback DB connection only (`127.0.0.1 -> 127.0.0.1:5433`)
+
+### Regression Focus from HEAR-111
+- Prior installed-run error report: psycopg/sqlalchemy rollback failure during shutdown (`consuming input failed: server closed the connection unexpectedly`).
+- Current re-run result: no new traceback with this signature observed in installed runtime logs during launch/stop validation after fix.
+
+### AC Mapping (HEAR-111 run)
+1. Non-default packaged install execution evidence
+- Status: **PASS (installed runtime on D-drive observed and runnable)**
+
+2. Full fresh installed E2E flow (setup/enrollment/transcription/attribution/protocol/export/bootstrap)
+- Status: **PASS**
+- Evidence: installed runtime logs show setup/enrollment/transcription/attribution/protocol/export/bootstrap activity on 2026-04-19, plus generated export artifacts in install-root exports.
+
+3. Evidence bundle with screenshots + logs + artifact index
+- Status: **PASS**
+- Evidence bundle: `deployment-evidence/hear-091/2026-04-19-hear-111/` + updated index in `deployment-evidence/hear-091/README.md`.
+
+4. Explicit authoritative GO/NO-GO wording
+- Status: **PASS**
+
+5. Guardrail (kein product-complete claim ohne final reconciliation)
+- Status: **PASS**
+- Evidence: HEAR-111 marked task-complete scope only; final product-complete governance remains in HEAR-112.
+
+### QA Gate Decision (HEAR-111)
+- **Result:** **GO (HEAR-111 task scope)**
+- **Reason:** Non-default installed runtime evidence bundle is now complete with screenshots, logs, install-tree, network-boundary proof, and export artifact listing.

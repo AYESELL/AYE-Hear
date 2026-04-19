@@ -1,0 +1,10 @@
+2026-04-19 14:17:50  INFO      ayehear.utils.logging  AYE Hear logging initialised  |  log=D:\AYE\AyeHear\logs\ayehear.log  |  frozen=True
+2026-04-19 14:17:50  DEBUG     ayehear.storage.database  PostgreSQL loopback-only check passed: listen_addresses='localhost'
+2026-04-19 14:17:50  DEBUG     ayehear.storage.database  PostgreSQL connection verified (loopback-only check passed).
+2026-04-19 14:17:50  DEBUG     ayehear.storage.database  Skipping already-applied migration: 001_initial_schema.sql
+2026-04-19 14:17:50  DEBUG     ayehear.storage.database  Skipping already-applied migration: 002_remove_segment_text_column.sql
+2026-04-19 14:17:50  DEBUG     ayehear.storage.database  Skipping already-applied migration: 003_participant_naming_constraints.sql
+2026-04-19 14:17:50  DEBUG     ayehear.storage.database  Skipping already-applied migration: 004_transcript_correction_log.sql
+2026-04-19 14:17:50  INFO      ayehear.storage.database  All migrations already applied; schema up to date.
+2026-04-19 14:17:50  INFO      ayehear.storage.database  Database bootstrap completed.
+2026-04-19 14:17:50  INFO      ayehear.app.main  Persistence bootstrap completed; review queue and protocol snapshots enabled.

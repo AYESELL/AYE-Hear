@@ -45,3 +45,53 @@ Collect all artifacts from one fresh non-default packaged install run to close H
 - Aggregate readiness state during meeting:
 - Blocking/degraded reasons shown:
 - Final QA decision proposal (GO or NO-GO):
+
+---
+
+## HEAR-111 Evidence Index (2026-04-19)
+
+Evidence folder: `deployment-evidence/hear-091/2026-04-19-hear-111/`
+
+1. `01-app-running-20260419-141809.png`
+- Installed app running from installed runtime.
+
+2. `02-runtime-log-tail.txt`
+- Runtime log tail containing installed-flow events and bootstrap traces.
+
+3. `03-netstat-ayehear.txt`
+- Loopback-only runtime DB connection evidence.
+
+4. `04-install-root-tree.txt`
+- Install-root tree for installed package under `D:\AYE\AyeHear`.
+
+5. `05-export-list.txt`
+- Export artifacts list (protocol + transcript outputs).
+
+6. `06-post-evidence-20260419-141826.png`
+- Post-run screenshot after evidence capture.
+
+7. `07-install-root-explorer.png`
+- Explorer view of install root.
+
+8. `08-runtime-folder-explorer.png`
+- Explorer view of runtime folder (includes `pg.dsn`).
+
+9. `09-logs-folder-explorer.png`
+- Explorer view of logs folder.
+
+10. `10-exports-folder-explorer.png`
+- Explorer view of exports folder with generated artifacts.
+
+11. `11-runtime-log-current-run.txt`
+- Filtered current-run startup log excerpt (`2026-04-19 14:17*`).
+
+### HEAR-111 AC Mapping Result
+- AC1: PASS
+- AC2: PASS
+- AC3: PASS
+- AC4: PASS
+- AC5: PASS
+
+### QA Decision for HEAR-111
+- Task-level decision: GO (HEAR-111 scope complete)
+- Product-complete claim: still governed by release reconciliation task (HEAR-112)

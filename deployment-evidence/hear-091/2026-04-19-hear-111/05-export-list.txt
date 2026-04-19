@@ -1,0 +1,35 @@
+
+Name                                        Length LastWriteTime
+----                                        ------ -------------
+Test_Meeting_20260419_133621-transcript.txt    229 19.04.2026 13:36:23
+Test_Meeting_20260419_133621-protocol.pdf     1624 19.04.2026 13:36:23
+Test_Meeting_20260419_133621-protocol.docx   36755 19.04.2026 13:36:22
+Test_Meeting_20260419_133621-protocol.md       195 19.04.2026 13:36:21
+protocol_20260419_132001.md                    677 19.04.2026 13:20:01
+Test1904261_20260419_131915-transcript.txt    1267 19.04.2026 13:19:16
+Test1904261_20260419_131915-protocol.pdf      2113 19.04.2026 13:19:16
+Test1904261_20260419_131915-protocol.docx    36983 19.04.2026 13:19:15
+Test1904261_20260419_131915-protocol.md        689 19.04.2026 13:19:15
+Test_Meeting_20260419_084654-protocol.pdf     1624 19.04.2026 08:46:54
+Test_Meeting_20260419_084654-transcript.txt    229 19.04.2026 08:46:54
+Test_Meeting_20260419_084654-protocol.docx   36755 19.04.2026 08:46:54
+Test_Meeting_20260419_084654-protocol.md       195 19.04.2026 08:46:54
+protocol_20260418_185601.md                    243 18.04.2026 18:56:01
+test_20260418_185440-transcript.txt           1477 18.04.2026 18:54:40
+test_20260418_185440-protocol.pdf             1659 18.04.2026 18:54:40
+test_20260418_185440-protocol.docx           36776 18.04.2026 18:54:40
+test_20260418_185440-protocol.md               236 18.04.2026 18:54:40
+Test_Meeting_20260418_180657-transcript.txt    229 18.04.2026 18:06:57
+Test_Meeting_20260418_180657-protocol.pdf     1624 18.04.2026 18:06:57
+Test_Meeting_20260418_180657-protocol.docx   36754 18.04.2026 18:06:57
+Test_Meeting_20260418_180657-protocol.md       195 18.04.2026 18:06:57
+My_Meeting_20260418_180444-protocol.pdf       1624 18.04.2026 18:04:44
+My_Meeting_20260418_180444-transcript.txt      273 18.04.2026 18:04:44
+My_Meeting_20260418_180444-protocol.docx     36753 18.04.2026 18:04:44
+My_Meeting_20260418_180444-protocol.md         193 18.04.2026 18:04:44
+Test_Meeting_20260418_180352-transcript.txt    229 18.04.2026 18:03:52
+Test_Meeting_20260418_180352-protocol.pdf     1624 18.04.2026 18:03:52
+Test_Meeting_20260418_180352-protocol.docx   36754 18.04.2026 18:03:52
+Test_Meeting_20260418_180352-protocol.md       195 18.04.2026 18:03:52
+
+
