@@ -217,6 +217,26 @@ class TestMeetingCommitAfterStart:
             with patch.object(win, "_start_audio_pipeline", return_value="OK"):
                 win._start_meeting()  # should not crash
 
+    def test_commit_failure_switches_to_local_only_soft_fallback(self, qapp):
+        """Commit failure during meeting start must disable persistence and continue locally."""
+        from unittest.mock import MagicMock
+
+        commit_exc = RuntimeError("commit failed")
+        commit_spy = MagicMock(side_effect=commit_exc)
+        win, mock_session, _ = _make_window_with_mocks(qapp, commit_spy=commit_spy)
+
+        with patch.object(win, "_disable_persistence") as disable_spy:
+            with patch("uuid.uuid4", return_value="local-meeting-124"):
+                with patch("ayehear.app.window.QMessageBox"):
+                    with patch.object(win, "_start_audio_pipeline", return_value="OK"):
+                        win._start_meeting()
+
+        commit_spy.assert_called_once()
+        disable_spy.assert_called_once()
+        assert "meeting start" in disable_spy.call_args[0][0].lower()
+        # Soft fallback: local in-memory meeting id remains active for the running session.
+        assert win._active_meeting_id == "local-meeting-124"
+
 
 # ---------------------------------------------------------------------------
 # C – Error routing in _rebuild_protocol_from_persistence

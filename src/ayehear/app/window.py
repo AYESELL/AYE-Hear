@@ -668,7 +668,8 @@ class MainWindow(QMainWindow):
             started_at=datetime.now(),
         )
 
-        meeting_id = str(uuid.uuid4())
+        local_meeting_id = str(uuid.uuid4())
+        meeting_id = local_meeting_id
 
         # HEAR-084 AC1: persist meeting + participants to DB when repos available
         self._participant_id_map = {}
@@ -727,6 +728,16 @@ class MainWindow(QMainWindow):
                 logger.debug("Meeting and participants committed to DB: %s", meeting_id)
             except Exception as exc:
                 logger.error("Failed to commit meeting to DB: %s", exc)
+                # Soft fallback: keep meeting alive in local-only mode when commit fails.
+                # This avoids retry loops on an invalid DB session while preserving UX flow.
+                try:
+                    self._db_session.rollback()
+                except Exception as rollback_exc:
+                    logger.warning("Rollback after meeting commit failure failed: %s", rollback_exc)
+                self._disable_persistence("Failed to commit meeting to DB during meeting start")
+                meeting_persisted = False
+                meeting_id = local_meeting_id
+                self._participant_id_map = {}
 
         # Reconcile enrollment state collected before meeting start:
         # 1) persist participant->profile linkage now that DB participant IDs exist
