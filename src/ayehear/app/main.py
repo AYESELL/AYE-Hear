@@ -81,4 +81,15 @@ def main() -> int:
         return app.exec()
     finally:
         if db_session is not None:
-            db_session.close()
+            try:
+                # Safely close database session even if PostgreSQL connection is broken.
+                # This handles the case where the server closed the connection unexpectedly
+                # during rollback (ADR-0006 loopback safety constraint applies).
+                db_session.close()
+            except Exception as exc:
+                # Log but don't propagate: the app is shutting down and we don't want
+                # a database close error to mask the exit code or raise during cleanup.
+                logger.warning(
+                    "Database session close() raised during shutdown; connection may be disconnected. "
+                    "Error: %s %s", type(exc).__name__, exc
+                )

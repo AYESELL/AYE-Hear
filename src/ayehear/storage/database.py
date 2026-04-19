@@ -9,7 +9,7 @@ import logging
 import os
 from pathlib import Path
 
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, event, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -142,6 +142,7 @@ class DatabaseBootstrap:
             pool_pre_ping=True,
             pool_size=5,
             max_overflow=10,
+            pool_recycle=3600,  # Recycle connections every hour to prevent stale connections
             connect_args={
                 "connect_timeout": _PG_CONNECT_TIMEOUT_SECONDS,
                 "options": (
@@ -152,6 +153,16 @@ class DatabaseBootstrap:
             },
         )
         # Disable automatic schema creation — migrations own the schema
+        # Add event listener for disconnect events to prevent cascading failures
+        try:
+            @event.listens_for(engine, "disconnect")
+            def receive_disconnect(dbapi_conn, connection_record):
+                """Handle premature disconnections (e.g. server restart, network failure)."""
+                logger.debug("Database connection lost; will reconnect on next access.")
+        except Exception as exc:
+            # Skip event registration if engine doesn't support it (e.g. mocked in tests)
+            logger.debug("Could not register disconnect event listener: %s", exc)
+        
         return engine
 
     def _verify_connection(self) -> None:
