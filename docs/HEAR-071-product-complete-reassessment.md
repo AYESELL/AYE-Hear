@@ -10,7 +10,7 @@ task: HEAR-071
 
 ## Executive Decision
 
-**CURRENT AUTHORITATIVE STATUS: NO-GO for a release-level "Product-Complete V1" claim.**
+**HISTORICAL DECISION ONLY: the former NO-GO position recorded here was superseded by HEAR-112 after installed-package E2E evidence completed green.**
 
 Historical note:
 - This document remains valid as evidence that the original technical blockers B1/B2/B3 were resolved in code and test scope.
@@ -18,6 +18,7 @@ Historical note:
 - Subsequent governance guardrails require installed-package E2E evidence for any product-complete claim.
 
 Superseding authority:
+- `docs/HEAR-112-readiness-reconciliation.md`
 - `docs/HEAR-052-release-decision.md` (HEAR-082 addendum)
 - `docs/governance/QUALITY_GATES.md`
 - `docs/governance/DEFINITIONS_OF_DONE.md`
@@ -27,7 +28,7 @@ Superseding authority:
 
 Current interpretation:
 - B1/B2/B3 closure remains **confirmed**.
-- The original GO conclusion is **withdrawn for formal release/readiness use** until the required installed-package E2E evidence bundle is complete and green.
+- The NO-GO posture recorded here is retained as historical evidence of the pre-HEAR-112 governance state only.
 
 ---
 
@@ -201,7 +202,7 @@ Blocker-focused quality gates after B1/B2/B3 closure:
 | Dimension | Status | Owner | Date |
 |-----------|--------|-------|------|
 | **Operations-Handoff Readiness** | ✅ GO (per HEAR-052) | AYEHEAR_ARCHITECT | 2026-04-16 |
-| **Product-Complete Readiness** | ❌ NO-GO (authoritative current state) | AYEHEAR_ARCHITECT + AYEHEAR_QA | 2026-04-19 |
+| **Product-Complete Readiness** | Historical NO-GO superseded by HEAR-112 | AYEHEAR_ARCHITECT + AYEHEAR_QA | 2026-04-19 |
 | **B1/B2/B3 Technical Closure** | ✅ CONFIRMED | AYEHEAR_QA | 2026-04-16 |
 | **Installed Package E2E Evidence** | ❌ INCOMPLETE | AYEHEAR_QA | 2026-04-19 |
 | **Residual Risks** | ✅ DOCUMENTED (R1–R3 above) | AYEHEAR_QA | 2026-04-16 |
@@ -210,19 +211,19 @@ Blocker-focused quality gates after B1/B2/B3 closure:
 
 ## Conclusion
 
-AYE Hear V1.0 is **not currently authorized** to be described as product-complete in release/governance communication.
+AYE Hear V1.0 was not authorized to be described as product-complete at the time of this reassessment.
 
 What this document still proves:
 1. ✅ Real microphone-based speaker enrollment workflow exists (B1 resolved)
 2. ✅ Production speaker embedding backend exists (B2 resolved)
 3. ✅ Export parity with Markdown, DOCX, PDF exists in code/runtime path (B3 resolved)
 
-What is still missing for a formal product-complete statement:
+What was still missing at the time of this reassessment:
 1. ❌ Complete installed-package E2E evidence for setup, enrollment, transcription, speaker attribution, protocol drafting, export, and runtime bootstrap/persistence
 2. ❌ Fresh screenshot/log bundle for the packaged non-default install path per HEAR-091
 3. ❌ Reconciled release communication that points to the installed-evidence-based NO-GO/GO authority instead of this historical blocker-closure record
 
-**Recommendation:** Use this document only as historical evidence of technical blocker closure, not as the current decision record for product-complete readiness.
+**Recommendation:** Use this document only as historical evidence of technical blocker closure. Use `docs/HEAR-112-readiness-reconciliation.md` for the current decision record.
 
 ---
 

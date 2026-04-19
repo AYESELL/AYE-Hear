@@ -15,11 +15,12 @@ category: release-governance
 
 Scope integrity note (ADR-0010):
 - Operations-Handoff Readiness: GO
-- Product-Complete Readiness: NO-GO (current authority depends on installed-package E2E evidence, not only on B1/B2/B3 closure)
+- Product-Complete Readiness: see `docs/HEAR-112-readiness-reconciliation.md` for the current validation-candidate authority
 
 Current authority note:
 - B1/B2/B3 technical blockers were later closed in implementation scope.
-- Product-complete communication is still blocked until the installed-package E2E guardrail is satisfied per HEAR-082 / HEAR-091.
+- This document remains the operations-handoff decision record.
+- Validation-candidate reconciliation for product-complete readiness is now recorded in `docs/HEAR-112-readiness-reconciliation.md`.
 
 Decision update context:
 - Original HEAR-052 decision was NO-GO due to open residual risk `HEAR-051-R1`.
@@ -159,9 +160,9 @@ These are deployment-time execution obligations transferred to Operations/DevOps
 **Current release decision: GO (HEAR-051-R1 closed; evidence chain references HEAR-055 and HEAR-056).**
 
 Product completeness statement:
-- Product-complete V1 remains NO-GO until the installed-package E2E evidence set is complete and green.
-- B1/B2/B3 technical closure may be treated as implemented, but is not sufficient by itself for a product-complete claim.
-- Current supporting NO-GO evidence lives in `docs/HEAR-086-qa-evidence.md`, `docs/HEAR-088-qa-evidence.md`, and `docs/HEAR-091-INSTALLED-E2E-CHECKLIST.md`.
+- HEAR-052 itself does not declare product-complete readiness.
+- Current product-complete authority for validation candidate `0.5.3` is `docs/HEAR-112-readiness-reconciliation.md`.
+- The installed-evidence-backed supporting chain is documented in `docs/HEAR-086-qa-evidence.md`, `docs/HEAR-088-qa-evidence.md`, `docs/HEAR-110-build-evidence.md`, and `deployment-evidence/hear-091/README.md`.
 
 ---
 

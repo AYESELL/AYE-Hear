@@ -1,7 +1,7 @@
 ---
 owner: AYEHEAR_QA
-status: active
-updated: 2026-04-16
+status: superseded
+updated: 2026-04-19
 category: release-governance
 ---
 
@@ -9,12 +9,13 @@ category: release-governance
 
 ## Executive Decision
 
-**Current decision: NO-GO for "product complete V1".**
+**Historical decision: the NO-GO gap state captured here is superseded for current release communication by `docs/HEAR-112-readiness-reconciliation.md`.**
 
 Reason: Multiple V1-critical capabilities are currently implemented as placeholders/stubs or are only partially validated on real hardware. This conflicts with the V1 promise and with the expectation of a complete operational workflow.
 
 Notes:
 - Existing release decision in HEAR-052 is "GO for Operations handoff".
+- Current validation-candidate reconciliation is recorded in `docs/HEAR-112-readiness-reconciliation.md`.
 - This document evaluates a stricter quality question: "Is V1 functionally complete for reliable day-to-day usage without repeated clarification?"
 
 ## Scope and Evidence Sources
