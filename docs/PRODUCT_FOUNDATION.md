@@ -1,7 +1,7 @@
 ---
 status: active
 owner: AYEHEAR_ARCHITECT
-updated: 2026-04-16
+updated: 2026-04-19
 ---
 
 # AYE Hear Product Foundation
@@ -26,6 +26,10 @@ Current release governance uses two explicit states:
 | Product-Complete Readiness | GO | HEAR-086 / HEAR-088 / HEAR-110 / HEAR-112 |
 
 This distinction remains mandatory for all V1 scope claims, and both states are currently green for validation candidate `0.5.3`.
+
+Post-`0.5.3` candidate lineage note:
+- Candidate `0.5.5` (quality-first follow-up) is currently **NO-GO** for release-readiness progression per `docs/HEAR-128-readiness-reconciliation.md`.
+- This does not downgrade the validated `0.5.3` authority; it blocks promotion of the newer candidate until persistence defects are resolved and re-evidenced.
 
 ## Reading Guide: Current State vs Target State
 
@@ -158,6 +162,7 @@ Status note:
 Current authority note:
 - Installed-package E2E evidence is complete and green for the current validation candidate.
 - Current release-state authority is documented in `docs/HEAR-112-readiness-reconciliation.md` with supporting evidence in `docs/HEAR-086-qa-evidence.md`, `docs/HEAR-088-qa-evidence.md`, `docs/HEAR-110-build-evidence.md`, and `deployment-evidence/hear-091/README.md`.
+- Newer quality-first candidate readiness is tracked separately in `docs/HEAR-128-readiness-reconciliation.md` and is currently `NO-GO` for `0.5.5`.
 
 - **Usability:** End-to-end meeting protocol in <5 min (enroll + record + export)
 - **Accuracy:** Speaker identification ≥85% on target hardware (CPU-only laptop, GPU laptop)
@@ -251,4 +256,4 @@ CI/CD:            GitHub Actions (planned)
 ---
 
 **Owner:** AYEHEAR_ARCHITECT  
-**Updated:** 2026-04-16
+**Updated:** 2026-04-19

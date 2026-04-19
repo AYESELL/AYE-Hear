@@ -9,6 +9,8 @@ category: release-governance
 
 # HEAR-121: Final Readiness Reconciliation for Quality-First Release Candidate
 
+**Authority update (2026-04-19):** This document remains historical evidence of the quality-first candidate authorization decision at its review time. Current candidate-lineage authority for post-`0.5.3` installed readiness is now recorded in [docs/HEAR-128-readiness-reconciliation.md](docs/HEAR-128-readiness-reconciliation.md).
+
 ## Executive Decision
 
 Authoritative readiness state for the next quality-first release candidate:

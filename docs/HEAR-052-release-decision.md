@@ -21,6 +21,7 @@ Current authority note:
 - B1/B2/B3 technical blockers were later closed in implementation scope.
 - This document remains the operations-handoff decision record.
 - Validation-candidate reconciliation for product-complete readiness is now recorded in `docs/HEAR-112-readiness-reconciliation.md`.
+- Post-`0.5.3` quality-first candidate lineage status is recorded in `docs/HEAR-128-readiness-reconciliation.md` (`0.5.5` currently NO-GO for readiness progression).
 
 Decision update context:
 - Original HEAR-052 decision was NO-GO due to open residual risk `HEAR-051-R1`.
