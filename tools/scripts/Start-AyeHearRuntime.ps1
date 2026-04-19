@@ -45,6 +45,16 @@ $PG_PORT         = 5433
 $DSN_FILE        = Join-Path $InstallDir 'runtime\pg.dsn'
 $PG_BIN_DIR      = Join-Path $InstallDir 'pgsql\bin'
 
+# Helper: resolve a pg binary, preferring the bundled path then falling back to PATH.
+function Resolve-PgBin {
+    param([string]$ExeName)
+    $bundled = Join-Path $PG_BIN_DIR $ExeName
+    if (Test-Path $bundled) { return $bundled }
+    $inPath = Get-Command $ExeName -ErrorAction SilentlyContinue
+    if ($inPath) { return $inPath.Source }
+    return $null
+}
+
 $script:AllPassed = $true
 $script:Results   = [System.Collections.Generic.List[hashtable]]::new()
 
@@ -54,9 +64,9 @@ function Write-Check {
     $script:Results.Add(@{ Check = $Name; Status = $status; Detail = $Detail })
     if (-not $Passed) { $script:AllPassed = $false }
     if (-not $Silent) {
-        $color = if ($Passed) { 'Green' } else { 'Red' }
-        Write-Host ("  [{0}] {1}{2}" -f $status, $Name,
-                    (if ($Detail) { " - $Detail" } else { '' })) -ForegroundColor $color
+        $color        = if ($Passed) { 'Green' } else { 'Red' }
+        $detailSuffix = if ($Detail) { " - $Detail" } else { '' }
+        Write-Host ("  [{0}] {1}{2}" -f $status, $Name, $detailSuffix) -ForegroundColor $color
     }
 }
 
@@ -96,7 +106,8 @@ if ($dsnExists) {
     try {
         $dsn = (Get-Content $DSN_FILE -Raw -ErrorAction Stop).Trim()
         $hasContent = $dsn.Length -gt 10
-        Write-Check 'DSN file readable' $hasContent (if ($hasContent) { 'DSN loaded' } else { 'File is empty or too short' })
+        $dsnDetail = if ($hasContent) { 'DSN loaded' } else { 'File is empty or too short' }
+        Write-Check 'DSN file readable' $hasContent $dsnDetail
     } catch {
         Write-Check 'DSN file readable' $false $_.Exception.Message
     }
@@ -104,21 +115,20 @@ if ($dsnExists) {
 
 # --- Check 3: pg_isready -----------------------------------------------------
 
-$pgIsReady = Join-Path $PG_BIN_DIR 'pg_isready.exe'
-if (Test-Path $pgIsReady) {
+$pgIsReady = Resolve-PgBin 'pg_isready.exe'
+if ($pgIsReady) {
     $out = & $pgIsReady -h 127.0.0.1 -p $PG_PORT 2>&1
     $ready = $LASTEXITCODE -eq 0
     Write-Check 'PostgreSQL accepting connections' $ready ($out -join ' ')
 } else {
-    # Fall back to psql ping if pg_isready is missing
-    Write-Check 'PostgreSQL accepting connections' $false "pg_isready.exe not found at $pgIsReady"
+    Write-Check 'PostgreSQL accepting connections' $false "pg_isready.exe not found (checked: $(Join-Path $PG_BIN_DIR 'pg_isready.exe') and PATH)"
 }
 
 # --- Check 4: Loopback-only listen_addresses ---------------------------------
 
 if ($dsn -and ($dsn -match 'postgresql://')) {
-    $psqlExe = Join-Path $PG_BIN_DIR 'psql.exe'
-    if (Test-Path $psqlExe) {
+    $psqlExe = Resolve-PgBin 'psql.exe'
+    if ($psqlExe) {
         try {
             $env:PGPASSWORD = ''   # DSN carries password via URI
             $listenAddrs = & $psqlExe $dsn -c 'SHOW listen_addresses;' -t -q 2>&1 |
@@ -142,7 +152,7 @@ if ($dsn -and ($dsn -match 'postgresql://')) {
             Write-Check 'listen_addresses loopback-only (ADR-0006)' $false $_.Exception.Message
         }
     } else {
-        Write-Check 'listen_addresses loopback-only (ADR-0006)' $false "psql.exe not found at $psqlExe"
+        Write-Check 'listen_addresses loopback-only (ADR-0006)' $false "psql.exe not found (checked: $(Join-Path $PG_BIN_DIR 'psql.exe') and PATH)"
     }
 } else {
     Write-Check 'listen_addresses loopback-only (ADR-0006)' $false 'No usable DSN for query'
@@ -151,8 +161,8 @@ if ($dsn -and ($dsn -match 'postgresql://')) {
 # --- Check 5: Schema baseline - meetings table -------------------------------
 
 if ($dsn -and ($dsn -match 'postgresql://')) {
-    $psqlExe = Join-Path $PG_BIN_DIR 'psql.exe'
-    if (Test-Path $psqlExe) {
+    $psqlExe = Resolve-PgBin 'psql.exe'
+    if ($psqlExe) {
         try {
             $tableCheck = & $psqlExe $dsn -c @"
 SELECT 1
@@ -161,12 +171,13 @@ WHERE  table_schema = 'public'
   AND  table_name   = 'meetings';
 "@ -t -q 2>&1
             $tableExists = ($tableCheck -join '').Trim() -eq '1'
-            Write-Check 'Schema baseline (meetings table)' $tableExists (if ($tableExists) { 'Table exists' } else { 'Table not found - migrations may not have run' })
+            $schemaDetail = if ($tableExists) { 'Table exists' } else { 'Table not found - migrations may not have run' }
+            Write-Check 'Schema baseline (meetings table)' $tableExists $schemaDetail
         } catch {
             Write-Check 'Schema baseline (meetings table)' $false $_.Exception.Message
         }
     } else {
-        Write-Check 'Schema baseline (meetings table)' $false "psql.exe not found"
+        Write-Check 'Schema baseline (meetings table)' $false "psql.exe not found (checked: $(Join-Path $PG_BIN_DIR 'psql.exe') and PATH)"
     }
 }
 
