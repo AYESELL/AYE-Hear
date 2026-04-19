@@ -28,10 +28,10 @@ class TestModelSettingsSmall(unittest.TestCase):
 class TestTranscriptionServiceModelName(unittest.TestCase):
     """TranscriptionService uses injected model_name."""
 
-    def test_default_model_name_is_base(self):
-        # Default value in the dataclass itself
+    def test_default_model_name_is_small(self):
+        # HEAR-115: default aligned to benchmark-backed 'small' decision (HEAR-113)
         svc = TranscriptionService()
-        assert svc.model_name == "base"
+        assert svc.model_name == "small"
 
     def test_override_model_name_to_small(self):
         svc = TranscriptionService(model_name="small")

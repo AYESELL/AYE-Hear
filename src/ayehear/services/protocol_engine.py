@@ -17,6 +17,10 @@ import urllib.request
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
+from ayehear.services.action_item_quality import ActionItemQuality, ActionItemQualityEngine
+from ayehear.services.confidence_review import ConfidenceReviewQueue
+from ayehear.services.protocol_traceability import TraceabilityStore
+
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
@@ -26,6 +30,23 @@ if TYPE_CHECKING:
     )
 
 logger = logging.getLogger(__name__)
+
+
+def _coerce_str_list(value: Any) -> list[str]:
+    """Coerce an LLM-returned value to a list of strings (HEAR-124).
+
+    LLMs sometimes return a plain string or a nested dict instead of
+    ``list[str]``.  This helper normalises any such value so that
+    downstream code never receives an unexpected type.
+    """
+    if isinstance(value, list):
+        return [item for item in value if isinstance(item, str)]
+    if isinstance(value, str):
+        return [value] if value else []
+    if isinstance(value, dict):
+        # Flatten dict values to strings when the LLM wraps items in a nested object.
+        return [str(v) for v in value.values() if v]
+    return []
 
 
 def _resource_snapshot() -> dict:
@@ -55,6 +76,9 @@ class ProtocolSnapshot:
     version: int
     content: ProtocolContent
     snapshot_id: str | None = None
+    action_item_quality: list[ActionItemQuality] = field(default_factory=list)
+    review_queue: ConfidenceReviewQueue | None = None
+    trace_store: TraceabilityStore | None = None
 
 
 class OllamaModelUnavailableError(RuntimeError):
@@ -82,6 +106,7 @@ class ProtocolEngine:
         self._ollama_model = ollama_model
         self._language = language
         self._fallback_enabled = fallback_enabled
+        self._quality_engine = ActionItemQualityEngine(language=language)
         self._last_diagnostics: dict[str, Any] = {
             "status": "idle",
             "reason": "",
@@ -137,34 +162,73 @@ class ProtocolEngine:
         lines = self._load_transcript_lines(meeting_id)
         content = self._extract_content(lines, allow_fallback=allow_fallback)
 
+        # V2-01 / HEAR-116: deterministic quality scoring — no model or network call
+        qualities = self._quality_engine.score_many(content.action_items)
+
+        _snapshot_content_dict: dict[str, list[str]] = {
+            "decisions": content.decisions,
+            "action_items": content.action_items,
+            "open_questions": content.open_questions,
+        }
+
         if self._snapshots is None:
+            _local_snapshot_id = f"{meeting_id}-local"
+            review_queue = self.build_review_queue(
+                meeting_id=meeting_id,
+                snapshot_id=_local_snapshot_id,
+                snapshot_content=_snapshot_content_dict,
+            )
+            trace_store = self.build_trace_store(
+                meeting_id=meeting_id,
+                snapshot_id=_local_snapshot_id,
+                snapshot_content=_snapshot_content_dict,
+            )
             return ProtocolSnapshot(
                 meeting_id=meeting_id,
                 version=1,
                 content=content,
+                action_item_quality=qualities,
+                review_queue=review_queue,
+                trace_store=trace_store,
             )
 
         snapshot_row = self._snapshots.append(
             meeting_id=meeting_id,
             content={
                 "summary": content.summary,
-                "decisions": content.decisions,
-                "action_items": content.action_items,
-                "open_questions": content.open_questions,
+                **_snapshot_content_dict,
             },
         )
 
-        for item_text in content.action_items:
+        for item_text, quality in zip(content.action_items, qualities):
             try:
-                self._snapshots.add_action_item(snapshot_row.id, item_text, "")
+                description = (
+                    f"score:{quality.score} sharpening:{quality.needs_sharpening}"
+                    + (f" reasons:{','.join(r.value for r in quality.reasons)}" if quality.reasons else "")
+                )
+                self._snapshots.add_action_item(snapshot_row.id, item_text, description)
             except Exception as exc:
                 logger.warning("Could not persist action item: %s", exc)
+
+        review_queue = self.build_review_queue(
+            meeting_id=meeting_id,
+            snapshot_id=snapshot_row.id,
+            snapshot_content=_snapshot_content_dict,
+        )
+        trace_store = self.build_trace_store(
+            meeting_id=meeting_id,
+            snapshot_id=snapshot_row.id,
+            snapshot_content=_snapshot_content_dict,
+        )
 
         return ProtocolSnapshot(
             meeting_id=meeting_id,
             version=snapshot_row.snapshot_version,
             content=content,
             snapshot_id=snapshot_row.id,
+            action_item_quality=qualities,
+            review_queue=review_queue,
+            trace_store=trace_store,
         )
 
     def summarize_window(
@@ -200,6 +264,116 @@ class ProtocolEngine:
             if isinstance(model_name, str) and model_name and model_name not in models:
                 models.append(model_name)
         return models
+
+    # ------------------------------------------------------------------
+    # V2-01 / HEAR-116: Action-Item Quality Engine integration
+    # ------------------------------------------------------------------
+
+    def score_action_items(self, texts: list[str]) -> list[ActionItemQuality]:
+        """Score action items deterministically. No network or model call."""
+        return self._quality_engine.score_many(texts)
+
+    @staticmethod
+    def annotate_weak_items(
+        items: list[str],
+        qualities: list[ActionItemQuality],
+    ) -> list[str]:
+        """Return items with a sharpening annotation appended for weak items.
+
+        Items that pass the sharpening threshold are returned unchanged.
+        Reason codes use stable English enum values so annotations remain
+        consistent across language settings.
+        """
+        result: list[str] = []
+        for item, quality in zip(items, qualities):
+            if quality.needs_sharpening and quality.reasons:
+                codes = ", ".join(r.value for r in quality.reasons)
+                result.append(f"{item} [⚠ needs sharpening: {codes}]")
+            else:
+                result.append(item)
+        return result
+
+    # ------------------------------------------------------------------
+    # V2-12 / HEAR-117: Confidence Review Queue integration
+    # ------------------------------------------------------------------
+
+    def build_review_queue(
+        self,
+        meeting_id: str,
+        snapshot_id: str,
+        snapshot_content: dict[str, list[str]],
+    ) -> ConfidenceReviewQueue:
+        """Build a ranked confidence review queue for a protocol snapshot.
+
+        Derives uncertainty signals from the meeting's transcript segments and
+        the most recent engine diagnostics, then builds a severity-ranked queue
+        of uncertain decisions, action items, and open questions.
+
+        No network or model call is made. State must be persisted by the caller.
+        """
+        segment_dicts: list[dict[str, Any]] = []
+        if self._transcripts is not None:
+            try:
+                segs = self._transcripts.list_for_meeting(meeting_id)
+                segment_dicts = [
+                    {
+                        "id": s.id,
+                        "confidence_score": s.confidence_score,
+                        "speaker_name": s.speaker_name,
+                        "manual_correction": s.manual_correction,
+                    }
+                    for s in segs
+                ]
+            except Exception as exc:
+                logger.warning("Could not load segments for review queue: %s", exc)
+
+        signals = ConfidenceReviewQueue.build_signals(
+            segment_dicts, self.last_diagnostics
+        )
+        return ConfidenceReviewQueue.build(
+            meeting_id=meeting_id,
+            snapshot_id=snapshot_id,
+            snapshot_content=snapshot_content,
+            signals=signals,
+        )
+
+    def build_trace_store(
+        self,
+        meeting_id: str,
+        snapshot_id: str,
+        snapshot_content: dict[str, list[str]],
+    ) -> TraceabilityStore:
+        """Build a traceability store linking protocol items to transcript sources.
+
+        Derives evidence type (DIRECT / INFERRED) from keyword overlap between each
+        protocol item and the meeting's transcript segments.  Falls back to INFERRED
+        for all items when the rule-based extractor was used.
+
+        No network or model call is made. State must be persisted by the caller.
+        """
+        segment_dicts: list[dict[str, Any]] = []
+        if self._transcripts is not None:
+            try:
+                segs = self._transcripts.list_for_meeting(meeting_id)
+                segment_dicts = [
+                    {
+                        "id": s.id,
+                        "start_ms": getattr(s, "start_ms", 0),
+                        "end_ms": getattr(s, "end_ms", 0),
+                        "speaker_name": s.speaker_name,
+                        "confidence_score": s.confidence_score,
+                        "manual_correction": s.manual_correction,
+                        "text": getattr(s, "text", ""),
+                    }
+                    for s in segs
+                ]
+            except Exception as exc:
+                logger.warning("Could not load segments for trace store: %s", exc)
+
+        fallback_used = bool(self._last_diagnostics.get("fallback_used", False))
+        store = TraceabilityStore(snapshot_id=snapshot_id)
+        store.build_links(snapshot_content, segment_dicts, fallback_used=fallback_used)
+        return store
 
     # ------------------------------------------------------------------
     # Internal helpers
@@ -358,10 +532,10 @@ class ProtocolEngine:
 
         data = json.loads(raw)
         return ProtocolContent(
-            summary=data.get("summary", []),
-            decisions=data.get("decisions", []),
-            action_items=data.get("action_items", []),
-            open_questions=data.get("open_questions", []),
+            summary=_coerce_str_list(data.get("summary")),
+            decisions=_coerce_str_list(data.get("decisions")),
+            action_items=_coerce_str_list(data.get("action_items")),
+            open_questions=_coerce_str_list(data.get("open_questions")),
         )
 
     @staticmethod

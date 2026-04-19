@@ -258,3 +258,65 @@ def test_run_asr_raises_asr_unavailable_error_when_not_installed() -> None:
         with pytest.raises(AsrUnavailableError):
             svc._run_asr([0.0] * 512)
 
+
+def test_run_asr_uses_local_files_only_for_model_aliases() -> None:
+    """Development/runtime aliases must never trigger a network download."""
+    svc = TranscriptionService(model_name="small")
+
+    mock_seg = MagicMock()
+    mock_seg.text = "Hallo"
+    mock_info = MagicMock()
+    mock_info.language = "de"
+    mock_model = MagicMock()
+    mock_model.transcribe.return_value = ([mock_seg], mock_info)
+
+    mock_whisper = MagicMock()
+    mock_whisper.WhisperModel.return_value = mock_model
+
+    with patch.dict("sys.modules", {"faster_whisper": mock_whisper}):
+        svc._run_asr([0.0] * 512)
+
+    _, kwargs = mock_whisper.WhisperModel.call_args
+    assert kwargs["local_files_only"] is True
+
+
+def test_run_asr_uses_bundled_model_in_frozen_runtime(tmp_path) -> None:
+    """Packaged runtime must load the bundled Whisper model path only."""
+    svc = TranscriptionService(model_name="small")
+    bundled = tmp_path / "models" / "whisper" / "small"
+    bundled.mkdir(parents=True)
+    (bundled / "model.bin").write_bytes(b"stub")
+
+    mock_seg = MagicMock()
+    mock_seg.text = "Hallo"
+    mock_info = MagicMock()
+    mock_info.language = "de"
+    mock_model = MagicMock()
+    mock_model.transcribe.return_value = ([mock_seg], mock_info)
+
+    mock_whisper = MagicMock()
+    mock_whisper.WhisperModel.return_value = mock_model
+
+    with patch.dict("sys.modules", {"faster_whisper": mock_whisper}):
+        with patch.object(__import__("sys"), "frozen", True, create=True):
+            with patch.object(__import__("sys"), "_MEIPASS", str(tmp_path), create=True):
+                svc._run_asr([0.0] * 512)
+
+    args, kwargs = mock_whisper.WhisperModel.call_args
+    assert args[0] == str(bundled)
+    assert "local_files_only" not in kwargs
+
+
+def test_run_asr_rejects_missing_bundled_model_in_frozen_runtime(tmp_path) -> None:
+    """Packaged runtime must fail closed instead of downloading a model."""
+    svc = TranscriptionService(model_name="small")
+    mock_whisper = MagicMock()
+
+    with patch.dict("sys.modules", {"faster_whisper": mock_whisper}):
+        with patch.object(__import__("sys"), "frozen", True, create=True):
+            with patch.object(__import__("sys"), "_MEIPASS", str(tmp_path), create=True):
+                with pytest.raises(RuntimeError, match="blocks runtime model downloads"):
+                    svc._run_asr([0.0] * 512)
+
+    mock_whisper.WhisperModel.assert_not_called()
+

@@ -33,6 +33,8 @@ from ayehear.app.mic_level_widget import MicLevelWidget
 from ayehear.app.system_readiness import ReadinessChecker, SystemReadinessWidget
 from ayehear.models.meeting import MeetingSession, Participant
 from ayehear.models.runtime import RuntimeConfig
+from ayehear.services.confidence_review import ConfidenceReviewQueue, ItemType
+from ayehear.services.protocol_traceability import TraceabilityStore
 from ayehear.services.audio_capture import (
     AudioCaptureProfile,
     AudioCaptureService,
@@ -113,6 +115,8 @@ class MainWindow(QMainWindow):
         self._pending_end_ms: int = 0
         self._pending_duration_ms: int = 0
         self._asr_warned_no_text = False
+        self._review_queue: ConfidenceReviewQueue | None = None
+        self._trace_store: TraceabilityStore | None = None
 
         self.setWindowTitle("AYE Hear")
         self.resize(1440, 900)
@@ -405,6 +409,28 @@ class MainWindow(QMainWindow):
         if self._active_meeting_id is not None:
             self._refresh_protocol_display()
 
+    def _save_review_queue(self) -> None:
+        """Save the current review queue to local runtime/reviews storage (V2-12 / HEAR-117)."""
+        if self._review_queue is None or self._active_meeting_id is None:
+            return
+        try:
+            from pathlib import Path as _Path
+            self._review_queue.save(_Path(f"review-{self._active_meeting_id}.json"))
+            logger.debug("Review queue saved for meeting %s", self._active_meeting_id)
+        except Exception as exc:
+            logger.warning("Could not save review queue: %s", exc)
+
+    def _save_trace_store(self) -> None:
+        """Save the current trace store to local runtime/traces storage (V2-13 / HEAR-118)."""
+        if self._trace_store is None or self._active_meeting_id is None:
+            return
+        try:
+            from pathlib import Path as _Path
+            self._trace_store.save(_Path(f"trace-{self._active_meeting_id}.json"))
+            logger.debug("Trace store saved for meeting %s", self._active_meeting_id)
+        except Exception as exc:
+            logger.warning("Could not save trace store: %s", exc)
+
     def _handle_persistence_error(self, source: str, exc: Exception) -> None:
         """Recover from DB/session errors to avoid repeated failure cascades."""
         logger.error("%s: %s", source, exc)
@@ -692,6 +718,15 @@ class MainWindow(QMainWindow):
                         exc,
                     )
                     break
+
+        # HEAR-124: commit meeting + participants immediately so they survive any later
+        # session.rollback() triggered by unrelated errors (e.g. protocol rebuild).
+        if meeting_persisted and self._db_session is not None:
+            try:
+                self._db_session.commit()
+                logger.debug("Meeting and participants committed to DB: %s", meeting_id)
+            except Exception as exc:
+                logger.error("Failed to commit meeting to DB: %s", exc)
 
         # Reconcile enrollment state collected before meeting start:
         # 1) persist participant->profile linkage now that DB participant IDs exist
@@ -1016,12 +1051,32 @@ class MainWindow(QMainWindow):
         for name in (known_speakers or []):
             self._speaker_override.addItem(name)
 
+        # V2-12 / HEAR-117: try to restore a previously saved review queue for this meeting
+        try:
+            from pathlib import Path as _Path
+            self._review_queue = ConfidenceReviewQueue.load(_Path(f"review-{meeting_id}.json"))
+            logger.debug("Restored confidence review queue for meeting %s", meeting_id)
+        except Exception:
+            self._review_queue = None
+
+        # V2-13 / HEAR-118: try to restore a previously saved trace store for this meeting
+        try:
+            from pathlib import Path as _Path
+            self._trace_store = TraceabilityStore.load(_Path(f"trace-{meeting_id}.json"))
+            logger.debug("Restored trace store for meeting %s", meeting_id)
+        except Exception:
+            self._trace_store = None
+
         self._refresh_review_queue()
         self._refresh_timer.start()
 
     def stop_active_meeting(self) -> None:
         self._refresh_timer.stop()
+        self._save_review_queue()   # V2-12 / HEAR-117: persist final state before clearing
+        self._save_trace_store()    # V2-13 / HEAR-118: persist trace state before clearing
         self._active_meeting_id = None
+        self._review_queue = None
+        self._trace_store = None
         self._speaker_manager.clear_meeting_context()
 
     def _reconcile_enrollment_links_after_start(self) -> None:
@@ -1146,9 +1201,25 @@ class MainWindow(QMainWindow):
                 lines.append("")
 
             _section("Summary", content.get("summary", []))
-            _section("Decisions", content.get("decisions", []))
-            _section("Action Items", content.get("action_items", []))
-            _section("Open Questions", content.get("open_questions", []))
+
+            # V2-12 / HEAR-117: apply review decisions when queue is active
+            if self._review_queue is not None:
+                decisions = self._review_queue.get_final_items(ItemType.DECISION)
+                raw_action_items = self._review_queue.get_final_items(ItemType.ACTION_ITEM)
+                open_questions = self._review_queue.get_final_items(ItemType.OPEN_QUESTION)
+            else:
+                decisions = content.get("decisions", [])
+                raw_action_items = content.get("action_items", [])
+                open_questions = content.get("open_questions", [])
+
+            _section("Decisions", decisions)
+            # V2-01 / HEAR-116: annotate weak action items
+            annotated_action_items = self._protocol_engine.annotate_weak_items(
+                raw_action_items,
+                self._protocol_engine.score_action_items(raw_action_items),
+            )
+            _section("Action Items", annotated_action_items)
+            _section("Open Questions", open_questions)
 
             self._protocol_view.setPlainText("\n".join(lines).strip())
         except Exception as exc:
@@ -1169,10 +1240,24 @@ class MainWindow(QMainWindow):
         ):
             return
         try:
-            self._protocol_engine.generate(self._active_meeting_id)
+            snapshot = self._protocol_engine.generate(self._active_meeting_id)
+            # V2-12 / HEAR-117: seed review queue from first snapshot in this session
+            if self._review_queue is None and snapshot.review_queue is not None:
+                self._review_queue = snapshot.review_queue
+                self._save_review_queue()
+            # V2-13 / HEAR-118: seed trace store from first snapshot in this session
+            if self._trace_store is None and snapshot.trace_store is not None:
+                self._trace_store = snapshot.trace_store
+                self._save_trace_store()
             self._refresh_protocol_display()
         except Exception as exc:
-            self._handle_persistence_error("Protocol rebuild failed", exc)
+            # HEAR-124: only route genuine DB/SQLAlchemy errors to _handle_persistence_error
+            # to avoid rolling back the active meeting on unrelated protocol-parsing failures.
+            from sqlalchemy.exc import SQLAlchemyError
+            if isinstance(exc, SQLAlchemyError):
+                self._handle_persistence_error("Protocol rebuild failed", exc)
+            else:
+                logger.error("Protocol rebuild failed: %s", exc)
 
     # ------------------------------------------------------------------
     # HEAR-070 / HEAR-075: Protocol export (multi-format)

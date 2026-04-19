@@ -145,7 +145,16 @@ class TestAC2ProtocolEngineGenerate:
         win._active_meeting_id = "mtg-refresh"
 
         call_order: list[str] = []
-        with patch.object(win._protocol_engine, "generate", side_effect=lambda mid: call_order.append("generate")):
+
+        def _fake_generate(mid):
+            call_order.append("generate")
+            # Return a minimal snapshot so the code reaches _refresh_protocol_display (HEAR-124)
+            snap = MagicMock()
+            snap.review_queue = None
+            snap.trace_store = None
+            return snap
+
+        with patch.object(win._protocol_engine, "generate", side_effect=_fake_generate):
             with patch.object(win, "_refresh_protocol_display", side_effect=lambda: call_order.append("refresh")):
                 win._rebuild_protocol_from_persistence()
 

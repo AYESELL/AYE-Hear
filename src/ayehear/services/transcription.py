@@ -1,7 +1,8 @@
 """Transcription pipeline integration (HEAR-013).
 
 Wraps faster-whisper for offline ASR and persists segments to PostgreSQL
-via TranscriptSegmentRepository. No external network calls are made at runtime.
+via TranscriptSegmentRepository. No external network calls are made at runtime;
+model loading is restricted to bundled or already-local sources only.
 
 Transcription profiles map to faster-whisper compute_type / beam_size settings:
   - fast   : int8, beam_size=1
@@ -21,6 +22,31 @@ if TYPE_CHECKING:
     from ayehear.storage.repositories import TranscriptSegmentRepository
 
 logger = logging.getLogger(__name__)
+
+
+def _resolve_model_source(model_name: str) -> tuple[str, dict[str, Any]]:
+    """Return a local-only WhisperModel source and loader kwargs.
+
+    Packaged runtimes must load the staged bundle from ``sys._MEIPASS`` and
+    fail closed if it is missing. Development/CI runs may use model aliases,
+    but only with ``local_files_only=True`` so faster-whisper never downloads
+    from HuggingFace at runtime.
+    """
+    configured_path = Path(model_name)
+    if configured_path.exists():
+        return str(configured_path), {}
+
+    if getattr(sys, "frozen", False):
+        bundled = Path(sys._MEIPASS) / "models" / "whisper" / model_name  # type: ignore[attr-defined]
+        if bundled.is_dir() and (bundled / "model.bin").exists():
+            logger.debug("Using bundled Whisper model: %s", bundled)
+            return str(bundled), {}
+        raise RuntimeError(
+            f"Bundled Whisper model '{model_name}' not found at {bundled}. "
+            "AYE Hear blocks runtime model downloads to preserve offline-first operation."
+        )
+
+    return model_name, {"local_files_only": True}
 
 
 def _resource_snapshot() -> dict:
@@ -75,7 +101,7 @@ class TranscriptionService:
     The model is loaded lazily on the first transcription call.
     """
 
-    model_name: str = "base"
+    model_name: str = "small"
     profile: str = "balanced"
     language: str = "de"
     transcript_repo: "TranscriptSegmentRepository | None" = None
@@ -174,24 +200,13 @@ class TranscriptionService:
 
         if self._model is None:
             opts = _PROFILES[self.profile]
-            # HEAR-062: prefer bundled model when running from a PyInstaller package
-            model_path: str = self.model_name
-            if getattr(sys, "frozen", False):
-                bundled = Path(sys._MEIPASS) / "models" / "whisper" / self.model_name  # type: ignore[attr-defined]
-                if bundled.is_dir() and (bundled / "model.bin").exists():
-                    model_path = str(bundled)
-                    logger.debug("Using bundled Whisper model: %s", model_path)
-                else:
-                    logger.warning(
-                        "Bundled Whisper model '%s' not found at %s — "
-                        "falling back to HuggingFace download (requires internet).",
-                        self.model_name, bundled,
-                    )
+            model_path, model_kwargs = _resolve_model_source(self.model_name)
             try:
                 self._model = WhisperModel(
                     model_path,
                     device="cpu",
                     compute_type=opts["compute_type"],
+                    **model_kwargs,
                 )
             except Exception as exc:
                 # Keep _model None so next call retries

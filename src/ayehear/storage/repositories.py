@@ -239,7 +239,16 @@ class TranscriptSegmentRepository:
             manual_correction=manual_correction,
         )
         self._s.add(seg)
-        self._s.flush()
+        try:
+            self._s.flush()
+        except Exception:
+            # Clear the rolled-back transaction state so subsequent segment
+            # adds on the same session can succeed (HEAR-124).
+            try:
+                self._s.rollback()
+            except Exception:
+                pass
+            raise
         return seg
 
     def list_for_meeting(self, meeting_id: str) -> list[TranscriptSegment]:
