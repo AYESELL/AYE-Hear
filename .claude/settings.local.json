@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.venv/Scripts/python.exe -m pytest tests/test_hear_094_whisper_small.py tests/test_hear_098_model_wiring.py tests/test_hear_115_asr_profile_tuning.py tests/test_transcription.py -v)",
+      "Bash(.venv/Scripts/python.exe -m pytest tests/test_hear_105_action_item_quality.py tests/test_hear_108_quality_wave_validation.py tests/test_hear_116_quality_engine_integration.py -v)",
+      "Bash(.venv/Scripts/python.exe -m pytest tests/test_hear_106_confidence_review.py tests/test_hear_108_quality_wave_validation.py tests/test_hear_117_confidence_review_integration.py -v)",
+      "Bash(python -m pytest tests/test_hear_107_protocol_traceability.py tests/test_hear_108_quality_wave_validation.py tests/test_hear_118_protocol_traceability_integration.py -v)",
+      "Bash(.venv/Scripts/python.exe -m pytest tests/test_hear_107_protocol_traceability.py tests/test_hear_108_quality_wave_validation.py tests/test_hear_118_protocol_traceability_integration.py -v)"
+    ]
+  }
+}
