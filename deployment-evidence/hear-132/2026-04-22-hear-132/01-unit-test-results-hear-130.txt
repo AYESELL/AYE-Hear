@@ -1,0 +1,27 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-9.0.3, pluggy-1.6.0 -- G:\Repo\aye-hear\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: G:\Repo\aye-hear
+configfile: pyproject.toml
+plugins: anyio-4.13.0, cov-7.1.0
+collecting ... collected 17 items
+
+tests/test_hear_130_persistence_lifecycle_continuity.py::TestProtocolEngineAttributeUpdates::test_reload_updates_snapshots_attribute PASSED [  5%]
+tests/test_hear_130_persistence_lifecycle_continuity.py::TestProtocolEngineAttributeUpdates::test_reload_updates_transcripts_attribute PASSED [ 11%]
+tests/test_hear_130_persistence_lifecycle_continuity.py::TestProtocolEngineAttributeUpdates::test_wrong_attribute_name_does_not_affect_generate PASSED [ 17%]
+tests/test_hear_130_persistence_lifecycle_continuity.py::TestProtocolEngineAttributeUpdates::test_generate_uses_snapshots_not_snapshot_repo PASSED [ 23%]
+tests/test_hear_130_persistence_lifecycle_continuity.py::TestRefreshProtocolDisplayErrorRouting::test_type_error_in_score_action_items_does_not_trigger_reload PASSED [ 29%]
+tests/test_hear_130_persistence_lifecycle_continuity.py::TestRefreshProtocolDisplayErrorRouting::test_score_action_items_with_str_list_does_not_raise PASSED [ 35%]
+tests/test_hear_130_persistence_lifecycle_continuity.py::TestRefreshProtocolDisplayErrorRouting::test_non_sqlalchemy_error_class_check PASSED [ 41%]
+tests/test_hear_130_persistence_lifecycle_continuity.py::TestRefreshProtocolDisplayErrorRouting::test_sqlalchemy_error_class_check PASSED [ 47%]
+tests/test_hear_130_persistence_lifecycle_continuity.py::TestStopMeetingValueErrorHandling::test_meeting_repo_end_raises_value_error_for_missing PASSED [ 52%]
+tests/test_hear_130_persistence_lifecycle_continuity.py::TestStopMeetingValueErrorHandling::test_value_error_is_not_sqlalchemy_error PASSED [ 58%]
+tests/test_hear_130_persistence_lifecycle_continuity.py::TestPostReloadMeetingVerification::test_meeting_get_by_id_returns_none_for_missing PASSED [ 64%]
+tests/test_hear_130_persistence_lifecycle_continuity.py::TestPostReloadMeetingVerification::test_meeting_get_by_id_returns_meeting_when_present PASSED [ 70%]
+tests/test_hear_130_persistence_lifecycle_continuity.py::TestPostReloadMeetingVerification::test_fk_violation_is_sqlalchemy_error PASSED [ 76%]
+tests/test_hear_130_persistence_lifecycle_continuity.py::TestTranscriptSegmentAddRollbackOnError::test_flush_failure_triggers_rollback_and_reraises PASSED [ 82%]
+tests/test_hear_130_persistence_lifecycle_continuity.py::TestTranscriptSegmentAddRollbackOnError::test_second_add_after_rollback_succeeds PASSED [ 88%]
+tests/test_hear_130_persistence_lifecycle_continuity.py::TestProtocolEngineGenerateWithNoneRepos::test_generate_with_no_snapshots_returns_local_snapshot PASSED [ 94%]
+tests/test_hear_130_persistence_lifecycle_continuity.py::TestProtocolEngineGenerateWithNoneRepos::test_generate_does_not_call_stale_snapshot_repo_attr PASSED [100%]
+
+============================= 17 passed in 0.43s ==============================

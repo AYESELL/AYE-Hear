@@ -1,0 +1,29 @@
+commit d37db7d3c056c57a26d425d38be7f91a96e1e7f8
+Author: GitHub Copilot Agent <agent@appsam.de>
+Date:   Wed Apr 22 12:11:03 2026 +0200
+
+    fix(persistence): HEAR-130 lifecycle continuity fix
+    
+    RC-1: _reload_persistence_layer() used wrong ProtocolEngine attribute names
+      (_snapshot_repo/_transcript_repo ÔåÆ _snapshots/_transcripts). After every
+      session reload the engine continued using the old closed session, causing
+      repeated FK violations (transcript_segments_meeting_id_fkey).
+    
+    RC-2: _stop_meeting() routed ValueError from MeetingRepository._require()
+      to _handle_persistence_error(), triggering unneeded session reloads.
+      ValueError is a data-integrity warning, not a DB connectivity error.
+      Now caught separately as a warning.
+    
+    RC-3: _refresh_protocol_display() had bare except Exception that routed
+      TypeErrors (malformed JSON snapshot content) to _handle_persistence_error().
+      Now only SQLAlchemyError triggers reload; other errors are logged only.
+    
+    RC-4: Post-reload meeting visibility guard added ÔÇö after reload, verifies
+      active meeting is still visible in new session. If not, disables
+      _transcript_repo and transcription service repo to prevent FK loop.
+    
+    Tests: tests/test_hear_130_persistence_lifecycle_continuity.py (17 tests, all green)
+
+ src/ayehear/app/window.py                          |  44 ++-
+ ...st_hear_130_persistence_lifecycle_continuity.py | 333 +++++++++++++++++++++
+ 2 files changed, 373 insertions(+), 4 deletions(-)

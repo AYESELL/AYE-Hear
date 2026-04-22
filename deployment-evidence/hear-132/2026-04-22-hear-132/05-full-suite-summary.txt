@@ -1,0 +1,8 @@
+836 tests collected | 831 passed | 5 failed (pre-existing, unrelated to persistence lifecycle)
+
+Pre-existing failures (present before HEAR-130 commit, not related to FK persistence path):
+  FAILED tests/test_hear_074_enrollment_workflow.py::TestParseSpeakerRaw::test_two_fields
+  FAILED tests/test_hear_074_enrollment_workflow.py::TestParseSpeakerRaw::test_single_field
+  FAILED tests/test_hear_085_protocol_draft.py::TestAC3DegradedLabel::test_update_protocol_live_without_db_sets_degraded_not_transcript
+  FAILED tests/test_hear_085_protocol_draft.py::TestAC5UpdateProtocolLiveNeverMirrorsTranscript::test_update_protocol_live_without_db_multiple_lines_no_stacking
+  FAILED tests/test_mic_level_widget.py::TestMicLevelWidgetLevelBar::test_level_bar_updates_on_segment

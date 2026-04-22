@@ -1,0 +1,10 @@
+Source branch: feature/phase-1b-implementation-updates
+Persistence fix commit: d37db7d (HEAR-130 lifecycle continuity fix)
+Source version: 0.5.5 (with HEAR-130 fix applied to source)
+Installed version: 0.5.5 (built before HEAR-130 fix - does NOT contain the fix)
+
+NOTES:
+- HEAR-130 fix is on source branch but not yet in a released installer.
+- A new build (e.g. 0.5.6) is required to produce an installer containing the fix.
+- Installed E2E gate for HEAR-132 is BLOCKED pending new build.
+- Unit test gate for the persistence fix: 17/17 PASS (HEAR-130 tests).
