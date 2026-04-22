@@ -1,11 +1,16 @@
 # -*- mode: python ; coding: utf-8 -*-
 # HEAR-062: bundle Whisper model for offline ASR
 # HEAR-094: upgraded from 'base' (~74MB) to 'small' (~244MB) for improved German ASR quality
+# HEAR-139: upgraded to TheChola/whisper-large-v3-turbo-german-faster-whisper (~800MB) for DE-optimized ASR
 import os as _os
 from PyInstaller.utils.hooks import collect_submodules, collect_data_files
 block_cipher = None
-_whisper_model_dir = _os.path.join(_os.path.dirname(_os.path.abspath(SPEC)), '..', 'config', 'models', 'whisper', 'small')
-_whisper_datas = [(_whisper_model_dir, 'models/whisper/small')] if _os.path.isfile(_os.path.join(_whisper_model_dir, 'model.bin')) else []
+# Staging dir: config/models/whisper/TheChola-german-turbo (filesystem-safe name)
+# Bundle target: models/whisper/TheChola/whisper-large-v3-turbo-german-faster-whisper
+# This matches the path resolved by _resolve_model_source() in transcription.py:
+#   Path(sys._MEIPASS) / 'models' / 'whisper' / 'TheChola/whisper-large-v3-turbo-german-faster-whisper'
+_whisper_model_dir = _os.path.join(_os.path.dirname(_os.path.abspath(SPEC)), '..', 'config', 'models', 'whisper', 'TheChola-german-turbo')
+_whisper_datas = [(_whisper_model_dir, 'models/whisper/TheChola/whisper-large-v3-turbo-german-faster-whisper')] if _os.path.isfile(_os.path.join(_whisper_model_dir, 'model.bin')) else []
 
 # Collect all psycopg submodules so SQLAlchemy's postgresql+psycopg dialect loads
 # correctly in the frozen bundle (psycopg C-extension lives inside psycopg_binary).

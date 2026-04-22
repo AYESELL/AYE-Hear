@@ -34,7 +34,7 @@ class ProtocolSettings(BaseModel):
 
 class ModelSettings(BaseModel):
     whisper_profile: str = "balanced"
-    whisper_model: str = "small"
+    whisper_model: str = "TheChola/whisper-large-v3-turbo-german-faster-whisper"
     ollama_model: str = "mistral:7b"
 
 

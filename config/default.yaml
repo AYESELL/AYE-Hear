@@ -23,5 +23,5 @@ protocol:
 
 models:
   whisper_profile: balanced
-  whisper_model: small
+  whisper_model: TheChola/whisper-large-v3-turbo-german-faster-whisper
   ollama_model: mistral:7b

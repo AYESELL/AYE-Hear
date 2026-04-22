@@ -101,7 +101,7 @@ class TranscriptionService:
     The model is loaded lazily on the first transcription call.
     """
 
-    model_name: str = "small"
+    model_name: str = "TheChola/whisper-large-v3-turbo-german-faster-whisper"
     profile: str = "balanced"
     language: str = "de"
     transcript_repo: "TranscriptSegmentRepository | None" = None

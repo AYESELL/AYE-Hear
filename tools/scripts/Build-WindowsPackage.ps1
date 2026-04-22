@@ -64,15 +64,16 @@ Write-Host "        pyinstaller $piOut  OK"
 $version = python -c "import tomllib; f=open('pyproject.toml','rb'); d=tomllib.load(f); print(d['project']['version'])"
 Write-Host "[version] $version"
 
-# ─── Whisper model staging (HEAR-062 / HEAR-094) ─────────────────────────────
-# Stage the faster-whisper 'small' model from the HuggingFace cache into
-# config/models/whisper/small/ so PyInstaller can bundle it for offline use.
-# On CI / build agents the model must be pre-downloaded before running this script.
-# HEAR-094: upgraded from 'base' (~74MB) to 'small' (~244MB) for improved German ASR quality.
-$WhisperModelName   = 'small'
-$WhisperStagingDir  = 'config\models\whisper\small'
+# ─── Whisper model staging (HEAR-062 / HEAR-094 / HEAR-139) ──────────────────
+# Stage the TheChola German fine-tuned faster-whisper model from the HuggingFace
+# cache into config/models/whisper/TheChola-german-turbo/ for offline bundling.
+# On CI / build agents the model must be pre-downloaded before running this script:
+#   python -c "from faster_whisper import WhisperModel; WhisperModel('TheChola/whisper-large-v3-turbo-german-faster-whisper')"
+# HEAR-139: upgraded from 'small' to TheChola/whisper-large-v3-turbo-german-faster-whisper for DE-optimized ASR.
+$WhisperModelName   = 'TheChola/whisper-large-v3-turbo-german-faster-whisper'
+$WhisperStagingDir  = 'config\models\whisper\TheChola-german-turbo'
 $HfCacheRoot        = "$env:USERPROFILE\.cache\huggingface\hub"
-$HfModelDir         = Join-Path $HfCacheRoot 'models--Systran--faster-whisper-small'
+$HfModelDir         = Join-Path $HfCacheRoot 'models--TheChola--whisper-large-v3-turbo-german-faster-whisper'
 
 if (-not (Test-Path (Join-Path $WhisperStagingDir 'model.bin'))) {
     if (Test-Path $HfModelDir) {
@@ -86,7 +87,8 @@ if (-not (Test-Path (Join-Path $WhisperStagingDir 'model.bin'))) {
                 New-Item -ItemType Directory -Path $WhisperStagingDir -Force | Out-Null
             }
             # Copy required CTranslate2 model files, resolving symlinks to actual blobs
-            foreach ($fname in @('config.json', 'model.bin', 'tokenizer.json', 'vocabulary.txt')) {
+            # TheChola model uses preprocessor_config.json + tokenizer files typical of large-v3-turbo
+            foreach ($fname in @('config.json', 'model.bin', 'tokenizer.json', 'vocabulary.json', 'vocabulary.txt', 'preprocessor_config.json', 'special_tokens_map.json', 'tokenizer_config.json')) {
                 $src = Join-Path $latestSnap $fname
                 $dst = Join-Path $WhisperStagingDir $fname
                 if (Test-Path $src) {
@@ -116,7 +118,7 @@ if (-not (Test-Path (Join-Path $WhisperStagingDir 'model.bin'))) {
     }
 } else {
     $modelSize = [math]::Round((Get-Item (Join-Path $WhisperStagingDir 'model.bin')).Length / 1MB, 1)
-    Write-Host "[model] Whisper '$WhisperModelName' already staged ($modelSize MB)  OK"
+    Write-Host "[model] Whisper 'TheChola/whisper-large-v3-turbo-german-faster-whisper' already staged ($modelSize MB)  OK"
 }
 
 # ─── PyInstaller spec ─────────────────────────────────────────────────────────
