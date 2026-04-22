@@ -381,9 +381,32 @@ class MainWindow(QMainWindow):
                 
                 # Update services that depend on repos
                 self._transcription_service._transcript_repo = self._transcript_repo
-                self._protocol_engine._snapshot_repo = self._snapshot_repo
-                self._protocol_engine._transcript_repo = self._transcript_repo
-                
+                # HEAR-130: ProtocolEngine uses _snapshots/_transcripts internally;
+                # _snapshot_repo/_transcript_repo were wrong attribute names that left
+                # the engine on a stale (closed) session after every reload.
+                self._protocol_engine._snapshots = self._snapshot_repo
+                self._protocol_engine._transcripts = self._transcript_repo
+
+                # HEAR-130: verify the active meeting is still resolvable in the new
+                # session.  A committed meeting must always be visible; if it is not
+                # (e.g. driver-level transaction snapshot anomaly), disable transcript
+                # persistence to prevent FK violations rather than crashing.
+                if self._active_meeting_id is not None:
+                    try:
+                        if self._meeting_repo.get_by_id(self._active_meeting_id) is None:
+                            logger.error(
+                                "HEAR-130: Active meeting %s not visible in new session "
+                                "after reload; disabling transcript persistence to prevent FK violations.",
+                                self._active_meeting_id,
+                            )
+                            self._transcript_repo = None
+                            self._transcription_service._transcript_repo = None
+                    except Exception as verify_exc:
+                        logger.warning(
+                            "HEAR-130: Could not verify active meeting %s after reload: %s",
+                            self._active_meeting_id, verify_exc,
+                        )
+
                 logger.info("Persistence layer reloaded successfully.")
                 return True
         except Exception as exc:
@@ -801,6 +824,12 @@ class MainWindow(QMainWindow):
             try:
                 self._meeting_repo.end(meeting_id)
                 logger.info("Meeting ended in DB: %s", meeting_id)
+            except ValueError as exc:
+                # HEAR-130: ValueError means the meeting ID is not in the DB (e.g. the
+                # meeting was never committed or the session was reloaded and the meeting
+                # is not visible).  This is a data-integrity warning, NOT a connectivity
+                # failure — don't reload the session or disable persistence for it.
+                logger.warning("Failed to end meeting in DB (not found): %s", exc)
             except Exception as exc:
                 self._handle_persistence_error("Failed to end meeting in DB", exc)
 
@@ -1234,7 +1263,14 @@ class MainWindow(QMainWindow):
 
             self._protocol_view.setPlainText("\n".join(lines).strip())
         except Exception as exc:
-            self._handle_persistence_error("Protocol refresh failed", exc)
+            # HEAR-130: only route genuine SQLAlchemy errors to _handle_persistence_error;
+            # non-DB errors (e.g. TypeError from malformed snapshot content) must not
+            # trigger a session reload — they are logged and swallowed instead.
+            from sqlalchemy.exc import SQLAlchemyError
+            if isinstance(exc, SQLAlchemyError):
+                self._handle_persistence_error("Protocol refresh failed", exc)
+            else:
+                logger.error("Protocol refresh failed (non-DB): %s", exc)
 
     def _rebuild_protocol_from_persistence(self) -> None:
         """Generate a new protocol snapshot from persisted transcript data (HEAR-085 AC2).
