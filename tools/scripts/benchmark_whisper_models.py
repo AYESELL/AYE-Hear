@@ -246,8 +246,47 @@ def _load_dataset_samples(dataset_path: Path) -> list[DatasetSample]:
     return samples
 
 
+def _aggregate_model_results(
+    results: list[BenchmarkResult],
+) -> tuple[dict[str, Any], str, str, str]:
+    """Aggregate per-model metrics across all samples.
+
+    Returns (model_aggregates, best_accuracy_model, fastest_model, lowest_ram_model).
+
+    Using per-row max/min on a flat list would favour a model that happened to
+    run on the easiest single sample.  Averaging across all samples gives a fair
+    multi-sample comparison for Go/No-Go decisions.
+    """
+    model_wers: dict[str, list[float]] = {}
+    model_rtf: dict[str, list[float]] = {}
+    model_ram: dict[str, list[float]] = {}
+    for r in results:
+        model_wers.setdefault(r.model, []).append(r.wer)
+        model_rtf.setdefault(r.model, []).append(r.total_seconds)
+        model_ram.setdefault(r.model, []).append(r.peak_ram_mb)
+
+    def _mean(values: list[float]) -> float:
+        return sum(values) / len(values)
+
+    best_accuracy_model = min(model_wers, key=lambda m: _mean(model_wers[m]))
+    fastest_model = min(model_rtf, key=lambda m: _mean(model_rtf[m]))
+    lowest_ram_model = min(model_ram, key=lambda m: _mean(model_ram[m]))
+
+    model_aggregates: dict[str, Any] = {
+        model: {
+            "mean_wer": round(_mean(model_wers[model]), 4),
+            "mean_accuracy_pct": round((1.0 - _mean(model_wers[model])) * 100.0, 2),
+            "mean_total_seconds": round(_mean(model_rtf[model]), 3),
+            "mean_peak_ram_mb": round(_mean(model_ram[model]), 1),
+            "sample_count": len(model_wers[model]),
+        }
+        for model in model_wers
+    }
+    return model_aggregates, best_accuracy_model, fastest_model, lowest_ram_model
+
+
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Benchmark Whisper models for HEAR-113.")
+    parser = argparse.ArgumentParser(description="Benchmark Whisper models for HEAR-136.")
     parser.add_argument("--audio", type=Path)
     parser.add_argument("--reference", type=Path)
     parser.add_argument(
@@ -327,9 +366,7 @@ def main() -> int:
             }
         )
 
-    best_accuracy = max(results, key=lambda item: item.accuracy_pct)
-    fastest = min(results, key=lambda item: item.total_seconds)
-    lowest_ram = min(results, key=lambda item: item.peak_ram_mb)
+    model_aggregates, best_accuracy_model, fastest_model, lowest_ram_model = _aggregate_model_results(results)
 
     report = {
         "benchmark": "HEAR-136",
@@ -344,9 +381,10 @@ def main() -> int:
         "results": [asdict(result) for result in results],
         "samples": sample_summaries,
         "summary": {
-            "best_accuracy_model": best_accuracy.model,
-            "fastest_model": fastest.model,
-            "lowest_ram_model": lowest_ram.model,
+            "best_accuracy_model": best_accuracy_model,
+            "fastest_model": fastest_model,
+            "lowest_ram_model": lowest_ram_model,
+            "model_aggregates": model_aggregates,
         },
     }
     report_path = output_dir / "benchmark-results.json"
