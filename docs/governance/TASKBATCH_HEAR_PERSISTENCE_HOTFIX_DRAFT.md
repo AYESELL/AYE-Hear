@@ -5,6 +5,8 @@ updated: 2026-04-19
 category: task-batch
 ---
 
+**Authority update (2026-04-22):** This draft remains the historical task-batch definition created after HEAR-128. Current post-hotfix candidate-lineage authority is now recorded in [docs/HEAR-135-readiness-reconciliation.md](../HEAR-135-readiness-reconciliation.md).
+
 # TaskBatch Draft - Persistence Hotfix Follow-Up after HEAR-128
 
 ## Purpose

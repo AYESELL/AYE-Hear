@@ -311,6 +311,12 @@ Der Wechsel auf ein größeres Modell wird nur dann vollzogen, wenn **alle drei*
   → Neu: `config/default.yaml` → `whisper_model: <Gewinner>`  
   → Modell in Bundling-Strategie aufnehmen
 
+**Produktentscheidungs-Notiz (2026-04-22):**
+
+- Falls **Kandidat B** (`TheChola/whisper-large-v3-turbo-german-faster-whisper`) die Go/No-Go-Kriterien erfüllt, ist er der **bevorzugte Zielkandidat für die nächste Installer-Version**.
+- In diesem Fall soll der Installer das deutsche Modell nicht nur optional unterstützen, sondern als **gebündelten Standard** ausliefern.
+- `small` bleibt als technischer Fallback und Regressionsanker erhalten, bis die produktive Stabilität des neuen Defaults im gebauten Paket bestätigt ist.
+
 - **Wenn Kriterium 1 (Qualität) nicht erfüllt, aber Kriterium 2 & 3 ok:** Kandidat C (`distil-large-v3`) als Fallback evaluieren  
   → Besserer Kompromiss als `small`, wenn auch nicht die volle Qualitätszielstellung  
   → Abhängig von Prioritäten (Geschwindigkeit vs. Qualität)

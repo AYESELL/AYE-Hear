@@ -7,6 +7,8 @@ updated: 2026-04-19
 category: release-governance
 ---
 
+**Authority update (2026-04-22):** This document remains historical evidence of the pre-hotfix `0.5.5` NO-GO decision at its review time. Current candidate-lineage authority for the post-hotfix follow-up state is now recorded in [docs/HEAR-135-readiness-reconciliation.md](docs/HEAR-135-readiness-reconciliation.md).
+
 # HEAR-128: Architect Readiness Reconciliation after HEAR-123 Blocker Closure
 
 ## Executive Decision
