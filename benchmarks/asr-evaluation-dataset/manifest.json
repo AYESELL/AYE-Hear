@@ -1,0 +1,20 @@
+{
+  "dataset": "hear-136-asr-evaluation",
+  "version": 1,
+  "owner": "AYEHEAR_QA",
+  "notes": "Seeded manifest for HEAR-136. Expand with 10-15 anonymized real meeting recordings before model go/no-go decisions.",
+  "samples": [
+    {
+      "id": "hear-113-seed",
+      "audio": "../../deployment-evidence/hear-113/2026-04-19/hear-113-reference.wav",
+      "reference": "references/hear-113-seed.txt",
+      "tags": [
+        "synthetic",
+        "seed",
+        "german",
+        "group"
+      ],
+      "notes": "Deterministic TTS-generated seed sample from HEAR-113. Use for harness validation only, not as sole benchmark corpus."
+    }
+  ]
+}

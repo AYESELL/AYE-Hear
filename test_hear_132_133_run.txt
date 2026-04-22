@@ -1,0 +1,48 @@
+........................................................................ [  8%]
+........................................................................ [ 17%]
+..................................................................FF.... [ 25%]
+........................................................................ [ 34%]
+.......................................................................F [ 43%]
+.......F................................................................ [ 51%]
+........................................................................ [ 60%]
+........................................................................ [ 68%]
+........................................................................ [ 77%]
+............................F........................................... [ 86%]
+........................................................................ [ 94%]
+............................................                             [100%]
+================================== FAILURES ===================================
+E   AssertionError: assert 'pending enrollment' == ''
+      
+      + pending enrollment
+G:\Repo\aye-hear\tests\test_hear_074_enrollment_workflow.py:46: AssertionError: assert 'pending enrollment' == ''
+E   AssertionError: assert '' == 'Organisation'
+      
+      - Organisation
+G:\Repo\aye-hear\tests\test_hear_074_enrollment_workflow.py:52: AssertionError: assert '' == 'Organisation'
+E   AssertionError: assert False
+     +  where False = <built-in method startswith of str object at 0x0000022734728120>('[DEGRADED]')
+     +    where <built-in method startswith of str object at 0x0000022734728120> = 'Summary\n- Meeting started with speaker enrollment.\n\nDecisions\n- Waiting for first confirmed decision.\n\nAction Items\n- No action items detected yet.\n\n## Transcript\nSome important sentence from speaker'.startswith
+------------------------------ Captured log call ------------------------------
+WARNING  ayehear.services.audio_capture:audio_capture.py:42 sounddevice not installed ù device enumeration unavailable.
+G:\Repo\aye-hear\tests\test_hear_085_protocol_draft.py:216: AssertionError: assert False
+E   AssertionError: assert 0 == 1
+     +  where 0 = <built-in method count of str object at 0x00000227058B7290>('[DEGRADED]')
+     +    where <built-in method count of str object at 0x00000227058B7290> = 'Summary\n- Meeting started with speaker enrollment.\n\nDecisions\n- Waiting for first confirmed decision.\n\nAction I... content\nLine 5: some content\nLine 6: some content\nLine 7: some content\nLine 8: some content\nLine 9: some content'.count
+------------------------------ Captured log call ------------------------------
+WARNING  ayehear.services.audio_capture:audio_capture.py:42 sounddevice not installed ù device enumeration unavailable.
+G:\Repo\aye-hear\tests\test_hear_085_protocol_draft.py:336: AssertionError: assert 0 == 1
+E   assert False is True
+     +  where False = <ayehear.app.mic_level_widget.MicLevelWidget(0x2273cadd1a0) at 0x0000022736736140>._has_pending
+------------------------------ Captured log call ------------------------------
+WARNING  ayehear.app.window:window.py:444 Could not save review queue: Object of type MagicMock is not JSON serializable
+WARNING  ayehear.app.window:window.py:455 Could not save trace store: Object of type MagicMock is not JSON serializable
+WARNING  ayehear.app.window:window.py:444 Could not save review queue: Object of type MagicMock is not JSON serializable
+WARNING  ayehear.app.window:window.py:455 Could not save trace store: Object of type MagicMock is not JSON serializable
+G:\Repo\aye-hear\tests\test_mic_level_widget.py:142: assert False is True
+=========================== short test summary info ===========================
+FAILED tests/test_hear_074_enrollment_workflow.py::TestParseSpeakerRaw::test_two_fields
+FAILED tests/test_hear_074_enrollment_workflow.py::TestParseSpeakerRaw::test_single_field
+FAILED tests/test_hear_085_protocol_draft.py::TestAC3DegradedLabel::test_update_protocol_live_without_db_sets_degraded_not_transcript
+FAILED tests/test_hear_085_protocol_draft.py::TestAC5UpdateProtocolLiveNeverMirrorsTranscript::test_update_protocol_live_without_db_multiple_lines_no_stacking
+FAILED tests/test_mic_level_widget.py::TestMicLevelWidgetLevelBar::test_level_bar_updates_on_segment
+5 failed, 831 passed in 382.80s (0:06:22)
