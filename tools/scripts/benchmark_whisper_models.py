@@ -8,6 +8,7 @@ import time
 import wave
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import Any
 
 import psutil
 from faster_whisper import WhisperModel
@@ -97,6 +98,7 @@ class ResourceSampler:
 
 @dataclass
 class BenchmarkResult:
+    sample_id: str
     model: str
     model_source: str
     compute_type: str
@@ -118,6 +120,15 @@ class BenchmarkResult:
     transcript_path: str
 
 
+@dataclass(frozen=True)
+class DatasetSample:
+    sample_id: str
+    audio_path: Path
+    reference_path: Path
+    tags: tuple[str, ...] = ()
+    notes: str = ""
+
+
 def _resolve_model_path(repo_root: Path, model_name: str) -> str:
     local_dir = repo_root / "config" / "models" / "whisper" / model_name
     if (local_dir / "model.bin").exists():
@@ -134,6 +145,7 @@ def _audio_duration_seconds(audio_path: Path) -> float:
 
 def _benchmark_model(
     repo_root: Path,
+    sample_id: str,
     audio_path: Path,
     reference_text: str,
     model_name: str,
@@ -156,13 +168,15 @@ def _benchmark_model(
     telemetry = sampler.stop()
 
     transcript = " ".join(texts).strip()
-    transcript_path = output_dir / f"whisper-{model_name}-transcript.txt"
+    safe_model_name = model_name.replace("/", "_")
+    transcript_path = output_dir / f"whisper-{safe_model_name}-transcript.txt"
     transcript_path.write_text(transcript + "\n", encoding="utf-8")
 
     wer = _word_error_rate(reference_text, transcript)
     accuracy_pct = max(0.0, round((1.0 - wer) * 100.0, 2))
 
     return BenchmarkResult(
+        sample_id=sample_id,
         model=model_name,
         model_source=model_source,
         compute_type=compute_type,
@@ -187,16 +201,72 @@ def _benchmark_model(
     )
 
 
+def _resolve_dataset_path(dataset_path: Path, value: str) -> Path:
+    candidate = Path(value)
+    if not candidate.is_absolute():
+        candidate = dataset_path.parent / candidate
+    return candidate.resolve()
+
+
+def _load_dataset_samples(dataset_path: Path) -> list[DatasetSample]:
+    payload: dict[str, Any] = json.loads(dataset_path.read_text(encoding="utf-8"))
+    samples_payload = payload.get("samples")
+    if not isinstance(samples_payload, list) or not samples_payload:
+        raise ValueError(f"Dataset manifest has no samples: {dataset_path}")
+
+    samples: list[DatasetSample] = []
+    for item in samples_payload:
+        if not isinstance(item, dict):
+            raise ValueError(f"Dataset sample entry must be an object: {item!r}")
+        sample_id = str(item.get("id", "")).strip()
+        audio = str(item.get("audio", "")).strip()
+        reference = str(item.get("reference", "")).strip()
+        if not sample_id or not audio or not reference:
+            raise ValueError(f"Dataset sample missing id/audio/reference: {item!r}")
+
+        audio_path = _resolve_dataset_path(dataset_path, audio)
+        reference_path = _resolve_dataset_path(dataset_path, reference)
+        if not audio_path.exists():
+            raise FileNotFoundError(f"Dataset audio not found for {sample_id}: {audio_path}")
+        if not reference_path.exists():
+            raise FileNotFoundError(f"Dataset reference not found for {sample_id}: {reference_path}")
+
+        tags = tuple(str(tag).strip() for tag in item.get("tags", []) if str(tag).strip())
+        notes = str(item.get("notes", "")).strip()
+        samples.append(
+            DatasetSample(
+                sample_id=sample_id,
+                audio_path=audio_path,
+                reference_path=reference_path,
+                tags=tags,
+                notes=notes,
+            )
+        )
+
+    return samples
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Benchmark Whisper models for HEAR-113.")
-    parser.add_argument("--audio", required=True, type=Path)
-    parser.add_argument("--reference", required=True, type=Path)
+    parser.add_argument("--audio", type=Path)
+    parser.add_argument("--reference", type=Path)
+    parser.add_argument(
+        "--dataset",
+        type=Path,
+        help="Path to a dataset manifest JSON containing one or more audio/reference pairs.",
+    )
     parser.add_argument("--output-dir", required=True, type=Path)
     parser.add_argument("--model", action="append", dest="models")
     parser.add_argument("--compute-type", default="int8")
     parser.add_argument("--beam-size", type=int, default=3)
     parser.add_argument("--language", default="de")
-    return parser.parse_args()
+    args = parser.parse_args()
+    if args.dataset:
+        if args.audio or args.reference:
+            parser.error("Use either --dataset or --audio/--reference, not both.")
+    elif not args.audio or not args.reference:
+        parser.error("Either --dataset or both --audio and --reference are required.")
+    return args
 
 
 def main() -> int:
@@ -205,35 +275,74 @@ def main() -> int:
     output_dir = args.output_dir
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    reference_text = args.reference.read_text(encoding="utf-8")
+    if args.dataset:
+        samples = _load_dataset_samples(args.dataset)
+    else:
+        samples = [
+            DatasetSample(
+                sample_id=args.audio.stem,
+                audio_path=args.audio,
+                reference_path=args.reference,
+            )
+        ]
+
     models = args.models or ["small", "base"]
-    results = [
-        _benchmark_model(
-            repo_root=repo_root,
-            audio_path=args.audio,
-            reference_text=reference_text,
-            model_name=model_name,
-            compute_type=args.compute_type,
-            beam_size=args.beam_size,
-            language=args.language,
-            output_dir=output_dir,
+    results: list[BenchmarkResult] = []
+    sample_summaries: list[dict[str, Any]] = []
+
+    for sample in samples:
+        sample_output_dir = output_dir / sample.sample_id
+        sample_output_dir.mkdir(parents=True, exist_ok=True)
+        reference_text = sample.reference_path.read_text(encoding="utf-8")
+        sample_results = [
+            _benchmark_model(
+                repo_root=repo_root,
+                sample_id=sample.sample_id,
+                audio_path=sample.audio_path,
+                reference_text=reference_text,
+                model_name=model_name,
+                compute_type=args.compute_type,
+                beam_size=args.beam_size,
+                language=args.language,
+                output_dir=sample_output_dir,
+            )
+            for model_name in models
+        ]
+        results.extend(sample_results)
+
+        best_accuracy = max(sample_results, key=lambda item: item.accuracy_pct)
+        fastest = min(sample_results, key=lambda item: item.total_seconds)
+        lowest_ram = min(sample_results, key=lambda item: item.peak_ram_mb)
+        sample_summaries.append(
+            {
+                "sample_id": sample.sample_id,
+                "audio": str(sample.audio_path),
+                "reference": str(sample.reference_path),
+                "tags": list(sample.tags),
+                "notes": sample.notes,
+                "best_accuracy_model": best_accuracy.model,
+                "fastest_model": fastest.model,
+                "lowest_ram_model": lowest_ram.model,
+                "results": [asdict(result) for result in sample_results],
+            }
         )
-        for model_name in models
-    ]
 
     best_accuracy = max(results, key=lambda item: item.accuracy_pct)
     fastest = min(results, key=lambda item: item.total_seconds)
     lowest_ram = min(results, key=lambda item: item.peak_ram_mb)
 
     report = {
-        "benchmark": "HEAR-113",
+        "benchmark": "HEAR-136",
         "generated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
-        "audio": str(args.audio),
-        "reference": str(args.reference),
+        "audio": str(samples[0].audio_path) if len(samples) == 1 else None,
+        "reference": str(samples[0].reference_path) if len(samples) == 1 else None,
+        "dataset": str(args.dataset.resolve()) if args.dataset else None,
+        "sample_count": len(samples),
         "compute_type": args.compute_type,
         "beam_size": args.beam_size,
         "language": args.language,
         "results": [asdict(result) for result in results],
+        "samples": sample_summaries,
         "summary": {
             "best_accuracy_model": best_accuracy.model,
             "fastest_model": fastest.model,
