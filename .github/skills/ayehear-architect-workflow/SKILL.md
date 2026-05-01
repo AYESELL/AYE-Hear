@@ -1,7 +1,6 @@
----
+﻿---
 name: ayehear-architect-workflow
 description: Architecture governance workflow for AYE Hear
-context: fork
 ---
 
 # AYE Hear Architect Workflow
