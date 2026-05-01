@@ -1,6 +1,7 @@
 ---
 name: ayehear-developer-workflow
 description: Feature implementation workflow for AYE Hear desktop development
+context: fork
 ---
 
 # AYE Hear Developer Workflow
