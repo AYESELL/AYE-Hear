@@ -45,11 +45,26 @@ $PG_PORT         = 5433
 $DSN_FILE        = Join-Path $InstallDir 'runtime\pg.dsn'
 $PG_BIN_DIR      = Join-Path $InstallDir 'pgsql\bin'
 
-# Helper: resolve a pg binary, preferring the bundled path then falling back to PATH.
+# Additional search paths for PostgreSQL binaries (system/EDB installations).
+# HEAR-157: handles installed-E2E cases where pgsql/ is absent from install root
+# because PostgreSQL was provisioned system-wide (e.g., EDB default to Program Files).
+$PG_SYSTEM_BIN_CANDIDATES = @(
+    (Join-Path $InstallDir 'pgsql\bin'),            # bundled (preferred)
+    'C:\Program Files\PostgreSQL\17\bin',
+    'C:\Program Files\PostgreSQL\16\bin',
+    'C:\Program Files\PostgreSQL\15\bin',
+    'C:\Program Files\PostgreSQL\14\bin'
+)
+
+# Helper: resolve a pg binary, preferring the bundled/install-root path, then
+# known system EDB installation paths, then falling back to PATH.
+# HEAR-157: extended to handle layouts where pgsql\bin is absent under InstallDir.
 function Resolve-PgBin {
     param([string]$ExeName)
-    $bundled = Join-Path $PG_BIN_DIR $ExeName
-    if (Test-Path $bundled) { return $bundled }
+    foreach ($candidate in $PG_SYSTEM_BIN_CANDIDATES) {
+        $fullPath = Join-Path $candidate $ExeName
+        if (Test-Path $fullPath) { return $fullPath }
+    }
     $inPath = Get-Command $ExeName -ErrorAction SilentlyContinue
     if ($inPath) { return $inPath.Source }
     return $null
@@ -121,7 +136,8 @@ if ($pgIsReady) {
     $ready = $LASTEXITCODE -eq 0
     Write-Check 'PostgreSQL accepting connections' $ready ($out -join ' ')
 } else {
-    Write-Check 'PostgreSQL accepting connections' $false "pg_isready.exe not found (checked: $(Join-Path $PG_BIN_DIR 'pg_isready.exe') and PATH)"
+    $checkedPaths = ($PG_SYSTEM_BIN_CANDIDATES | ForEach-Object { Join-Path $_ 'pg_isready.exe' }) -join '; '
+    Write-Check 'PostgreSQL accepting connections' $false "pg_isready.exe not found. Checked: $checkedPaths; and PATH"
 }
 
 # --- Check 4: Loopback-only listen_addresses ---------------------------------
@@ -152,7 +168,8 @@ if ($dsn -and ($dsn -match 'postgresql://')) {
             Write-Check 'listen_addresses loopback-only (ADR-0006)' $false $_.Exception.Message
         }
     } else {
-        Write-Check 'listen_addresses loopback-only (ADR-0006)' $false "psql.exe not found (checked: $(Join-Path $PG_BIN_DIR 'psql.exe') and PATH)"
+        $checkedPaths2 = ($PG_SYSTEM_BIN_CANDIDATES | ForEach-Object { Join-Path $_ 'psql.exe' }) -join '; '
+        Write-Check 'listen_addresses loopback-only (ADR-0006)' $false "psql.exe not found. Checked: $checkedPaths2; and PATH"
     }
 } else {
     Write-Check 'listen_addresses loopback-only (ADR-0006)' $false 'No usable DSN for query'
@@ -177,7 +194,8 @@ WHERE  table_schema = 'public'
             Write-Check 'Schema baseline (meetings table)' $false $_.Exception.Message
         }
     } else {
-        Write-Check 'Schema baseline (meetings table)' $false "psql.exe not found (checked: $(Join-Path $PG_BIN_DIR 'psql.exe') and PATH)"
+        $checkedPaths3 = ($PG_SYSTEM_BIN_CANDIDATES | ForEach-Object { Join-Path $_ 'psql.exe' }) -join '; '
+        Write-Check 'Schema baseline (meetings table)' $false "psql.exe not found. Checked: $checkedPaths3; and PATH"
     }
 }
 
