@@ -25,3 +25,15 @@ models:
   whisper_profile: balanced
   whisper_model: TheChola/whisper-large-v3-turbo-german-faster-whisper
   ollama_model: mistral:7b
+
+# Privacy / Retention controls (ADR-0015, HEAR-142, HEAR-156)
+# Production defaults must remain privacy-safe. Benchmark-specific overrides must be
+# applied explicitly in non-production runs and must not become repository defaults.
+privacy:
+  wav_persistence_enabled: false        # Production default: raw audio persistence remains opt-in
+  wav_retention_days: 7                 # 1-30; clamped by WavPersistenceConfig
+  wav_delete_on_meeting_end: false      # When true: deletes WAV segments immediately on meeting stop
+  wav_output_dir: runtime/wav           # Relative to install root; never inside exports/
+  review_retention_days: 7              # 1-30; applied to runtime/reviews/*.json cleanup
+  trace_retention_days: 7               # 1-30; applied to runtime/traces/*.json cleanup
+

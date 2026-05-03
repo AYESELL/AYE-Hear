@@ -1,0 +1,12 @@
+
+Name                                                 KB
+----                                                 --
+TheChola                                           0,00
+whisper-large-v3-turbo-german-faster-whisper       0,00
+config.json                                        2,40
+model.bin                                    1579965,80
+preprocessor_config.json                           0,30
+tokenizer.json                                  2759,00
+vocabulary.json                                 1093,70
+
+

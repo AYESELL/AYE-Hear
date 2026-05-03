@@ -18,11 +18,37 @@ import logging
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
+import time
 from typing import Any
 
 from ayehear.utils.paths import traces_dir
 
 logger = logging.getLogger(__name__)
+
+_MIN_RETENTION_DAYS = 1
+_MAX_RETENTION_DAYS = 30
+
+
+def _clamp_retention_days(retention_days: int) -> int:
+    return max(_MIN_RETENTION_DAYS, min(_MAX_RETENTION_DAYS, int(retention_days)))
+
+
+def cleanup_expired_trace_files(trace_dir: Path, retention_days: int) -> int:
+    """Delete expired trace-store JSON files from *trace_dir*."""
+    if not trace_dir.is_dir():
+        return 0
+
+    cutoff = time.time() - _clamp_retention_days(retention_days) * 86_400
+    deleted = 0
+    for trace_file in trace_dir.glob("*.json"):
+        try:
+            if trace_file.stat().st_mtime < cutoff:
+                trace_file.unlink()
+                deleted += 1
+                logger.info("Trace TTL cleanup: removed %s", trace_file.name)
+        except Exception as exc:
+            logger.warning("Could not remove expired trace state %s: %s", trace_file.name, exc)
+    return deleted
 
 
 def _resolve_trace_store_path(path: Path, install_root: Path | None = None) -> Path:

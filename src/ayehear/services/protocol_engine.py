@@ -31,6 +31,20 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+# HEAR-141: CPU load threshold above which protocol generation is deferred.
+# At or above this value the engine skips the LLM call and returns a
+# lightweight "deferred" snapshot so the ASR thread can run uncontested.
+_PROTOCOL_CPU_DEFER_THRESHOLD = 80.0  # percent
+
+
+def _get_cpu_pct() -> float:
+    """Return current system-wide CPU percent (0–100).  0.0 if psutil missing."""
+    try:
+        import psutil  # type: ignore[import-untyped]
+        return psutil.cpu_percent(interval=None)
+    except Exception:
+        return 0.0
+
 
 def _coerce_str_list(value: Any) -> list[str]:
     """Coerce an LLM-returned value to a list of strings (HEAR-124).
@@ -158,7 +172,32 @@ class ProtocolEngine:
         Reads all non-silence, reviewed transcript segments, extracts structured
         content via LLM (or rule-based fallback), then appends a new versioned
         snapshot to the repository.
+
+        HEAR-141: Protocol generation is deferred when CPU is busy (≥80 %).
+        The caller receives a lightweight snapshot with empty content and a
+        ``cpu_deferred`` diagnostic instead of a full LLM run.  This prevents
+        ASR and protocol inference from competing for the same CPU cores.
         """
+        # HEAR-141: CPU-idle gate — skip heavy LLM call under load
+        cpu_pct = _get_cpu_pct()
+        if cpu_pct >= _PROTOCOL_CPU_DEFER_THRESHOLD:
+            logger.info(
+                "Protocol generation deferred: CPU at %.1f%% (threshold %.1f%%).",
+                cpu_pct,
+                _PROTOCOL_CPU_DEFER_THRESHOLD,
+            )
+            self._last_diagnostics = {
+                "status": "deferred",
+                "reason": f"cpu_busy:{cpu_pct:.1f}%",
+                "fallback_used": False,
+                "model": self._ollama_model,
+                "available_models": [],
+            }
+            return ProtocolSnapshot(
+                meeting_id=meeting_id,
+                version=0,
+                content=ProtocolContent(),
+            )
         lines = self._load_transcript_lines(meeting_id)
         content = self._extract_content(lines, allow_fallback=allow_fallback)
 

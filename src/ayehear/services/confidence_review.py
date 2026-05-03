@@ -14,11 +14,37 @@ import logging
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
+import time
 from typing import Any
 
 from ayehear.utils.paths import reviews_dir
 
 logger = logging.getLogger(__name__)
+
+_MIN_RETENTION_DAYS = 1
+_MAX_RETENTION_DAYS = 30
+
+
+def _clamp_retention_days(retention_days: int) -> int:
+    return max(_MIN_RETENTION_DAYS, min(_MAX_RETENTION_DAYS, int(retention_days)))
+
+
+def cleanup_expired_review_files(review_dir: Path, retention_days: int) -> int:
+    """Delete expired review-queue JSON files from *review_dir*."""
+    if not review_dir.is_dir():
+        return 0
+
+    cutoff = time.time() - _clamp_retention_days(retention_days) * 86_400
+    deleted = 0
+    for review_file in review_dir.glob("*.json"):
+        try:
+            if review_file.stat().st_mtime < cutoff:
+                review_file.unlink()
+                deleted += 1
+                logger.info("Review TTL cleanup: removed %s", review_file.name)
+        except Exception as exc:
+            logger.warning("Could not remove expired review state %s: %s", review_file.name, exc)
+    return deleted
 
 
 def _resolve_review_store_path(path: Path, install_root: Path | None = None) -> Path:

@@ -32,7 +32,9 @@ def test_summarize_window_detects_decision() -> None:
 
 
 def test_summarize_window_detects_action_item() -> None:
-    engine = ProtocolEngine()
+    # Force rule-based path so the test is independent of Ollama availability
+    engine = ProtocolEngine(ollama_base_url="http://localhost:11434")
+    engine._extract_via_ollama = MagicMock(side_effect=Exception("mocked unavailable"))  # type: ignore
     result = engine.summarize_window([
         "Anna: Bitte sende das Protokoll bis Freitag.",
     ])

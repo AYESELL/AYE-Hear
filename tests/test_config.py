@@ -9,3 +9,5 @@ def test_load_runtime_config_from_repository_file() -> None:
     assert isinstance(config, RuntimeConfig)
     assert config.audio.sample_rate_hz == 16000
     assert config.protocol.minimum_confidence == 0.65
+    assert config.privacy.wav_persistence_enabled is False
+    assert config.privacy.wav_output_dir == "runtime/wav"

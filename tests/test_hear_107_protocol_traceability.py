@@ -30,6 +30,7 @@ from ayehear.services.protocol_traceability import (
     TraceSegmentRef,
     TraceabilityStore,
     _attribution_state,
+    cleanup_expired_trace_files,
 )
 from ayehear.utils.paths import traces_dir
 
@@ -356,6 +357,27 @@ class TestPersistence:
         forbidden.write_text("{}", encoding="utf-8")
         with pytest.raises(ValueError, match="runtime/traces"):
             TraceabilityStore.load(forbidden, install_root=tmp_path)
+
+    def test_cleanup_removes_expired_trace_files(self, tmp_path: Path) -> None:
+        import os
+        import time
+
+        old_file = traces_dir(tmp_path) / "expired.json"
+        old_file.write_text("{}", encoding="utf-8")
+        old_time = time.time() - 10 * 86_400
+        os.utime(old_file, (old_time, old_time))
+
+        deleted = cleanup_expired_trace_files(traces_dir(tmp_path), retention_days=7)
+        assert deleted == 1
+        assert not old_file.exists()
+
+    def test_cleanup_keeps_recent_trace_files(self, tmp_path: Path) -> None:
+        recent_file = traces_dir(tmp_path) / "recent.json"
+        recent_file.write_text("{}", encoding="utf-8")
+
+        deleted = cleanup_expired_trace_files(traces_dir(tmp_path), retention_days=7)
+        assert deleted == 0
+        assert recent_file.exists()
 
 
 # ---------------------------------------------------------------------------

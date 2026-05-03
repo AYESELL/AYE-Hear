@@ -122,6 +122,9 @@ class TranscriptSegment(Base):
     speaker_name: Mapped[str] = mapped_column(String(256), nullable=False, default="Unknown Speaker")
     text: Mapped[str] = mapped_column(Text, nullable=False)
     confidence_score: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    # HEAR-152: separate ASR recognition confidence from speaker attribution confidence
+    asr_confidence: Mapped[float | None] = mapped_column(Float, nullable=True, default=None)
+    speaker_confidence: Mapped[float | None] = mapped_column(Float, nullable=True, default=None)
     is_silence: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     # manual_correction=True marks reviewed/corrected speaker assignments (ADR-0007)
     manual_correction: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)

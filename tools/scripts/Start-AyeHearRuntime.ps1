@@ -146,10 +146,10 @@ if ($dsn -and ($dsn -match 'postgresql://')) {
     $psqlExe = Resolve-PgBin 'psql.exe'
     if ($psqlExe) {
         try {
-            $env:PGPASSWORD = ''   # DSN carries password via URI
-            $listenAddrs = & $psqlExe $dsn -c 'SHOW listen_addresses;' -t -q 2>&1 |
+            # -w: never prompt for password (fail fast if auth fails instead of blocking
+            # in a hidden installer process). DSN carries credentials via URI.
+            $listenAddrs = & $psqlExe $dsn -w -c 'SHOW listen_addresses;' -t -q 2>&1 |
                            Where-Object { $_.Trim() -ne '' } | Select-Object -First 1
-            Remove-Item Env:\PGPASSWORD -ErrorAction SilentlyContinue
             $listenTrimmed = ($listenAddrs -join '').Trim()
             # Split on commas to handle multi-value configurations (e.g. "localhost,127.0.0.1")
             # Strip surrounding quotes from each token (PostgreSQL may return quoted values)
@@ -181,7 +181,8 @@ if ($dsn -and ($dsn -match 'postgresql://')) {
     $psqlExe = Resolve-PgBin 'psql.exe'
     if ($psqlExe) {
         try {
-            $tableCheck = & $psqlExe $dsn -c @"
+            # -w: never prompt for password in hidden/non-interactive mode
+            $tableCheck = & $psqlExe $dsn -w -c @"
 SELECT 1
 FROM   information_schema.tables
 WHERE  table_schema = 'public'

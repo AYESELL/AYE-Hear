@@ -111,6 +111,30 @@ class SpeakerProfileRepository:
     def list_all(self) -> list[SpeakerProfile]:
         return self._s.query(SpeakerProfile).order_by(SpeakerProfile.display_name).all()
 
+    def delete(self, profile_id: str) -> None:
+        """Delete a single speaker profile (GDPR Art. 17 – Right to Erasure).
+
+        Raises ValueError when the profile does not exist, ensuring callers
+        receive explicit feedback rather than silently succeeding on a missing ID.
+        """
+        profile = self._s.get(SpeakerProfile, profile_id)
+        if profile is None:
+            raise ValueError(f"SpeakerProfile {profile_id!r} not found.")
+        self._s.delete(profile)
+        self._s.flush()
+        logger.info("Deleted speaker profile %s (GDPR erasure).", profile_id)
+
+    def delete_all(self) -> int:
+        """Delete all speaker profiles; returns the number of deleted rows.
+
+        Intended for uninstall cleanup and operator-initiated GDPR data-erasure
+        workflows. Does not cascade to participants (FK is SET NULL on delete).
+        """
+        count = self._s.query(SpeakerProfile).delete(synchronize_session="fetch")
+        self._s.flush()
+        logger.info("Deleted all %d speaker profile(s) (GDPR/uninstall erasure).", count)
+        return count
+
 
 # ---------------------------------------------------------------------------
 # ParticipantRepository
@@ -226,6 +250,8 @@ class TranscriptSegmentRepository:
         participant_id: str | None = None,
         is_silence: bool = False,
         manual_correction: bool = False,
+        asr_confidence: float | None = None,
+        speaker_confidence: float | None = None,
     ) -> TranscriptSegment:
         seg = TranscriptSegment(
             meeting_id=meeting_id,
@@ -235,6 +261,8 @@ class TranscriptSegmentRepository:
             speaker_name=speaker_name,
             text=text,
             confidence_score=confidence_score,
+            asr_confidence=asr_confidence,
+            speaker_confidence=speaker_confidence,
             is_silence=is_silence,
             manual_correction=manual_correction,
         )
@@ -344,6 +372,48 @@ class TranscriptSegmentRepository:
             .order_by(TranscriptSegment.start_ms)
             .all()
         )
+
+    def reconcile_speaker(
+        self,
+        segment_id: str,
+        refined_speaker_name: str,
+        refined_confidence: float | None = None,
+    ) -> bool:
+        """Update a persisted segment when post-ASR speaker refinement differs from pre-match.
+
+        Called by window._do_transcribe_segment() when the text-hint pass yields a
+        different speaker than the embedding-only pre-match that was stored at
+        persistence time (HEAR-153).
+
+        Returns True when an update was applied, False when the segment was not
+        found or the speaker was already correct.  Manual corrections are never
+        overwritten by automatic reconciliation.
+        """
+        seg = self._s.get(TranscriptSegment, segment_id)
+        if seg is None:
+            logger.warning("reconcile_speaker: segment %r not found — skipping.", segment_id)
+            return False
+
+        if seg.manual_correction:
+            # Preserve human-reviewed state; automatic reconciliation must not overwrite.
+            return False
+
+        if seg.speaker_name == refined_speaker_name:
+            return False  # already consistent, nothing to do
+
+        logger.info(
+            "HEAR-153: reconciling speaker for segment %s: %r -> %r (confidence=%.2f)",
+            segment_id,
+            seg.speaker_name,
+            refined_speaker_name,
+            refined_confidence if refined_confidence is not None else -1.0,
+        )
+        seg.speaker_name = refined_speaker_name
+        if refined_confidence is not None:
+            seg.confidence_score = refined_confidence
+            seg.speaker_confidence = refined_confidence
+        self._s.flush()
+        return True
 
 
 # ---------------------------------------------------------------------------

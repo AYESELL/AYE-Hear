@@ -536,3 +536,134 @@ class TestFullMeetingLifecycleSmoke:
             win._stop_meeting()
 
         meeting_repo.end.assert_called_once_with("full-lifecycle-meeting")
+
+
+# ---------------------------------------------------------------------------
+# HEAR-153: Speaker reconciliation persistence consistency
+# ---------------------------------------------------------------------------
+
+
+class TestHear153SpeakerReconciliationPersistence:
+    """Integration tests: persisted speaker equals final refined speaker after post-ASR match."""
+
+    def _make_reconciliation_window(self, qapp, transcript_repo, speaker_manager):
+        return _make_window(
+            qapp,
+            meeting_repo=_mock_meeting_repo("rec-meeting-001"),
+            participant_repo=_mock_participant_repo(),
+            transcript_repo=transcript_repo,
+            speaker_manager=speaker_manager,
+        )
+
+    def test_reconcile_called_when_pre_and_post_match_differ(self, qapp) -> None:
+        """reconcile_speaker must be called when pre-match ≠ post-match speaker names."""
+        from ayehear.services.speaker_manager import SpeakerMatch, SpeakerManager
+        from ayehear.services.transcription import TranscriptResult
+
+        transcript_repo = MagicMock()
+        fake_seg = MagicMock()
+        fake_seg.id = "seg-rec-001"
+        transcript_repo.add.return_value = fake_seg
+
+        mock_sm = MagicMock(spec=SpeakerManager)
+        # pre-match: embedding-only → Unknown Speaker
+        mock_sm.match_segment.return_value = SpeakerMatch("Unknown Speaker", 0.30, "low", requires_review=True)
+        # post-match: text-hint intro match → Frau Schneider
+        mock_sm.resolve_speaker_from_segment.return_value = SpeakerMatch("Frau Schneider", 0.88, "high")
+
+        win = self._make_reconciliation_window(qapp, transcript_repo, mock_sm)
+        win._active_meeting_id = "rec-meeting-001"
+
+        mock_result = TranscriptResult(
+            text="Ich bin Frau Schneider.",
+            confidence=0.30,
+            start_ms=0,
+            end_ms=1500,
+            segment_id="seg-rec-001",
+        )
+        win._transcription_service.transcribe_segment = MagicMock(return_value=mock_result)
+
+        samples = np.zeros(24000, dtype=np.float32)
+        win._do_transcribe_segment(
+            __import__("ayehear.services.audio_capture", fromlist=["AudioSegment"]).AudioSegment(
+                captured_at=__import__("datetime").datetime.now(),
+                start_ms=0, end_ms=1500, samples=samples, rms=0.05, is_silence=False,
+            )
+        )
+
+        # reconcile_speaker must have been called with the refined speaker name
+        transcript_repo.reconcile_speaker.assert_called_once_with(
+            "seg-rec-001",
+            refined_speaker_name="Frau Schneider",
+            refined_confidence=0.88,
+        )
+
+    def test_reconcile_not_called_when_speaker_unchanged(self, qapp) -> None:
+        """reconcile_speaker must NOT be called when pre-match == post-match."""
+        from ayehear.services.speaker_manager import SpeakerMatch, SpeakerManager
+        from ayehear.services.transcription import TranscriptResult
+
+        transcript_repo = MagicMock()
+        fake_seg = MagicMock()
+        fake_seg.id = "seg-rec-002"
+        transcript_repo.add.return_value = fake_seg
+
+        mock_sm = MagicMock(spec=SpeakerManager)
+        same_match = SpeakerMatch("Max Weber", 0.88, "high")
+        mock_sm.match_segment.return_value = same_match
+        mock_sm.resolve_speaker_from_segment.return_value = same_match
+
+        win = self._make_reconciliation_window(qapp, transcript_repo, mock_sm)
+        win._active_meeting_id = "rec-meeting-001"
+
+        mock_result = TranscriptResult(
+            text="Das Budget ist genehmigt.", confidence=0.88,
+            start_ms=0, end_ms=1500, segment_id="seg-rec-002",
+        )
+        win._transcription_service.transcribe_segment = MagicMock(return_value=mock_result)
+
+        samples = np.zeros(24000, dtype=np.float32)
+        win._do_transcribe_segment(
+            __import__("ayehear.services.audio_capture", fromlist=["AudioSegment"]).AudioSegment(
+                captured_at=__import__("datetime").datetime.now(),
+                start_ms=0, end_ms=1500, samples=samples, rms=0.05, is_silence=False,
+            )
+        )
+
+        transcript_repo.reconcile_speaker.assert_not_called()
+
+    def test_reconcile_repository_method_updates_segment(self) -> None:
+        """Unit test: reconcile_speaker updates the DB segment when names differ."""
+        from unittest.mock import MagicMock, patch
+        from ayehear.storage.repositories import TranscriptSegmentRepository
+
+        mock_session = MagicMock()
+        fake_seg = MagicMock()
+        fake_seg.speaker_name = "Unknown Speaker"
+        fake_seg.manual_correction = False
+        mock_session.get.return_value = fake_seg
+
+        repo = TranscriptSegmentRepository(mock_session)
+        result = repo.reconcile_speaker("seg-x", "Frau Schneider", refined_confidence=0.88)
+
+        assert result is True
+        assert fake_seg.speaker_name == "Frau Schneider"
+        assert fake_seg.confidence_score == 0.88
+        mock_session.flush.assert_called()
+
+    def test_reconcile_skips_manual_corrections(self) -> None:
+        """reconcile_speaker must NOT overwrite segments with manual_correction=True."""
+        from ayehear.storage.repositories import TranscriptSegmentRepository
+
+        mock_session = MagicMock()
+        fake_seg = MagicMock()
+        fake_seg.speaker_name = "Anna (manually corrected)"
+        fake_seg.manual_correction = True
+        mock_session.get.return_value = fake_seg
+
+        repo = TranscriptSegmentRepository(mock_session)
+        result = repo.reconcile_speaker("seg-y", "Frau Schneider")
+
+        assert result is False
+        assert fake_seg.speaker_name == "Anna (manually corrected)"  # unchanged
+

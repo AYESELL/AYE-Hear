@@ -38,9 +38,19 @@ class ModelSettings(BaseModel):
     ollama_model: str = "mistral:7b"
 
 
+class PrivacySettings(BaseModel):
+    wav_persistence_enabled: bool = False
+    wav_retention_days: int = 7
+    wav_delete_on_meeting_end: bool = False
+    wav_output_dir: str = "runtime/wav"
+    review_retention_days: int = 7
+    trace_retention_days: int = 7
+
+
 class RuntimeConfig(BaseModel):
     app: AppSettings = Field(default_factory=AppSettings)
     audio: AudioSettings = Field(default_factory=AudioSettings)
     speaker_identification: SpeakerSettings = Field(default_factory=SpeakerSettings)
     protocol: ProtocolSettings = Field(default_factory=ProtocolSettings)
     models: ModelSettings = Field(default_factory=ModelSettings)
+    privacy: PrivacySettings = Field(default_factory=PrivacySettings)

@@ -1,0 +1,10 @@
+AYE Hear v0.6.1 — Installer Artifact
+=====================================
+File:         dist\AyeHear-Setup-0.6.1.exe
+Size (bytes): 1206623875
+Size (MB):    1150.7
+Build date:   04/22/2026 22:07:14
+SHA256:       A3380673052B83D490D69BEFF4B1D50B3294CE0B2DCE4CF053B0843E14EDE0D2
+
+Bundle version file:
+0.6.1

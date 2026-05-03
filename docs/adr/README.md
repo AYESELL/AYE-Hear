@@ -26,6 +26,7 @@ This directory contains all significant architecture decisions for the AYE Hear 
 | 0012 | Protocol Language Configuration                   | Accepted | AYEHEAR_ARCHITECT |
 | 0013 | Frontend Internationalisation (i18n) Strategy     | Accepted | AYEHEAR_ARCHITECT |
 | 0014 | AYE Desktop Design System & Brand Alignment       | Accepted | AYEHEAR_ARCHITECT |
+| 0015 | Async-First Audio Pipeline and Retention Controls | Accepted | AYEHEAR_ARCHITECT |
 
 ## Supporting Architecture Documents
 

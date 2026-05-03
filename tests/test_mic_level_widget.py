@@ -136,6 +136,7 @@ class TestMicLevelWidgetStateTransitions:
 class TestMicLevelWidgetLevelBar:
     def test_level_bar_updates_on_segment(self, qapp, widget):
         widget.set_active()
+        widget._level_timer.stop()  # prevent timer from consuming _has_pending during process_events
         widget.on_audio_segment(rms=0.1, is_silence=False)
         process_events(qapp)
         assert widget._pending_rms == pytest.approx(0.1)

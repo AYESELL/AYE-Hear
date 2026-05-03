@@ -1,0 +1,8 @@
+........................................................................ [ 98%]
+Audio stream status: input overflow
+Audio stream status: input overflow
+............                                                             [100%]
+=========================== short test summary info ===========================
+FAILED tests/test_hear_074_enrollment_workflow.py::TestParseSpeakerRaw::test_two_fields
+FAILED tests/test_hear_074_enrollment_workflow.py::TestParseSpeakerRaw::test_single_field
+2 failed, 730 passed in 392.13s (0:06:32)

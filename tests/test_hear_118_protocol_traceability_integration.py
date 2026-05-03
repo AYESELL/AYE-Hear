@@ -154,6 +154,10 @@ class TestBuildTraceStore:
 # ---------------------------------------------------------------------------
 
 class TestGenerateTraceStoreIntegration:
+    @pytest.fixture(autouse=True)
+    def _no_cpu_defer(self, monkeypatch):
+        monkeypatch.setattr("ayehear.services.protocol_engine._get_cpu_pct", lambda: 0.0)
+
     def test_generate_without_repo_includes_trace_store(self) -> None:
         engine = ProtocolEngine()
         engine._extract_content = lambda lines, allow_fallback=None: ProtocolContent(

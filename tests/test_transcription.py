@@ -320,3 +320,130 @@ def test_run_asr_rejects_missing_bundled_model_in_frozen_runtime(tmp_path) -> No
 
     mock_whisper.WhisperModel.assert_not_called()
 
+
+# ---------------------------------------------------------------------------
+# HEAR-152: ASR confidence / speaker confidence semantic split
+# ---------------------------------------------------------------------------
+
+
+def _make_mock_whisper(text: str, avg_logprob: float | None = None, language: str = "de"):
+    """Build a mock faster_whisper module that returns a single segment."""
+    mock_seg = MagicMock()
+    mock_seg.text = text
+    if avg_logprob is not None:
+        mock_seg.avg_logprob = avg_logprob
+    else:
+        del mock_seg.avg_logprob  # simulate missing attribute
+
+    mock_info = MagicMock()
+    mock_info.language = language
+
+    mock_model = MagicMock()
+    mock_model.transcribe.return_value = ([mock_seg], mock_info)
+
+    mock_whisper = MagicMock()
+    mock_whisper.WhisperModel.return_value = mock_model
+    return mock_whisper
+
+
+def test_hear152_asr_confidence_populated_from_logprob() -> None:
+    """asr_confidence is derived from avg_logprob via exp(), not from speaker confidence."""
+    import math
+
+    svc = TranscriptionService()
+    segment = FakeAudioSegment(samples=np.zeros(512, dtype=np.float32))
+    mock_whisper = _make_mock_whisper("Hallo Welt", avg_logprob=-0.3)
+
+    with patch.dict("sys.modules", {"faster_whisper": mock_whisper}):
+        result = svc.transcribe_segment(segment, meeting_id="m-152-01", confidence_score=0.9)
+
+    assert abs(result.asr_confidence - math.exp(-0.3)) < 0.01
+    assert result.speaker_confidence == 0.9
+    # confidence field stays backward-compat as speaker_confidence
+    assert result.confidence == 0.9
+
+
+def test_hear152_low_asr_flags_transcript_quality_review() -> None:
+    """When only ASR confidence is low, review_reason must be 'transcript_quality'."""
+    from ayehear.services.transcription import REVIEW_REASON_TRANSCRIPT_QUALITY
+
+    svc = TranscriptionService()
+    segment = FakeAudioSegment(samples=np.zeros(512, dtype=np.float32))
+    # avg_logprob ≈ -1.5 → exp(-1.5) ≈ 0.22 < 0.65
+    mock_whisper = _make_mock_whisper("unclear mumble", avg_logprob=-1.5)
+
+    with patch.dict("sys.modules", {"faster_whisper": mock_whisper}):
+        result = svc.transcribe_segment(segment, meeting_id="m-152-02", confidence_score=0.9)
+
+    assert result.requires_review is True
+    assert result.review_reason == REVIEW_REASON_TRANSCRIPT_QUALITY
+
+
+def test_hear152_low_speaker_flags_speaker_attribution_review() -> None:
+    """When only speaker confidence is low, review_reason must be 'speaker_attribution'."""
+    from ayehear.services.transcription import REVIEW_REASON_SPEAKER_ATTRIBUTION
+
+    svc = TranscriptionService()
+    segment = FakeAudioSegment(samples=np.zeros(512, dtype=np.float32))
+    # avg_logprob = -0.1 → exp(-0.1) ≈ 0.90 (high ASR)
+    mock_whisper = _make_mock_whisper("Klar und deutlich", avg_logprob=-0.1)
+
+    with patch.dict("sys.modules", {"faster_whisper": mock_whisper}):
+        result = svc.transcribe_segment(segment, meeting_id="m-152-03", confidence_score=0.4)
+
+    assert result.requires_review is True
+    assert result.review_reason == REVIEW_REASON_SPEAKER_ATTRIBUTION
+
+
+def test_hear152_mixed_low_confidence_both_reason_codes() -> None:
+    """When both ASR and speaker confidence are low, both reason codes appear."""
+    from ayehear.services.transcription import (
+        REVIEW_REASON_SPEAKER_ATTRIBUTION,
+        REVIEW_REASON_TRANSCRIPT_QUALITY,
+    )
+
+    svc = TranscriptionService()
+    segment = FakeAudioSegment(samples=np.zeros(512, dtype=np.float32))
+    mock_whisper = _make_mock_whisper("noisy input", avg_logprob=-1.5)
+
+    with patch.dict("sys.modules", {"faster_whisper": mock_whisper}):
+        result = svc.transcribe_segment(segment, meeting_id="m-152-04", confidence_score=0.3)
+
+    assert result.requires_review is True
+    assert REVIEW_REASON_TRANSCRIPT_QUALITY in result.review_reason
+    assert REVIEW_REASON_SPEAKER_ATTRIBUTION in result.review_reason
+
+
+def test_hear152_high_confidence_no_review_required() -> None:
+    """No review required when both ASR and speaker confidence are high."""
+    svc = TranscriptionService()
+    segment = FakeAudioSegment(samples=np.zeros(512, dtype=np.float32))
+    # avg_logprob = -0.05 → exp(-0.05) ≈ 0.95
+    mock_whisper = _make_mock_whisper("Guten Morgen", avg_logprob=-0.05)
+
+    with patch.dict("sys.modules", {"faster_whisper": mock_whisper}):
+        result = svc.transcribe_segment(segment, meeting_id="m-152-05", confidence_score=0.9)
+
+    assert result.requires_review is False
+    assert result.review_reason == ""
+
+
+def test_hear152_asr_confidence_passed_to_repo() -> None:
+    """Both asr_confidence and speaker_confidence must be forwarded to the repository."""
+    svc = TranscriptionService()
+    segment = FakeAudioSegment(samples=np.zeros(512, dtype=np.float32))
+
+    mock_repo = MagicMock()
+    mock_repo.add.return_value = MagicMock(id="seg-152")
+    svc.transcript_repo = mock_repo
+
+    mock_whisper = _make_mock_whisper("Test text", avg_logprob=-0.2)
+
+    with patch.dict("sys.modules", {"faster_whisper": mock_whisper}):
+        svc.transcribe_segment(segment, meeting_id="m-152-06", confidence_score=0.85)
+
+    call_kwargs = mock_repo.add.call_args.kwargs
+    assert "asr_confidence" in call_kwargs
+    assert "speaker_confidence" in call_kwargs
+    assert call_kwargs["speaker_confidence"] == 0.85
+

@@ -1,0 +1,13 @@
+{
+  "dataset": "hear-136-asr-evaluation",
+  "manifest": "G:\\Repo\\aye-hear\\benchmarks\\asr-evaluation-dataset\\manifest.json",
+  "sample_count": 1,
+  "real_meeting_sample_count": 0,
+  "total_wav_duration_seconds": 87.2,
+  "thresholds": {
+    "min_samples": 1,
+    "min_real_samples": 0,
+    "min_total_duration_seconds": 0.0,
+    "allow_seed_only": true
+  }
+}

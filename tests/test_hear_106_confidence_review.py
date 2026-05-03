@@ -28,6 +28,7 @@ from ayehear.services.confidence_review import (
     ReviewReason,
     ReviewSeverity,
     TranscriptSignals,
+    cleanup_expired_review_files,
     _severity,
 )
 from ayehear.utils.paths import reviews_dir
@@ -342,6 +343,27 @@ class TestPersistence:
         forbidden.write_text(json.dumps({}), encoding="utf-8")
         with pytest.raises(ValueError, match="runtime/reviews"):
             ConfidenceReviewQueue.load(forbidden, install_root=tmp_path)
+
+    def test_cleanup_removes_expired_review_files(self, tmp_path: Path) -> None:
+        import os
+        import time
+
+        old_file = reviews_dir(tmp_path) / "expired.json"
+        old_file.write_text("{}", encoding="utf-8")
+        old_time = time.time() - 10 * 86_400
+        os.utime(old_file, (old_time, old_time))
+
+        deleted = cleanup_expired_review_files(reviews_dir(tmp_path), retention_days=7)
+        assert deleted == 1
+        assert not old_file.exists()
+
+    def test_cleanup_keeps_recent_review_files(self, tmp_path: Path) -> None:
+        recent_file = reviews_dir(tmp_path) / "recent.json"
+        recent_file.write_text("{}", encoding="utf-8")
+
+        deleted = cleanup_expired_review_files(reviews_dir(tmp_path), retention_days=7)
+        assert deleted == 0
+        assert recent_file.exists()
 
 
 # ---------------------------------------------------------------------------

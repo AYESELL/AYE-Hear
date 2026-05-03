@@ -1,0 +1,90 @@
+{
+  "benchmark": "HEAR-136",
+  "generated_at": "2026-05-02T11:49:15",
+  "audio": "G:\\Repo\\aye-hear\\deployment-evidence\\hear-113\\2026-04-19\\hear-113-reference.wav",
+  "reference": "G:\\Repo\\aye-hear\\benchmarks\\asr-evaluation-dataset\\references\\hear-113-seed.txt",
+  "dataset": "G:\\Repo\\aye-hear\\benchmarks\\asr-evaluation-dataset\\manifest.json",
+  "sample_count": 1,
+  "compute_type": "int8",
+  "beam_size": 3,
+  "language": "de",
+  "results": [
+    {
+      "sample_id": "hear-113-seed",
+      "model": "small",
+      "model_source": "G:\\Repo\\aye-hear\\config\\models\\whisper\\small",
+      "compute_type": "int8",
+      "beam_size": 3,
+      "audio_seconds": 87.194,
+      "load_seconds": 1.001,
+      "transcribe_seconds": 9.207,
+      "total_seconds": 10.208,
+      "peak_ram_mb": 586.8,
+      "avg_cpu_pct": 393.4,
+      "peak_cpu_pct": 470.4,
+      "transcript_chars": 1004,
+      "transcript_words": 161,
+      "reference_words": 161,
+      "wer": 0.087,
+      "accuracy_pct": 91.3,
+      "detected_language": "de",
+      "detected_language_probability": 1,
+      "transcript_path": "deployment-evidence\\hear-155-checkpoint-phase3\\hear-113-seed\\whisper-small-transcript.txt"
+    }
+  ],
+  "samples": [
+    {
+      "sample_id": "hear-113-seed",
+      "audio": "G:\\Repo\\aye-hear\\deployment-evidence\\hear-113\\2026-04-19\\hear-113-reference.wav",
+      "reference": "G:\\Repo\\aye-hear\\benchmarks\\asr-evaluation-dataset\\references\\hear-113-seed.txt",
+      "tags": [
+        "synthetic",
+        "seed",
+        "german",
+        "group"
+      ],
+      "notes": "Deterministic TTS-generated seed sample from HEAR-113. Use for harness validation only, not as sole benchmark corpus.",
+      "best_accuracy_model": "small",
+      "fastest_model": "small",
+      "lowest_ram_model": "small",
+      "results": [
+        {
+          "sample_id": "hear-113-seed",
+          "model": "small",
+          "model_source": "G:\\Repo\\aye-hear\\config\\models\\whisper\\small",
+          "compute_type": "int8",
+          "beam_size": 3,
+          "audio_seconds": 87.194,
+          "load_seconds": 1.001,
+          "transcribe_seconds": 9.207,
+          "total_seconds": 10.208,
+          "peak_ram_mb": 586.8,
+          "avg_cpu_pct": 393.4,
+          "peak_cpu_pct": 470.4,
+          "transcript_chars": 1004,
+          "transcript_words": 161,
+          "reference_words": 161,
+          "wer": 0.087,
+          "accuracy_pct": 91.3,
+          "detected_language": "de",
+          "detected_language_probability": 1,
+          "transcript_path": "deployment-evidence\\hear-155-checkpoint-phase3\\hear-113-seed\\whisper-small-transcript.txt"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "best_accuracy_model": "small",
+    "fastest_model": "small",
+    "lowest_ram_model": "small",
+    "model_aggregates": {
+      "small": {
+        "mean_wer": 0.087,
+        "mean_accuracy_pct": 91.3,
+        "mean_total_seconds": 10.208,
+        "mean_peak_ram_mb": 586.8,
+        "sample_count": 1
+      }
+    }
+  }
+}

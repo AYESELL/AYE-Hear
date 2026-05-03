@@ -187,41 +187,42 @@ class TestDoExportProtocol:
 
 class TestUpdateProtocolLive:
     def test_appends_transcript_when_no_db(self, qapp):
-        """Without a snapshot repo, live update must append transcript line."""
+        """Without a snapshot repo, live update must show [DEGRADED] (HEAR-085 AC3/AC5)."""
         win = _make_window(qapp)
         win._snapshot_repo = None
         win._active_meeting_id = "mtg-001"
-        win._protocol_view.setPlainText("Summary\n- Started.")
 
         win._update_protocol_live("[00:30] Anna: Hello everyone.")
 
         text = win._protocol_view.toPlainText()
-        assert "[00:30] Anna: Hello everyone." in text
+        assert text.startswith("[DEGRADED]")
+        assert "[00:30] Anna: Hello everyone." not in text
 
     def test_transcript_section_added_on_first_update(self, qapp):
-        """First live update must add a '## Transcript' section."""
+        """Without DB, live update must show [DEGRADED], not a Transcript section (HEAR-085)."""
         win = _make_window(qapp)
         win._snapshot_repo = None
         win._active_meeting_id = "mtg-001"
-        win._protocol_view.setPlainText("Summary\n- Started.")
 
         win._update_protocol_live("[00:01] System: Ready.")
 
         text = win._protocol_view.toPlainText()
-        assert "## Transcript" in text
+        assert text.startswith("[DEGRADED]")
+        assert "## Transcript" not in text
 
     def test_second_update_appends_without_duplicate_section(self, qapp):
-        """Second update must NOT add another '## Transcript' header."""
+        """Multiple updates without DB must show exactly one [DEGRADED] prefix (HEAR-085 AC5)."""
         win = _make_window(qapp)
         win._snapshot_repo = None
         win._active_meeting_id = "mtg-001"
-        win._protocol_view.setPlainText("Summary\n- Started.")
 
         win._update_protocol_live("[00:01] System: Ready.")
         win._update_protocol_live("[00:02] Anna: Hi.")
 
         text = win._protocol_view.toPlainText()
-        assert text.count("## Transcript") == 1
+        assert text.count("[DEGRADED]") == 1
+        assert "[00:01]" not in text
+        assert "[00:02]" not in text
 
     def test_delegates_to_refresh_when_snapshot_repo_present(self, qapp):
         """With snapshot repo, _update_protocol_live must call _refresh_protocol_display."""
@@ -241,16 +242,16 @@ class TestUpdateProtocolLive:
 
 class TestAppendTranscriptLineIntegration:
     def test_protocol_updated_during_active_meeting(self, qapp):
-        """append_transcript_line must trigger protocol update when meeting is active."""
+        """append_transcript_line triggers protocol update (shows [DEGRADED]) when meeting is active."""
         win = _make_window(qapp)
         win._active_meeting_id = "mtg-002"
         win._snapshot_repo = None
-        win._protocol_view.setPlainText("Summary\n- Started.")
 
         win.append_transcript_line("[00:10] Max: Good morning.")
 
         text = win._protocol_view.toPlainText()
-        assert "[00:10] Max: Good morning." in text
+        assert text.startswith("[DEGRADED]")
+        assert "[00:10] Max: Good morning." not in text
 
     def test_protocol_not_updated_without_active_meeting(self, qapp):
         """append_transcript_line must NOT update protocol when no meeting is active."""
