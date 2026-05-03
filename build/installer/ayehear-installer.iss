@@ -115,10 +115,13 @@ Filename: "powershell.exe"; \
   StatusMsg: "Setting up local database..."
 
 ; Step 2: Post-install health check — verifies DB is ready before first launch.
+; NOTE: NOT waituntilterminated — health check runs async so the installer never
+; hangs if psql stalls (e.g. pg_hba.conf auth delay). The script uses
+; --connect-timeout 10 internally; if DB isn't ready the app handles it on launch.
 Filename: "powershell.exe"; \
-  Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{commonappdata}\AYE Hear\scripts\Start-AyeHearRuntime.ps1"" -InstallDir ""{code:GetInstallRoot}"""; \
+  Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{commonappdata}\AYE Hear\scripts\Start-AyeHearRuntime.ps1"" -InstallDir ""{code:GetInstallRoot}"" -Silent"; \
   Description: "Validating database health..."; \
-  Flags: runhidden waituntilterminated; \
+  Flags: runhidden nowait; \
   StatusMsg: "Validating database health..."
 
 ; Step 3: Launch app after install (user-selectable).

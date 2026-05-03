@@ -146,9 +146,10 @@ if ($dsn -and ($dsn -match 'postgresql://')) {
     $psqlExe = Resolve-PgBin 'psql.exe'
     if ($psqlExe) {
         try {
-            # -w: never prompt for password (fail fast if auth fails instead of blocking
-            # in a hidden installer process). DSN carries credentials via URI.
-            $listenAddrs = & $psqlExe $dsn -w -c 'SHOW listen_addresses;' -t -q 2>&1 |
+            # -w: never prompt for password. --connect-timeout: fail fast on TCP hang.
+            # Both flags required: -w prevents auth prompt, --connect-timeout prevents
+            # indefinite TCP wait when server accepts socket but stalls (e.g. pg_hba.conf).
+            $listenAddrs = & $psqlExe $dsn -w --connect-timeout 10 -c 'SHOW listen_addresses;' -t -q 2>&1 |
                            Where-Object { $_.Trim() -ne '' } | Select-Object -First 1
             $listenTrimmed = ($listenAddrs -join '').Trim()
             # Split on commas to handle multi-value configurations (e.g. "localhost,127.0.0.1")
@@ -181,8 +182,8 @@ if ($dsn -and ($dsn -match 'postgresql://')) {
     $psqlExe = Resolve-PgBin 'psql.exe'
     if ($psqlExe) {
         try {
-            # -w: never prompt for password in hidden/non-interactive mode
-            $tableCheck = & $psqlExe $dsn -w -c @"
+            # -w: no prompt. --connect-timeout: fail fast, don't block installer indefinitely.
+            $tableCheck = & $psqlExe $dsn -w --connect-timeout 10 -c @"
 SELECT 1
 FROM   information_schema.tables
 WHERE  table_schema = 'public'
