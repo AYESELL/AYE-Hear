@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import threading
 from datetime import datetime
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -33,22 +34,29 @@ from ayehear.app.mic_level_widget import MicLevelWidget
 from ayehear.app.system_readiness import ReadinessChecker, SystemReadinessWidget
 from ayehear.models.meeting import MeetingSession, Participant
 from ayehear.models.runtime import RuntimeConfig
-from ayehear.services.confidence_review import ConfidenceReviewQueue, ItemType
-from ayehear.services.protocol_traceability import TraceabilityStore
+from ayehear.services.confidence_review import (
+    ConfidenceReviewQueue,
+    ItemType,
+    cleanup_expired_review_files,
+)
+from ayehear.services.protocol_traceability import TraceabilityStore, cleanup_expired_trace_files
 from ayehear.services.audio_capture import (
     AudioCaptureProfile,
     AudioCaptureService,
     AudioSegment,
+    WavPersistenceConfig,
     enumerate_input_devices,
 )
 from ayehear.services.protocol_engine import ProtocolEngine
 from ayehear.services.speaker_manager import SpeakerManager
-from ayehear.services.transcription import TranscriptionService
+from ayehear.services.transcription import AdaptiveTranscriptionQueue, TranscriptionService
 from ayehear.storage.database import DatabaseBootstrap, DatabaseConfig, load_runtime_dsn
 from ayehear.storage.repositories import (
     ProtocolSnapshotRepository,
     SpeakerProfileRepository,
 )
+from ayehear import __version__
+from ayehear.utils.paths import reviews_dir, traces_dir
 
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
@@ -60,6 +68,9 @@ if TYPE_CHECKING:
     )
 
 logger = logging.getLogger(__name__)
+
+_DEFAULT_MIN_TRANSCRIBE_WINDOW_MS = 1800
+_LARGE_TURBO_MIN_TRANSCRIBE_WINDOW_MS = 2800
 
 # Prefix used to identify degraded-state placeholder text in the protocol view
 # so exports and tests can detect when the panel shows no real content.
@@ -117,8 +128,11 @@ class MainWindow(QMainWindow):
         self._asr_warned_no_text = False
         self._review_queue: ConfidenceReviewQueue | None = None
         self._trace_store: TraceabilityStore | None = None
+        self._adaptive_queue: AdaptiveTranscriptionQueue | None = None
+        # HEAR-154: delta gating — fingerprint of transcript used in last rebuild attempt
+        self._last_protocol_transcript_fingerprint: str | None = None
 
-        self.setWindowTitle("AYE Hear")
+        self.setWindowTitle(f"AYE Hear v{__version__}")
         self.resize(1440, 900)
 
         central = QWidget(self)
@@ -126,7 +140,7 @@ class MainWindow(QMainWindow):
         layout.setContentsMargins(16, 16, 16, 16)
         layout.setSpacing(12)
 
-        header = QLabel("AYE Hear Workspace")
+        header = QLabel(f"AYE Hear Workspace  ·  v{__version__}")
         header.setObjectName("pageTitle")
         header.setStyleSheet("font-size: 24px; font-weight: 700;")
         layout.addWidget(header)
@@ -380,7 +394,7 @@ class MainWindow(QMainWindow):
                 )
                 
                 # Update services that depend on repos
-                self._transcription_service._transcript_repo = self._transcript_repo
+                self._transcription_service.transcript_repo = self._transcript_repo
                 # HEAR-130: ProtocolEngine uses _snapshots/_transcripts internally;
                 # _snapshot_repo/_transcript_repo were wrong attribute names that left
                 # the engine on a stale (closed) session after every reload.
@@ -400,7 +414,7 @@ class MainWindow(QMainWindow):
                                 self._active_meeting_id,
                             )
                             self._transcript_repo = None
-                            self._transcription_service._transcript_repo = None
+                            self._transcription_service.transcript_repo = None
                     except Exception as verify_exc:
                         logger.warning(
                             "HEAR-130: Could not verify active meeting %s after reload: %s",
@@ -426,9 +440,9 @@ class MainWindow(QMainWindow):
         self._participant_repo = None
         self._transcript_repo = None
         self._snapshot_repo = None
-        self._transcription_service._transcript_repo = None
-        self._protocol_engine._snapshot_repo = None
-        self._protocol_engine._transcript_repo = None
+        self._transcription_service.transcript_repo = None
+        self._protocol_engine._snapshots = None
+        self._protocol_engine._transcripts = None
         if self._active_meeting_id is not None:
             self._refresh_protocol_display()
 
@@ -438,6 +452,10 @@ class MainWindow(QMainWindow):
             return
         try:
             from pathlib import Path as _Path
+            cleanup_expired_review_files(
+                reviews_dir(),
+                self.runtime_config.privacy.review_retention_days,
+            )
             self._review_queue.save(_Path(f"review-{self._active_meeting_id}.json"))
             logger.debug("Review queue saved for meeting %s", self._active_meeting_id)
         except Exception as exc:
@@ -449,6 +467,10 @@ class MainWindow(QMainWindow):
             return
         try:
             from pathlib import Path as _Path
+            cleanup_expired_trace_files(
+                traces_dir(),
+                self.runtime_config.privacy.trace_retention_days,
+            )
             self._trace_store.save(_Path(f"trace-{self._active_meeting_id}.json"))
             logger.debug("Trace store saved for meeting %s", self._active_meeting_id)
         except Exception as exc:
@@ -773,13 +795,14 @@ class MainWindow(QMainWindow):
         self._speaker_manager.register_meeting_participants(known_speakers)
         self.set_active_meeting(meeting_id, known_speakers=known_speakers)
         audio_status = self._start_audio_pipeline()
+        _start_time = datetime.now().strftime("%H:%M")
 
         # HEAR-041: transcript + protocol reflect meeting start
         self.append_transcript_line(
-            f"[00:00] Meeting '{title}' gestartet — {len(speakers)} Teilnehmer "
+            f"[{_start_time}] Meeting '{title}' gestartet — {len(speakers)} Teilnehmer "
             f"| Audio: {device_label}."
         )
-        self.append_transcript_line(f"[00:00] System: {audio_status}")
+        self.append_transcript_line(f"[{_start_time}] System: {audio_status}")
 
         # HEAR-085 AC1/AC2: protocol panel shows structured state, never transcript mirror
         if self._snapshot_repo is not None:
@@ -805,7 +828,6 @@ class MainWindow(QMainWindow):
         self._export_btn.setEnabled(True)
         self._export_path_label.setText("")
 
-        QMessageBox.information(self, "Meeting gestartet", f"Meeting '{title}' ist jetzt aktiv.")
         # HEAR-087: refresh readiness state after meeting start
         self._refresh_readiness()
 
@@ -876,11 +898,18 @@ class MainWindow(QMainWindow):
         self._clear_audio_buffer()
         self._asr_warned_no_text = False
 
-        profile = self._selected_audio_profile()
-        self._audio_capture_service = AudioCaptureService(profile=profile)
         self._mic_level_widget.set_initializing()
         try:
-            self._audio_capture_service.start(self._on_audio_segment)
+            profile = self._selected_audio_profile()
+            wav_config = WavPersistenceConfig(
+                enabled=self.runtime_config.privacy.wav_persistence_enabled,
+                output_dir=Path(self.runtime_config.privacy.wav_output_dir),
+                delete_on_meeting_end=self.runtime_config.privacy.wav_delete_on_meeting_end,
+                retention_days=self.runtime_config.privacy.wav_retention_days,
+            )
+            self._audio_capture_service = AudioCaptureService(profile=profile, wav_config=wav_config)
+            self._audio_capture_service.start(self._on_audio_segment, meeting_id=self._active_meeting_id)
+            self._adaptive_queue = AdaptiveTranscriptionQueue(self._do_transcribe_segment)
             self._asr_timer.start()
             self._mic_level_widget.set_active()
             return "Audioaufnahme aktiv, Live-Transkription läuft."
@@ -892,6 +921,9 @@ class MainWindow(QMainWindow):
 
     def _stop_audio_pipeline(self) -> None:
         self._asr_timer.stop()
+        if self._adaptive_queue is not None:
+            self._adaptive_queue.flush_all()
+            self._adaptive_queue = None
         if self._audio_capture_service is not None:
             self._audio_capture_service.stop()
             self._audio_capture_service = None
@@ -944,6 +976,17 @@ class MainWindow(QMainWindow):
             rms=float(np.sqrt(np.mean(samples ** 2))),
             is_silence=False,
         )
+        if self._adaptive_queue is not None:
+            self._adaptive_queue.push(segment)
+        else:
+            self._do_transcribe_segment(segment)
+
+    def _do_transcribe_segment(self, segment: AudioSegment) -> None:
+        """Run ASR + speaker resolution on a single segment and emit the transcript line."""
+        samples = np.asarray(segment.samples, dtype=np.float32)
+        meeting_id = self._active_meeting_id
+        if meeting_id is None:
+            return
         # ADR-0003: resolve speaker identity BEFORE persistence (HEAR-084 AC2)
         # Embedding-based pre-resolution ensures no segment is saved as unknown/0.0
         embedding = SpeakerManager._extract_embedding(samples.tolist())
@@ -962,7 +1005,22 @@ class MainWindow(QMainWindow):
             embedding, segment_text=text
         )
 
-        stamp = self._format_ms(start_ms)
+        # HEAR-153: reconcile persisted speaker when post-ASR refinement differs from pre-match
+        if (
+            result.segment_id is not None
+            and self._transcript_repo is not None
+            and speaker_match.speaker_name != speaker_pre_match.speaker_name
+        ):
+            try:
+                self._transcript_repo.reconcile_speaker(
+                    result.segment_id,
+                    refined_speaker_name=speaker_match.speaker_name,
+                    refined_confidence=speaker_match.confidence,
+                )
+            except Exception as exc:
+                logger.warning("HEAR-153: speaker reconciliation failed for segment %s: %s", result.segment_id, exc)
+
+        stamp = self._format_ms(segment.start_ms)
         review_tag = " [low-conf]" if speaker_match.requires_review else ""
         if text:
             self.transcript_line_ready.emit(
@@ -981,7 +1039,7 @@ class MainWindow(QMainWindow):
             if not self._pending_audio_chunks:
                 return None
 
-            if not force and self._pending_duration_ms < 1800:
+            if not force and self._pending_duration_ms < self._min_transcribe_window_ms():
                 return None
 
             start_ms = self._pending_start_ms or 0
@@ -994,6 +1052,18 @@ class MainWindow(QMainWindow):
             self._pending_duration_ms = 0
 
         return start_ms, end_ms, np.concatenate(chunks)
+
+    def _min_transcribe_window_ms(self) -> int:
+        """Return minimum buffered audio duration before ASR is triggered.
+
+        HEAR-150: TheChola large-v3-turbo model showed short-clip hallucinations
+        on 1-2s windows. For that model family, require a slightly longer window
+        so ASR gets more context before inference.
+        """
+        model = (self._transcription_service.model_name or "").lower()
+        if "large-v3-turbo" in model:
+            return _LARGE_TURBO_MIN_TRANSCRIBE_WINDOW_MS
+        return _DEFAULT_MIN_TRANSCRIBE_WINDOW_MS
 
     @staticmethod
     def _format_ms(total_ms: int) -> str:
@@ -1086,6 +1156,8 @@ class MainWindow(QMainWindow):
     def set_active_meeting(self, meeting_id: str, known_speakers: list[str] | None = None) -> None:
         """Called by orchestrator when a meeting session becomes active."""
         self._active_meeting_id = meeting_id
+        cleanup_expired_review_files(reviews_dir(), self.runtime_config.privacy.review_retention_days)
+        cleanup_expired_trace_files(traces_dir(), self.runtime_config.privacy.trace_retention_days)
 
         self._speaker_override.clear()
         for name in (known_speakers or []):
@@ -1272,6 +1344,12 @@ class MainWindow(QMainWindow):
             else:
                 logger.error("Protocol refresh failed (non-DB): %s", exc)
 
+    @staticmethod
+    def _compute_transcript_fingerprint(text: str) -> str:
+        """Return a short hash of the transcript text for delta-gating (HEAR-154)."""
+        import hashlib
+        return hashlib.sha1(text.encode("utf-8", errors="replace")).hexdigest()[:16]
+
     def _rebuild_protocol_from_persistence(self) -> None:
         """Generate a new protocol snapshot from persisted transcript data (HEAR-085 AC2).
 
@@ -1279,6 +1357,9 @@ class MainWindow(QMainWindow):
         to produce a structured draft from confirmed transcript segments and
         stores it as a new versioned snapshot.  No-ops when persistence is
         unavailable or no meeting is active.
+
+        HEAR-154: delta gating — skips the LLM call when transcript has not
+        changed since the last rebuild attempt, preventing idle snapshot growth.
         """
         if (
             self._active_meeting_id is None
@@ -1286,8 +1367,31 @@ class MainWindow(QMainWindow):
             or self._snapshot_repo is None
         ):
             return
+
+        # HEAR-154: compute transcript fingerprint for delta gating
+        current_transcript = self._transcript_view.toPlainText()
+        current_fp = self._compute_transcript_fingerprint(current_transcript)
+        if current_fp == self._last_protocol_transcript_fingerprint:
+            logger.debug("HEAR-154: protocol rebuild skipped — transcript unchanged.")
+            return
+
         try:
             snapshot = self._protocol_engine.generate(self._active_meeting_id)
+
+            # HEAR-154: surface deferred state in protocol panel
+            if self._protocol_engine.last_diagnostics.get("status") == "deferred":
+                reason = self._protocol_engine.last_diagnostics.get("reason", "")
+                self._protocol_view.setPlainText(
+                    f"[⏸ DEFERRED] Protokollerstellung zurückgestellt — {reason}\n\n"
+                    "Das System wartet auf niedrigere CPU-Last. Der letzte Stand "
+                    "bleibt bis zur nächsten erfolgreichen Generierung erhalten."
+                )
+                # Do not update fingerprint on deferral: retry next tick
+                return
+
+            # Rebuild succeeded — update fingerprint
+            self._last_protocol_transcript_fingerprint = current_fp
+
             # V2-12 / HEAR-117: seed review queue from first snapshot in this session
             if self._review_queue is None and snapshot.review_queue is not None:
                 self._review_queue = snapshot.review_queue
@@ -1484,25 +1588,17 @@ class MainWindow(QMainWindow):
             logger.error("Protocol export failed: %s", exc)
             QMessageBox.critical(self, "Export fehlgeschlagen", f"Fehler beim Schreiben:\n{exc}")
 
-    def _update_protocol_live(self, transcript_line: str) -> None:  # noqa: ARG002
+    _TRANSCRIPT_SECTION_HEADER = "## Transcript"
+
+    def _update_protocol_live(self, transcript_line: str) -> None:
         """Refresh the protocol draft view on each new transcript line (HEAR-085 AC1/AC2).
 
-        The protocol panel represents a *structured draft*, never a transcript
-        mirror.  When persistence is available, delegates to the snapshot-based
-        refresh.  When persistence is unavailable, the degraded-state label
-        remains visible — transcript lines are ONLY added to the transcript view,
-        never to the protocol panel.
+        Delegates to _refresh_protocol_display in all cases:
+        - With DB: renders the latest structured snapshot.
+        - Without DB: _refresh_protocol_display shows the [DEGRADED] label (AC3/AC5).
+          Transcript text must never appear in the protocol panel (HEAR-085 AC1/AC5).
         """
-        if self._snapshot_repo is not None and self._active_meeting_id is not None:
-            # With DB: refresh the structured snapshot view
-            self._refresh_protocol_display()
-            return
-        # Without DB: append transcript line under a "## Transcript" section
-        current = self._protocol_view.toPlainText()
-        _TRANSCRIPT_SECTION = "## Transcript"
-        if _TRANSCRIPT_SECTION not in current:
-            current = current.rstrip() + f"\n\n{_TRANSCRIPT_SECTION}\n"
-        self._protocol_view.setPlainText(current.rstrip() + "\n" + transcript_line)
+        self._refresh_protocol_display()
 
     def append_transcript_line(self, line: str) -> None:
         """Append a new transcribed line to the live transcript view (HEAR-075: also updates protocol)."""
