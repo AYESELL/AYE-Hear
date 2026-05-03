@@ -142,7 +142,7 @@ class DatabaseBootstrap:
             pool_pre_ping=True,
             pool_size=5,
             max_overflow=10,
-            pool_recycle=3600,  # Recycle connections every hour to prevent stale connections
+            pool_recycle=300,  # Recycle connections every 5 min; prevents stale TCP after idle
             connect_args={
                 "connect_timeout": _PG_CONNECT_TIMEOUT_SECONDS,
                 "options": (

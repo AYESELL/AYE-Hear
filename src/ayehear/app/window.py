@@ -69,8 +69,13 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-_DEFAULT_MIN_TRANSCRIBE_WINDOW_MS = 1800
-_LARGE_TURBO_MIN_TRANSCRIBE_WINDOW_MS = 2800
+_DEFAULT_MIN_TRANSCRIBE_WINDOW_MS = 3000
+# HEAR-162: large-v3-turbo on CPU needs ≥6 s of German speech context to avoid
+# hallucinations and produce coherent sentence-level output. The previous 2.8 s
+# window caused short-clip hallucinations and produced nonsensical phrases.
+# Each inference also takes 4-5 s on CPU, so longer windows keep the queue from
+# stacking up while significantly improving transcript quality.
+_LARGE_TURBO_MIN_TRANSCRIBE_WINDOW_MS = 6000
 
 # Prefix used to identify degraded-state placeholder text in the protocol view
 # so exports and tests can detect when the panel shows no real content.
@@ -138,6 +143,12 @@ class MainWindow(QMainWindow):
         # HEAR-159: guard flag — prevents persistence layer reload during an open DB
         # transaction (race with the readiness timer → session closed under commit).
         self._persistence_transaction_active: bool = False
+        # HEAR-162: True only when the current active meeting was successfully
+        # committed to the DB.  False when the meeting INSERT failed or the session
+        # is running in local-only mode.  Used by the HEAR-130 check to avoid
+        # incorrectly disabling transcript persistence when the meeting was never
+        # persisted in the first place.
+        self._meeting_db_backed: bool = False
 
         self.setWindowTitle(f"AYE Hear v{__version__}")
         self.resize(1440, 900)
@@ -415,10 +426,11 @@ class MainWindow(QMainWindow):
                 self._protocol_engine._transcripts = self._transcript_repo
 
                 # HEAR-130: verify the active meeting is still resolvable in the new
-                # session.  A committed meeting must always be visible; if it is not
-                # (e.g. driver-level transaction snapshot anomaly), disable transcript
-                # persistence to prevent FK violations rather than crashing.
-                if self._active_meeting_id is not None:
+                # session.  Only check when _meeting_db_backed=True (i.e., the meeting
+                # was actually committed to the DB).  If the meeting INSERT previously
+                # failed, the local UUID won't be in the DB — that's expected, not an
+                # anomaly, so do not disable persistence.
+                if self._active_meeting_id is not None and self._meeting_db_backed:
                     try:
                         if self._meeting_repo.get_by_id(self._active_meeting_id) is None:
                             logger.error(
@@ -443,6 +455,7 @@ class MainWindow(QMainWindow):
     def _disable_persistence(self, reason: str) -> None:
         """Drop repository bindings and keep app operational in local-only mode."""
         logger.warning("Persistence disabled; falling back to local-only mode: %s", reason)
+        self._meeting_db_backed = False  # HEAR-162: no DB-backed meeting in local-only mode
         if self._db_session is not None:
             try:
                 self._db_session.close()
@@ -799,6 +812,9 @@ class MainWindow(QMainWindow):
                 meeting_persisted = False
                 meeting_id = local_meeting_id
                 self._participant_id_map = {}
+        # HEAR-162: track whether the active meeting is backed by a committed DB row.
+        # _reload_persistence_layer()'s HEAR-130 check only fires when this is True.
+        self._meeting_db_backed = meeting_persisted
         # HEAR-159: Release guard — transaction is committed (or rolled back).
         self._persistence_transaction_active = False
 
@@ -1205,6 +1221,7 @@ class MainWindow(QMainWindow):
         self._save_review_queue()   # V2-12 / HEAR-117: persist final state before clearing
         self._save_trace_store()    # V2-13 / HEAR-118: persist trace state before clearing
         self._active_meeting_id = None
+        self._meeting_db_backed = False  # HEAR-162: reset on meeting end
         self._review_queue = None
         self._trace_store = None
         self._speaker_manager.clear_meeting_context()
