@@ -34,7 +34,7 @@ DefaultGroupName=AYE Hear
 ; Output
 OutputDir=..\..\dist
 OutputBaseFilename=AyeHear-Setup-{#ProductVersion}
-Compression=lzma2/ultra64
+Compression=lzma2/max
 SolidCompression=yes
 
 ; Visuals
@@ -75,7 +75,17 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; \
 ; ---------------------------------------------------------------------------
 [Files]
 ; ---------------------------------------------------------------------------
+; Whisper model.bin: uncompressed binary weights (CTranslate2 format).
+; int8/fp16 quantized tensors have near-random entropy -> LZMA2 yields only
+; 5-15% compression at enormous build-time cost. Store uncompressed to keep
+; build time reasonable. The solid-stream is not blocked by this large file.
+Source: "{#DistDir}\_internal\models\*"; DestDir: "{app}\_internal\models"; \
+  Flags: ignoreversion recursesubdirs createallsubdirs nocompression
+
+; All other application files (code, DLLs, assets — compress well with lzma2/max)
+; Excludes models dir (already listed above without compression)
 Source: "{#DistDir}\*"; DestDir: "{app}"; \
+  Excludes: "_internal\models\*"; \
   Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; Runtime install notes (ADR-0006 / ADR-0009 compliance reminders)
