@@ -106,6 +106,10 @@ class MainWindow(QMainWindow):
             language="de",
             transcript_repo=transcript_repo,
         )
+        # HEAR-160: Start background ASR model warm-up immediately at app start.
+        # WhisperModel (1.5 GB) loads lazily by default; warm-up ensures the model
+        # is ready before the first meeting, preventing bad quality on initial chunks.
+        self._transcription_service.warmup()
         # ADR-0003: speaker identification pipeline
         self._speaker_manager: SpeakerManager = speaker_manager or SpeakerManager()
         self._enrolled_speakers: dict[str, str] = {}  # participant_id -> profile_id
@@ -131,6 +135,9 @@ class MainWindow(QMainWindow):
         self._adaptive_queue: AdaptiveTranscriptionQueue | None = None
         # HEAR-154: delta gating — fingerprint of transcript used in last rebuild attempt
         self._last_protocol_transcript_fingerprint: str | None = None
+        # HEAR-159: guard flag — prevents persistence layer reload during an open DB
+        # transaction (race with the readiness timer → session closed under commit).
+        self._persistence_transaction_active: bool = False
 
         self.setWindowTitle(f"AYE Hear v{__version__}")
         self.resize(1440, 900)
@@ -362,6 +369,12 @@ class MainWindow(QMainWindow):
         Called by _refresh_readiness() to support dynamic DSN discovery
         when pg.dsn is written after app startup (e.g., post-provisioning).
         """
+        # HEAR-159: Never reload the persistence layer while a DB transaction is open.
+        # The Qt readiness timer may fire during _start_meeting()'s commit sequence,
+        # closing the session under a live commit → FK violations or silent data loss.
+        if self._persistence_transaction_active:
+            logger.debug("Skipping persistence layer reload: transaction active.")
+            return False
         try:
             dsn = load_runtime_dsn()
             if dsn:
@@ -719,6 +732,9 @@ class MainWindow(QMainWindow):
         # HEAR-084 AC1: persist meeting + participants to DB when repos available
         self._participant_id_map = {}
         meeting_persisted = False
+        # HEAR-159: Block the readiness-timer reload while the transaction is open.
+        # Cleared unconditionally after commit (or rollback) below.
+        self._persistence_transaction_active = True
         if self._meeting_repo is not None:
             try:
                 db_meeting = self._meeting_repo.create(
@@ -783,6 +799,8 @@ class MainWindow(QMainWindow):
                 meeting_persisted = False
                 meeting_id = local_meeting_id
                 self._participant_id_map = {}
+        # HEAR-159: Release guard — transaction is committed (or rolled back).
+        self._persistence_transaction_active = False
 
         # Reconcile enrollment state collected before meeting start:
         # 1) persist participant->profile linkage now that DB participant IDs exist

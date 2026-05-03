@@ -14,6 +14,7 @@ from __future__ import annotations
 import logging
 import math
 import sys
+import threading
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -118,6 +119,61 @@ class TranscriptionService:
     language: str = "de"
     transcript_repo: "TranscriptSegmentRepository | None" = None
     _model: Any = field(default=None, init=False, repr=False)
+    # HEAR-160: thread-safety for background model warm-up
+    _model_load_lock: threading.Lock = field(default_factory=threading.Lock, init=False, repr=False)
+    _model_ready: threading.Event = field(default_factory=threading.Event, init=False, repr=False)
+
+    @property
+    def is_ready(self) -> bool:
+        """True when the ASR model is loaded and ready (HEAR-160)."""
+        return self._model_ready.is_set()
+
+    def warmup(self) -> None:
+        """Load the ASR model in a background daemon thread (non-blocking).
+
+        Call at app startup so the model is ready before the first meeting,
+        avoiding bad transcription quality on the first audio chunks (HEAR-160).
+        Subsequent calls are no-ops when the model is already loaded.
+        """
+        if self._model is not None:
+            self._model_ready.set()
+            return
+        t = threading.Thread(
+            target=self._load_model_background,
+            daemon=True,
+            name="asr-warmup",
+        )
+        t.start()
+
+    def _load_model_background(self) -> None:
+        """Background thread: load WhisperModel and signal readiness (HEAR-160)."""
+        with self._model_load_lock:
+            if self._model is not None:
+                self._model_ready.set()
+                return
+            try:
+                from faster_whisper import WhisperModel  # type: ignore[import-untyped]
+
+                opts = _PROFILES[self.profile]
+                model_path, model_kwargs = _resolve_model_source(self.model_name)
+                logger.info(
+                    "ASR warm-up: loading model '%s' in background...", self.model_name
+                )
+                self._model = WhisperModel(
+                    model_path,
+                    device="cpu",
+                    compute_type=opts["compute_type"],
+                    **model_kwargs,
+                )
+                logger.info(
+                    "ASR warm-up complete: model '%s' ready.", self.model_name
+                )
+            except Exception as exc:
+                logger.error("ASR warm-up failed: %s", exc)
+                # _model stays None; will be retried lazily on first audio chunk
+            finally:
+                # Always set so callers do not block forever even on failure
+                self._model_ready.set()
 
     def active_profile(self) -> str:
         return self.profile
@@ -238,20 +294,22 @@ class TranscriptionService:
             ) from exc
 
         if self._model is None:
-            opts = _PROFILES[self.profile]
-            model_path, model_kwargs = _resolve_model_source(self.model_name)
-            try:
-                self._model = WhisperModel(
-                    model_path,
-                    device="cpu",
-                    compute_type=opts["compute_type"],
-                    **model_kwargs,
-                )
-            except Exception as exc:
-                # Keep _model None so next call retries
-                raise RuntimeError(
-                    f"Whisper-Modell '{self.model_name}' konnte nicht geladen werden: {exc}"
-                ) from exc
+            with self._model_load_lock:
+                if self._model is None:  # double-checked under lock
+                    opts = _PROFILES[self.profile]
+                    model_path, model_kwargs = _resolve_model_source(self.model_name)
+                    try:
+                        self._model = WhisperModel(
+                            model_path,
+                            device="cpu",
+                            compute_type=opts["compute_type"],
+                            **model_kwargs,
+                        )
+                    except Exception as exc:
+                        # Keep _model None so next call retries
+                        raise RuntimeError(
+                            f"Whisper-Modell '{self.model_name}' konnte nicht geladen werden: {exc}"
+                        ) from exc
 
         import numpy as np
 
