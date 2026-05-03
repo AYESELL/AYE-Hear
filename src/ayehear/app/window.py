@@ -1337,7 +1337,14 @@ class MainWindow(QMainWindow):
         try:
             snapshot = self._snapshot_repo.latest(self._active_meeting_id)
             if snapshot is None:
-                return
+                    current = self._protocol_view.toPlainText()
+                    if not current.startswith(_PROTOCOL_DEGRADED_PREFIX):
+                        self._protocol_view.setPlainText(
+                            f"{_PROTOCOL_DEGRADED_PREFIX} Protokoll-Snapshot noch nicht verfügbar.\n\n"
+                            "Generierung läuft ... oder es ist ein Fehler aufgetreten.\n"
+                            "Bitte warten oder prüfen Sie das System-Readiness-Panel."
+                        )
+                    return
             content = snapshot.snapshot_content or {}
             lines: list[str] = []
 
