@@ -1,0 +1,33 @@
+AYE Hear v0.6.11 – Install Upgrade Proof
+=========================================
+Date:     2026-05-04
+Task:     HEAR-167
+
+Install directory:  D:\AYE\AyeHear
+Deploy type:        Silent upgrade (NSIS /S /D=D:\AYE\AyeHear\app)
+Installer used:     G:\Repo\aye-hear\dist\AyeHear-Setup-0.6.11.exe
+
+Pre-upgrade:
+  Installed version:  0.6.10
+  AyeHear.exe date:   2026-05-04 12:09:58
+
+Post-upgrade:
+  Installed version:  0.6.11  (D:\AYE\AyeHear\app\aye_hear_version.txt)
+  AyeHear.exe date:   2026-05-04 12:59:20
+  unins000.dat date:  2026-05-04 13:02:34
+
+NSIS silent install exit code: 0 (success)
+
+Directory listing after upgrade (D:\AYE\AyeHear\app\):
+  _internal                 2026-05-04 13:02:27
+  aye_hear_version.txt      2026-05-04 12:59:24  → content: 0.6.11
+  AyeHear.exe               2026-05-04 12:59:20
+  runtime-install-notes.txt 2026-04-11 08:53:02
+  unins000.dat              2026-05-04 13:02:34
+  unins000.exe              2026-05-04 13:02:13
+
+PostgreSQL runtime:
+  Service:   AyeHearDB (windows service)
+  Port:      5433
+  Process:   postgres PID 68368 (running since 2026-05-04 11:51:54)
+  DSN file:  D:\AYE\AyeHear\runtime\pg.dsn

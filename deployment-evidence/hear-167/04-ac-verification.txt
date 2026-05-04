@@ -1,0 +1,46 @@
+AYE Hear v0.6.11 – AC1 Source Fix Verification
+================================================
+Date:     2026-05-04
+Task:     HEAR-167 (HEAR-141 follow-up)
+
+ACCEPTANCE CRITERION 1: Installed runtime includes updated audio_capture stop() logic.
+STATUS: VERIFIED ✓
+
+Fix location: src/ayehear/services/audio_capture.py, lines 253-270
+
+Fix content (AudioCaptureService.stop()):
+  def stop(self) -> None:
+      """Stop capture, flush optional WAV file, and release device resources."""
+      with self._lock:
+          # Stream-finished callbacks can set _active=False before callers invoke
+          # stop(); still close any remaining stream handle and flush buffered WAV.
+          was_active = self._active
+          has_stream = self._stream is not None
+          self._active = False
+
+      if has_stream:
+          self._close_stream()
+
+      if not was_active and self._wav_config.enabled and self._wav_buffer:
+          logger.debug(
+              "Audio capture stop called after stream-finished callback; flushing buffered WAV."
+          )
+
+      self._flush_wav()  # always called – race condition fixed
+
+Race condition fixed:
+  BEFORE: stop() returned early if _active=False (set by _on_stream_finished)
+          → _flush_wav() was skipped → no WAV file written
+  AFTER:  was_active captures state first; _flush_wav() always called
+
+ACCEPTANCE CRITERION 2: WAV file exists under D:\AYE\AyeHear\runtime\wav after test meeting.
+STATUS: PENDING – Requires manual live meeting test with wav_persistence_enabled=true
+  Note: D:\AYE\AyeHear\runtime\wav does not exist yet (created on first meeting with WAV enabled)
+
+ACCEPTANCE CRITERION 3: Latest completed meeting has non-zero transcript_segments and protocol_snapshots.
+STATUS: PENDING – Requires manual live meeting test
+  Note: DB schema not yet bootstrapped (app startup triggers schema migrations)
+  Runtime PostgreSQL: 127.0.0.1:5433, DB=ayehear, only public schema present
+
+NOTE: AC2 and AC3 require a live test meeting with the installed v0.6.11 runtime.
+      See task notes for manual validation steps.

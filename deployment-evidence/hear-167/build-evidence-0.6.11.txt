@@ -1,0 +1,25 @@
+AYE Hear v0.6.11 – Installer Build Evidence
+============================================
+Date:     2026-05-04
+Task:     HEAR-167
+
+Build command:
+  .\tools\scripts\Build-WindowsPackage.ps1 -BuildInstaller -Clean
+
+Build log: build/build-log-0.6.11.txt
+Result:    SUCCESS
+
+Installer output:
+  G:\Repo\aye-hear\dist\AyeHear-Setup-0.6.11.exe
+
+Key version files bumped before build:
+  src/ayehear/__init__.py  : __version__ = "0.6.11"
+  pyproject.toml           : version = "0.6.11"
+
+Git commit:
+  a989593  chore(release): bump to v0.6.11 – HEAR-167 WAV flush race fix deployment
+
+HEAR-141 WAV stop/flush fix verified in source (audio_capture.py:253-270):
+  - stop() saves was_active = self._active before resetting flag
+  - _flush_wav() called unconditionally after stream close
+  - Race condition between _on_stream_finished() and stop() resolved

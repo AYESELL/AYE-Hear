@@ -1,0 +1,12 @@
+AYE Hear v0.6.11 – Installer SHA256
+=====================================
+Date:     2026-05-04
+Task:     HEAR-167
+
+File:     AyeHear-Setup-0.6.11.exe
+Path:     G:\Repo\aye-hear\dist\AyeHear-Setup-0.6.11.exe
+Size:     1656.10 MB
+SHA256:   8F3D959A18EEAA9E4B94C87E45759474B8A78869B7625045075B4F523E460F8D
+
+Build log: build/build-log-0.6.11.txt
+NSIS compile: Successful compile (81,797 sec)
