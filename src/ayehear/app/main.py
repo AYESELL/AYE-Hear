@@ -30,7 +30,13 @@ def main() -> int:
     app.setApplicationName("AYE Hear")
     app.setOrganizationName("AYESELL")
 
-    config_path = Path("config/default.yaml")
+    # Resolve config path relative to sys._MEIPASS when running as a PyInstaller
+    # bundle (one-folder mode bundles config/default.yaml into _internal/config/).
+    # Fallback to a CWD-relative path for development / CI runs.
+    if getattr(sys, "frozen", False):
+        config_path = Path(sys._MEIPASS) / "config" / "default.yaml"  # type: ignore[attr-defined]
+    else:
+        config_path = Path("config/default.yaml")
     runtime_config = load_runtime_config(config_path)
 
     db_session = None
