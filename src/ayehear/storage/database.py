@@ -226,8 +226,10 @@ class DatabaseBootstrap:
         (e.g. startup + "Refresh Status").
 
         For existing installs where the schema was deployed before tracking was
-        introduced, all pending migration files are pre-marked as applied if the
-        core schema tables already exist — so no DDL is re-executed.
+        introduced, only the baseline schema migration is pre-marked as applied
+        when the core tables already exist. Later forward migrations still run,
+        allowing packaged runtimes to repair schema drift without replaying the
+        initial CREATE TABLE batch.
         """
         assert self._engine is not None
         migration_files = sorted(_MIGRATIONS_DIR.glob("*.sql"))
@@ -252,28 +254,29 @@ class DatabaseBootstrap:
 
             # Detect existing-install scenario: schema deployed before tracking.
             # If the core 'meetings' table exists but no migrations are recorded,
-            # pre-mark all files as applied without re-executing DDL.
+            # pre-mark only the baseline schema migration and still run later
+            # forward migrations. This preserves repair migrations for older
+            # packaged installs that predate schema_migrations tracking.
             if not applied:
                 schema_exists = conn.execute(text(
                     "SELECT 1 FROM information_schema.tables "
                     "WHERE table_schema = 'public' AND table_name = 'meetings'"
                 )).fetchone()
                 if schema_exists:
+                    baseline_migration = migration_files[0].name
                     logger.info(
                         "Existing schema detected without migration records; "
-                        "pre-marking %d migration(s) as applied.",
-                        len(migration_files),
+                        "pre-marking baseline migration %s and applying forward migrations.",
+                        baseline_migration,
                     )
-                    for mf in migration_files:
-                        conn.execute(
-                            text(
-                                "INSERT INTO schema_migrations (filename) VALUES (:fn) "
-                                "ON CONFLICT (filename) DO NOTHING"
-                            ),
-                            {"fn": mf.name},
-                        )
-                    logger.info("Schema up to date (pre-existing install).")
-                    return
+                    conn.execute(
+                        text(
+                            "INSERT INTO schema_migrations (filename) VALUES (:fn) "
+                            "ON CONFLICT (filename) DO NOTHING"
+                        ),
+                        {"fn": baseline_migration},
+                    )
+                    applied.add(baseline_migration)
 
         applied_count = 0
         for migration_path in migration_files:

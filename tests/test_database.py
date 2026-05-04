@@ -283,10 +283,14 @@ def test_run_migrations_skips_already_applied(tmp_path, monkeypatch) -> None:
         "Already-tracked migration was re-executed"
 
 
-def test_run_migrations_premarks_existing_install(tmp_path, monkeypatch) -> None:
-    """On existing installs (schema present, no tracking records), migrations are pre-marked."""
+def test_run_migrations_premarks_existing_install_and_runs_forward_fixes(tmp_path, monkeypatch) -> None:
+    """Existing installs must skip the baseline DDL but still run later repair migrations."""
     sql_file = tmp_path / "001_initial_schema.sql"
     sql_file.write_text("CREATE TABLE IF NOT EXISTS meetings (id TEXT PRIMARY KEY);")
+    fix_file = tmp_path / "005_add_transcript_confidence_columns.sql"
+    fix_file.write_text(
+        "ALTER TABLE transcript_segments ADD COLUMN IF NOT EXISTS asr_confidence FLOAT;"
+    )
 
     monkeypatch.setattr(
         "ayehear.storage.database._MIGRATIONS_DIR", tmp_path
@@ -300,9 +304,12 @@ def test_run_migrations_premarks_existing_install(tmp_path, monkeypatch) -> None
 
     bootstrap._run_migrations()
 
-    # Pre-mark INSERT must have been executed
+    # Baseline pre-mark INSERT must have been executed
     assert any("INSERT INTO schema_migrations" in s for s in executed), \
         "Pre-mark INSERT not issued for existing install"
-    # Actual DDL migration must NOT have been executed
+    # Baseline DDL must NOT have been executed again
     assert not any("CREATE TABLE IF NOT EXISTS meetings" in s for s in executed), \
-        "Migration DDL was re-executed on existing install"
+        "Baseline migration DDL was re-executed on existing install"
+    # Later repair migration must still run on the same install
+    assert any("ADD COLUMN IF NOT EXISTS asr_confidence" in s for s in executed), \
+        "Forward repair migration was skipped on existing install"

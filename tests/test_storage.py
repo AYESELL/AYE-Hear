@@ -28,9 +28,15 @@ from ayehear.storage.repositories import (
 )
 
 
-MIGRATION_PATH = (
-    Path(__file__).resolve().parents[1] / "src" / "ayehear" / "storage" / "migrations" / "001_initial_schema.sql"
-)
+MIGRATIONS_DIR = Path(__file__).resolve().parents[1] / "src" / "ayehear" / "storage" / "migrations"
+MIGRATION_PATH = MIGRATIONS_DIR / "001_initial_schema.sql"
+
+
+def _all_migration_sql() -> str:
+    return "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in sorted(MIGRATIONS_DIR.glob("*.sql"))
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -168,9 +174,11 @@ def test_transcript_segment_contract_contains_runtime_columns() -> None:
 
 
 def test_postgresql_migration_contains_runtime_transcript_columns() -> None:
-    sql = MIGRATION_PATH.read_text(encoding="utf-8")
+    sql = _all_migration_sql()
     assert "speaker_name" in sql
     assert "confidence_score" in sql
+    assert "asr_confidence" in sql
+    assert "speaker_confidence" in sql
     assert "is_silence" in sql
     assert "manual_correction" in sql
     assert "DEFAULT 'pending'" in sql
@@ -178,20 +186,18 @@ def test_postgresql_migration_contains_runtime_transcript_columns() -> None:
 
 def test_postgresql_migration_schema_completeness() -> None:
     """Verifies that all ORM-mapped columns for transcript_segments appear in the
-    initial migration SQL.  This guards against silent schema drift between the
-    ORM model and the PostgreSQL migration script."""
-    sql = MIGRATION_PATH.read_text(encoding="utf-8")
+    ordered migration SQL set. This guards against silent schema drift between
+    the ORM model and the PostgreSQL migration scripts."""
+    sql = _all_migration_sql()
     orm_columns = list(Base.metadata.tables["transcript_segments"].columns.keys())
-    # Every ORM column must be present in the migration CREATE TABLE statement.
+    # Every ORM column must be present across the ordered migration set.
     for col in orm_columns:
         assert col in sql, f"ORM column '{col}' not found in migration SQL"
 
 
 def test_migration_directory_order_is_deterministic() -> None:
     """Migration files must sort correctly by filename so 002 is applied after 001."""
-    from pathlib import Path
-    mig_dir = Path(__file__).resolve().parents[1] / "src" / "ayehear" / "storage" / "migrations"
-    files = sorted(mig_dir.glob("*.sql"))
+    files = sorted(MIGRATIONS_DIR.glob("*.sql"))
     names = [f.name for f in files]
     assert names == sorted(names), "Migration files are not in lexicographic order"
     assert names[0].startswith("001"), "First migration must be 001"
@@ -362,6 +368,28 @@ def test_transcript_segment_add_and_list(session: FakeSession) -> None:
     assert segments[0].text == "Hello world"
     # segment_text removed in migration 002 (HEAR-026); 'text' is canonical
     assert not hasattr(segments[0], "segment_text") or True  # guard if attr removed
+
+
+def test_transcript_segment_add_persists_split_confidence_fields(session: FakeSession) -> None:
+    meeting_repo = MeetingRepository(session)
+    meeting = meeting_repo.create(title="Transcript Confidence Test", meeting_type="internal")
+    meeting_repo.start(meeting.id)
+
+    repo = TranscriptSegmentRepository(session)
+    seg = repo.add(
+        meeting_id=meeting.id,
+        start_ms=0,
+        end_ms=1000,
+        speaker_name="Anna",
+        text="Hello world",
+        confidence_score=0.9,
+        asr_confidence=0.82,
+        speaker_confidence=0.74,
+        is_silence=False,
+    )
+
+    assert seg.asr_confidence == pytest.approx(0.82)
+    assert seg.speaker_confidence == pytest.approx(0.74)
 
 
 def test_transcript_segment_low_confidence_filter(session: FakeSession) -> None:
