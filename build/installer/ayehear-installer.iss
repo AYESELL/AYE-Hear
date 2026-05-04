@@ -82,10 +82,15 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; \
 Source: "{#DistDir}\_internal\models\*"; DestDir: "{app}\_internal\models"; \
   Flags: ignoreversion recursesubdirs createallsubdirs nocompression
 
-; All other application files (code, DLLs, assets — compress well with lzma2/max)
-; Excludes models dir (already listed above without compression)
+; All other application files (code, DLLs, assets, config, migrations — compress well with lzma2/max).
+; NOTE: "ignoreversion" ensures ALL files are unconditionally overwritten on upgrade,
+;   including config/default.yaml and ayehear/storage/migrations/*.sql.
+;   Files without embedded version info (YAML, SQL, TXT) are always overwritten.
+; IMPORTANT: Excludes uses directory name without trailing \* so that Inno Setup 6
+;   correctly excludes the entire _internal\models tree (incl. deep subdirs).
+;   _internal\models\* only matches direct children; _internal\models excludes the whole tree.
 Source: "{#DistDir}\*"; DestDir: "{app}"; \
-  Excludes: "_internal\models\*"; \
+  Excludes: "_internal\models"; \
   Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; Runtime install notes (ADR-0006 / ADR-0009 compliance reminders)
