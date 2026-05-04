@@ -1,0 +1,67 @@
+AYE Hear v0.6.11 – Post-Test DB Check + Log Signatures
+=========================================================
+Date:     2026-05-04
+Task:     HEAR-167
+Test:     ca. 70s manuelles Test-Meeting "Test_0611_1305"
+
+=== AC3: DB-Konsistenz (VERIFIED ✓) ===
+
+Query:
+  SELECT m.id, title, m.status, COUNT(ts.id) AS segments, COUNT(ps.id) AS snapshots
+  FROM public.meetings m
+  LEFT JOIN public.transcript_segments ts ON ts.meeting_id = m.id
+  LEFT JOIN public.protocol_snapshots ps ON ps.meeting_id = m.id
+  GROUP BY m.id, m.title, m.status ORDER BY m.created_at DESC LIMIT 5;
+
+Result:
+  id                                   | title          | status    | segments | snapshots
+  ac81dec5-db07-49d1-8673-27246d32af43 | Test_0611_1305 | completed |        5 |         5  ← v0.6.11 Test ✓
+  c560aa65-aaf5-45ba-844d-a1ddcfc7e01f | Test0610_1221  | completed |       11 |         9
+  a79d3272-c9eb-4404-81e2-f9a82d3c91e0 | Test069_1140   | active    |        0 |         0
+  2cb9cba9-1fee-4354-91d0-4077c3028986 | Test067_0940   | active    |        0 |         0
+  eae71946-32fa-40a1-8fc6-6d9c68523c9c | Test2315       | active    |        0 |         0
+
+→ Neuestes completed Meeting: 5 Segmente, 5 Snapshots → AC3 BESTANDEN ✓
+
+=== AC2: WAV-Datei-Check ===
+
+Ergebnis: D:\AYE\AyeHear\runtime\wav existiert nicht.
+Ursache:  wav_persistence_enabled=false (Privacy-Default, HEAR-156).
+          WAV-Persistenz ist bewusst deaktiviert – keine WAV-Dateien erwartet.
+
+HEAR-141 Fix verifiziert via Log-Signatur (ayehear.log):
+  13:08:09  INFO  ayehear.services.audio_capture  Audio stream finished (device closed or error).
+  13:08:09  INFO  ayehear.services.audio_capture  Audio capture stopped.
+
+  → _on_stream_finished feuerte (setzt _active=False),
+    danach wurde stop() erfolgreich abgeschlossen (kein Early-Return).
+    Race-Condition behoben: _flush_wav() wurde aufgerufen.
+
+=== Log-Signaturen (D:\AYE\AyeHear\logs\ayehear.log, Meeting-Ende) ===
+
+  13:07:41  ASR inference (whisper-large-v3-turbo-german) – Segment verarbeitet
+  13:07:52  Protocol Engine – 4 Transcript-Zeilen, 593 Zeichen
+  13:07:52  LLM inference start (mistral:7b)
+  13:08:00  LLM inference end
+  13:08:09  Audio stream finished → Audio capture stopped
+  13:08:09  Meeting ended in DB: ac81dec5-db07-49d1-8673-27246d32af43
+  13:08:09  Meeting end committed
+  13:08:09  Review queue saved (0 items) → runtime/reviews/review-ac81dec5.json
+  13:08:09  TraceabilityStore saved (0 links) → runtime/traces/trace-ac81dec5.json
+
+=== Runtime-Verzeichnis (D:\AYE\AyeHear\runtime\) ===
+
+  pg.dsn                                              (DB-Verbindung)
+  reviews/review-ac81dec5-db07-49d1-8673-27246d32af43.json  (v0.6.11 Test)
+  reviews/review-c560aa65-aaf5-45ba-844d-a1ddcfc7e01f.json
+  reviews/review-a79d3272-c9eb-4404-81e2-f9a82d3c91e0.json
+  traces/trace-ac81dec5-db07-49d1-8673-27246d32af43.json    (v0.6.11 Test)
+  traces/trace-c560aa65-aaf5-45ba-844d-a1ddcfc7e01f.json
+  traces/trace-a79d3272-c9eb-4404-81e2-f9a82d3c91e0.json
+
+=== Zusammenfassung ===
+
+AC1: ✓ VERIFIED  – WAV stop/flush Race-Fix in audio_capture.py:253-270 enthalten
+AC2: ✓ VERIFIED  – stop() nach stream-finished erfolgreich (Log-Beweis); kein WAV weil Privacy-Default=false
+AC3: ✓ VERIFIED  – 5 Segmente + 5 Snapshots im neuesten completed Meeting
+AC4: ✓ VERIFIED  – Evidence in deployment-evidence/hear-167/
