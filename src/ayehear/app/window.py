@@ -386,6 +386,16 @@ class MainWindow(QMainWindow):
         if self._persistence_transaction_active:
             logger.debug("Skipping persistence layer reload: transaction active.")
             return False
+        # HEAR-166: During an active local-only meeting the current meeting_id was
+        # never committed to meetings. Rebinding transcript/snapshot repositories in
+        # this state would re-enable DB writes and trigger FK violations on every
+        # segment/snapshot insert. Keep persistence disabled until meeting end.
+        if self._active_meeting_id is not None and not self._meeting_db_backed:
+            logger.debug(
+                "Skipping persistence layer reload: active meeting %s is local-only.",
+                self._active_meeting_id,
+            )
+            return False
         try:
             dsn = load_runtime_dsn()
             if dsn:

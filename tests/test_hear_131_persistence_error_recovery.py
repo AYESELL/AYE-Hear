@@ -340,6 +340,32 @@ class TestCommitFailureSoftFallback:
             "not the (now-invalid) DB meeting ID."
         )
 
+    def test_reload_is_blocked_during_active_local_only_meeting(self, qapp):
+        """HEAR-166: local-only active meetings must not trigger persistence rebind."""
+        win, _, _, _ = _make_full_mocked_window(
+            qapp,
+            meeting_id="should-not-survive-commit-fail",
+            commit_side_effect=RuntimeError("commit error"),
+        )
+
+        with patch.object(win, "_refresh_protocol_display"):
+            _do_start_meeting(win)
+
+        assert win._active_meeting_id is not None
+        assert win._meeting_db_backed is False
+        assert win._meeting_repo is None
+
+        with patch("ayehear.app.window.load_runtime_dsn") as load_dsn_spy:
+            reloaded = win._reload_persistence_layer()
+
+        assert reloaded is False, (
+            "_reload_persistence_layer must return False for active local-only meetings"
+        )
+        load_dsn_spy.assert_not_called()
+        assert win._meeting_repo is None
+        assert win._transcript_repo is None
+        assert win._snapshot_repo is None
+
 
 # ---------------------------------------------------------------------------
 # D – Full lifecycle: start → error → transcription → end

@@ -30,7 +30,7 @@ models:
 # Production defaults must remain privacy-safe. Benchmark-specific overrides must be
 # applied explicitly in non-production runs and must not become repository defaults.
 privacy:
-  wav_persistence_enabled: false        # Production default: raw audio persistence remains opt-in
+  wav_persistence_enabled: true         # HEAR-166 candidate: enable WAV persistence for release validation
   wav_retention_days: 7                 # 1-30; clamped by WavPersistenceConfig
   wav_delete_on_meeting_end: false      # When true: deletes WAV segments immediately on meeting stop
   wav_output_dir: runtime/wav           # Relative to install root; never inside exports/
