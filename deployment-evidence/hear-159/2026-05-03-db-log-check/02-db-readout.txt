@@ -1,0 +1,41 @@
+DSN: postgresql://ayehear:DiMwWuB2Dn7ZDCZt1xXBz6NDm9zkU9kb@127.0.0.1:5433/ayehear
+
+== meetings ==
+                  id                  |   title    | status |          started_at           | ended_at 
+--------------------------------------+------------+--------+-------------------------------+----------
+ eae71946-32ba-40a1-8fc6-6d9c68523c9c | Test2315   | active | 2026-05-03 23:16:23.171285+02 | 
+ 20c8d516-9378-4dc2-a87c-8e1d0ce8913d | Test1234   | active | 2026-05-03 22:45:29.47641+02  | 
+ 3cc9d9a1-7e77-4dde-bc84-61cb00e5a99a | Test260422 | active | 2026-04-22 19:13:56.236404+02 | 
+ 4a6379e4-3587-425c-9257-5a90d451c4ff | Test3      | active | 2026-04-22 18:23:03.898405+02 | 
+(4 Zeilen)
+
+
+== transcript_segments count by meeting ==
+ meeting_id | segment_count 
+------------+---------------
+(0 Zeilen)
+
+
+== protocol_snapshots count by meeting ==
+ meeting_id | snapshot_count 
+------------+----------------
+(0 Zeilen)
+
+
+== transcript_segments columns ==
+    column_name    
+-------------------
+ id
+ meeting_id
+ participant_id
+ start_ms
+ end_ms
+ speaker_name
+ text
+ confidence_score
+ is_silence
+ manual_correction
+ created_at
+ updated_at
+(12 Zeilen)
+

@@ -1,0 +1,13 @@
+Meeting Transcript — Test1234
+Exported: 2026-05-03T22:47:07.606983
+
+[00:00] System: Meeting initialized.
+[22:45] Meeting 'Test1234' gestartet — 1 Teilnehmer | Audio: Mikrofon (Amazon USB Streaming Mic).
+[22:45] System: Audioaufnahme aktiv, Live-Transkription läuft.
+[00:04] Herr Merczak: Okay, wir sind jetzt bei unserem ersten Meeting und versuchen die Wacherkennung unseres Systems.
+[00:14] Herr Merczak: sauber zu prüfen, es hat eigentlich ganz gut angefangen, wir versuchen jetzt mit unserer neuen Version des Fahrrägern
+[00:28] Herr Merczak: Erkennung so gut ist, dass das KI-System die Bitte erkennen kann und angliessend entrichten die Bitte analysiert.
+[00:41] Herr Merczak: Aktuell kann ich aber nur sehen, dass das System nicht richtig die Frage erkennt, sondern viel.
+[00:53] Herr Merczak: Rät und Giel versuchen, anders zu erkennen und gleichzeitig sehe ich, dass das Protokoll nicht gegeben wird, positiv ist aber zu vermelden.
+[01:04] Herr Merczak: dass die System-Readiness alles auf Grün ist und somit mindestens äußerlich das System eigentlich korrekt ist.
+[01:18] Herr Merczak: Untertitelung des ZDF, 2020

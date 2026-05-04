@@ -528,6 +528,12 @@ class ProtocolEngine:
     def _extract_via_ollama(self, lines: list[str]) -> ProtocolContent:
         """Call local Ollama API for structured extraction."""
         transcript_text = "\n".join(lines)
+        
+        # HEAR-159 DEBUG: Log transcript input to determine if "Untertitelung des ZDF 2020" is already in segments
+        logger.info("HEAR-159 DEBUG: Transcript input lines count: %d, total length: %d chars", len(lines), len(transcript_text))
+        if "Untertitelung des ZDF 2020" in transcript_text:
+            logger.warning("HEAR-159 FOUND: 'Untertitelung des ZDF 2020' found in transcript input — likely captured from background audio")
+        
         instruction = self._LANGUAGE_INSTRUCTIONS.get(
             self._language, self._DEFAULT_LANGUAGE_INSTRUCTION
         )
@@ -568,6 +574,9 @@ class ProtocolEngine:
                 "LLM inference end   — cpu_pct=%.1f ram_mb=%.1f",
                 res_after.get("cpu_pct", 0), res_after.get("ram_mb", 0),
             )
+
+        # HEAR-159 DEBUG: Log raw Ollama response before parsing to trace "Untertitelung des ZDF 2020" origin
+        logger.info("HEAR-159 DEBUG: Raw Ollama response (first 1000 chars): %s", raw[:1000])
 
         data = json.loads(raw)
         return ProtocolContent(

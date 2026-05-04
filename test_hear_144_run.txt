@@ -1,0 +1,19 @@
+........................................................................ [  9%]
+..........................................FF............................ [ 19%]
+..................................................................F..... [ 29%]
+...F.......F............................................................ [ 39%]
+........................................................................ [ 49%]
+........................................................................ [ 59%]
+........................................................................ [ 68%]
+........................................................................ [ 78%]
+........................................................................ [ 88%]
+........................................................................ [ 98%]
+Audio stream status: input overflow
+............                                                             [100%]
+=========================== short test summary info ===========================
+FAILED tests/test_hear_074_enrollment_workflow.py::TestParseSpeakerRaw::test_two_fields
+FAILED tests/test_hear_074_enrollment_workflow.py::TestParseSpeakerRaw::test_single_field
+FAILED tests/test_hear_085_protocol_draft.py::TestAC1ProtocolSeparateFromTranscript::test_transcript_text_never_appears_in_protocol_after_meeting_start_degraded
+FAILED tests/test_hear_085_protocol_draft.py::TestAC3DegradedLabel::test_update_protocol_live_without_db_sets_degraded_not_transcript
+FAILED tests/test_hear_085_protocol_draft.py::TestAC5UpdateProtocolLiveNeverMirrorsTranscript::test_update_protocol_live_without_db_multiple_lines_no_stacking
+5 failed, 727 passed in 378.43s (0:06:18)
