@@ -913,6 +913,12 @@ class MainWindow(QMainWindow):
             try:
                 self._meeting_repo.end(meeting_id)
                 logger.info("Meeting ended in DB: %s", meeting_id)
+                # HEAR-168: commit the end update immediately — flush() alone leaves
+                # the transaction open; idle_in_transaction_session_timeout (30 s)
+                # would otherwise roll back the status change and all pending segments.
+                if self._db_session is not None:
+                    self._db_session.commit()
+                    logger.debug("Meeting end committed: %s", meeting_id)
             except ValueError as exc:
                 # HEAR-130: ValueError means the meeting ID is not in the DB (e.g. the
                 # meeting was never committed or the session was reloaded and the meeting

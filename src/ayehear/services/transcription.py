@@ -270,6 +270,11 @@ class TranscriptionService:
                     is_silence=audio_segment.is_silence,
                 )
                 result.segment_id = segment.id
+                # HEAR-168: commit each segment immediately so it survives session
+                # teardown.  flush() alone leaves the transaction open; with
+                # idle_in_transaction_session_timeout=30s the PG backend kills the
+                # connection after meeting stop and rolls back all pending segments.
+                self.transcript_repo._s.commit()
             except Exception as exc:
                 logger.error("Failed to persist segment: %s", exc)
 

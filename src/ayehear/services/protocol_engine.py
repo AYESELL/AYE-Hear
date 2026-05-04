@@ -249,6 +249,14 @@ class ProtocolEngine:
             except Exception as exc:
                 logger.warning("Could not persist action item: %s", exc)
 
+        # HEAR-168: commit snapshot immediately so it survives session teardown.
+        # flush() alone leaves the transaction open; idle_in_transaction_session_timeout
+        # rolls back all pending data after 30 s of post-meeting inactivity.
+        try:
+            self._snapshots._s.commit()
+        except Exception as exc:
+            logger.warning("Could not commit protocol snapshot: %s", exc)
+
         review_queue = self.build_review_queue(
             meeting_id=meeting_id,
             snapshot_id=snapshot_row.id,
@@ -510,17 +518,17 @@ class ProtocolEngine:
         "Deutsch": (
             "Du bist ein Meeting-Assistent. Extrahiere ein strukturiertes Protokoll "
             "aus dem folgenden Transkript. Antworte ausschließlich mit JSON (kein Markdown). "
-            "Schreibe alle Inhalte auf Deutsch."
+            "WICHTIG: Schreibe ALLE Inhalte ausschließlich auf Deutsch. Verwende keine andere Sprache."
         ),
         "English": (
             "You are a meeting assistant. Extract a structured protocol from the following "
             "transcript. Reply exclusively with JSON (no Markdown). "
-            "Write all content in English."
+            "IMPORTANT: Write ALL content exclusively in English. Do not use any other language."
         ),
         "Francais": (
             "Tu es un assistant de réunion. Extrais un protocole structuré du transcript "
             "suivant. Réponds uniquement avec du JSON (pas de Markdown). "
-            "Rédige tout le contenu en français."
+            "IMPORTANT: Rédige TOUT le contenu exclusivement en français. N'utilise aucune autre langue."
         ),
     }
     _DEFAULT_LANGUAGE_INSTRUCTION = _LANGUAGE_INSTRUCTIONS["Deutsch"]
@@ -537,10 +545,18 @@ class ProtocolEngine:
         instruction = self._LANGUAGE_INSTRUCTIONS.get(
             self._language, self._DEFAULT_LANGUAGE_INSTRUCTION
         )
+        # Repeat the language instruction at the end of the prompt so it acts as
+        # a final reinforcement for models that drift back to English (HEAR-168).
+        lang_reminder = {
+            "Deutsch": "Antworte ausschließlich auf Deutsch.",
+            "English": "Reply exclusively in English.",
+            "Francais": "Réponds exclusivement en français.",
+        }.get(self._language, "Antworte ausschließlich auf Deutsch.")
         prompt = (
             f"{instruction}\n"
             "Schema: {\"summary\": [...], \"decisions\": [...], \"action_items\": [...], \"open_questions\": []}\n\n"
-            f"Transkript:\n{transcript_text}"
+            f"Transkript:\n{transcript_text}\n\n"
+            f"{lang_reminder}"
         )
 
         payload = json.dumps({
