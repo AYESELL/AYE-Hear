@@ -1,0 +1,65 @@
+HEAR-165 Build Evidence – AYE Hear 0.6.8
+==========================================
+Date:       2026-05-04
+Task:       HEAR-165 (Build 0.6.8: package migration fix and run installed E2E persistence gate)
+Role:       AYEHEAR_DEVOPS
+Phase:      7 (Release Ready)
+
+## Build Parameters
+Script:     tools\scripts\Build-WindowsPackage.ps1 -BuildInstaller -Clean
+Version:    0.6.8 (bumped from 0.6.7 in pyproject.toml)
+Python:     3.12.10
+PyInstaller: 6.19.0
+Platform:   Windows-11-10.0.26200-SP0
+
+## Key Fix Included (HEAR-164)
+Migration 005_add_transcript_confidence_columns.sql is bundled:
+  ALTER TABLE transcript_segments ADD COLUMN IF NOT EXISTS asr_confidence FLOAT;
+  ALTER TABLE transcript_segments ADD COLUMN IF NOT EXISTS speaker_confidence FLOAT;
+
+## Migrations Bundled (dist\AyeHear\_internal\ayehear\storage\migrations\)
+  001_initial_schema.sql                    OK
+  002_remove_segment_text_column.sql        OK
+  003_participant_naming_constraints.sql    OK
+  004_transcript_correction_log.sql         OK
+  005_add_transcript_confidence_columns.sql OK  ← HEAR-164 fix
+
+## Artefact Sizes
+  Bundle (dist\AyeHear\):              1946.5 MB
+  Installer (AyeHear-Setup-0.6.8.exe): 1656.1 MB
+  AyeHear.exe:                           21.6 MB
+
+## Version File
+  dist\AyeHear\aye_hear_version.txt: 0.6.8  OK
+
+## Installer Path
+  dist\AyeHear-Setup-0.6.8.exe  ← release candidate
+
+## Build Log Warnings (pre-existing, non-blocking)
+  64 WARNING: psycopg_binary import order warning (same as 0.6.7)
+  74555 ERROR: Hidden import 'psycopg.types.text' not found (same as 0.6.7, non-blocking)
+  74555 ERROR: Hidden import 'psycopg.types.date' not found (same as 0.6.7, non-blocking)
+  76211 WARNING: Hidden import "mx.DateTime" not found (same as previous builds)
+  → All of the above were present in build 0.6.7 and did not affect runtime behaviour.
+
+## Build Result
+  PyInstaller exit code: 0  PASS
+  Inno Setup exit code:  0  PASS
+  Installer created:     dist\AyeHear-Setup-0.6.8.exe  PASS
+
+## Build Log Reference
+  build\build-log-0.6.8.txt
+
+## E2E Persistence Gate (PENDING – requires installed runtime)
+The following steps must be completed on the target machine to close the gate:
+  1. Install AyeHear-Setup-0.6.8.exe over existing runtime (data-preserving upgrade)
+  2. Launch AYE Hear and run a real meeting >= 60s
+  3. Close meeting and verify DB:
+       SELECT COUNT(*) FROM transcript_segments WHERE meeting_id = '<new_meeting_id>';
+       -- Expected: > 0
+       SELECT COUNT(*) FROM protocol_snapshots WHERE meeting_id = '<new_meeting_id>';
+       -- Expected: > 0
+  4. Verify protocol draft is NOT stuck on placeholder text
+  5. Confirm: zero UndefinedColumn / asr_confidence errors in log
+
+GATE DECISION: PENDING – awaiting installed E2E run

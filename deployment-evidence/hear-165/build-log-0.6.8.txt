@@ -1,0 +1,2007 @@
+95 INFO: PyInstaller: 6.19.0, contrib hooks: 2026.4
+95 INFO: Python: 3.12.10
+118 INFO: Platform: Windows-11-10.0.26200-SP0
+118 INFO: Python environment: C:\Users\sasch\AppData\Local\Programs\Python\Python312
+121 INFO: Removing temporary files and cleaning cache in C:\Users\sasch\AppData\Local\pyinstaller
+64 WARNING: Failed to collect submodules for 'psycopg_binary' because importing 'psycopg_binary' raised: ImportError: the psycopg package should be imported before psycopg_binary
+1720 INFO: Module search paths (PYTHONPATH):
+['C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\pyinstaller.exe',
+ 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\python312.zip',
+ 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\DLLs',
+ 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib',
+ 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312',
+ 'C:\\Users\\sasch\\AppData\\Roaming\\Python\\Python312\\site-packages',
+ 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages',
+ 'G:\\Repo\\aye-hear\\src',
+ 'G:\\Repo\\aye-hear\\src',
+ 'G:\\Repo\\src']
+2856 INFO: Appending 'datas' from .spec
+2882 INFO: checking Analysis
+2882 INFO: Building Analysis because Analysis-00.toc is non existent
+2882 INFO: Looking for Python shared library...
+2882 INFO: Using Python shared library: C:\Users\sasch\AppData\Local\Programs\Python\Python312\python312.dll
+2882 INFO: Running Analysis Analysis-00.toc
+2882 INFO: Target bytecode optimization level: 0
+2882 INFO: Initializing module dependency graph...
+2884 INFO: Initializing module graph hook caches...
+2958 INFO: Analyzing modules for base_library.zip ...
+4084 INFO: Processing standard module hook 'hook-encodings.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+5436 INFO: Processing standard module hook 'hook-pickle.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+6404 INFO: Processing standard module hook 'hook-heapq.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+7586 INFO: Caching module dependency graph...
+7608 INFO: Analyzing G:\Repo\aye-hear\src\ayehear\__main__.py
+7643 INFO: Processing standard module hook 'hook-PySide6.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+7905 INFO: Processing standard module hook 'hook-shiboken6.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+8014 INFO: Processing standard module hook 'hook-PySide6.QtNetwork.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+9555 INFO: Processing standard module hook 'hook-PySide6.QtCore.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+11431 INFO: Processing standard module hook 'hook-PySide6.QtWidgets.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+13192 INFO: Processing standard module hook 'hook-PySide6.QtGui.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+29069 INFO: Processing standard module hook 'hook-numpy.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+30053 INFO: Processing standard module hook 'hook-difflib.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+30329 INFO: Processing standard module hook 'hook-multiprocessing.util.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+30507 INFO: Processing standard module hook 'hook-xml.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+30845 INFO: Processing standard module hook 'hook-_ctypes.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+31703 INFO: Processing standard module hook 'hook-sysconfig.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+31775 INFO: Processing standard module hook 'hook-platform.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+32270 INFO: Processing standard module hook 'hook-psutil.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+33423 INFO: Processing pre-safe-import-module hook 'hook-typing_extensions.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+33425 INFO: SetuptoolsInfo: initializing cached setuptools info...
+34631 INFO: Processing standard module hook 'hook-charset_normalizer.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+35123 INFO: Processing standard module hook 'hook-sounddevice.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+35240 INFO: Processing standard module hook 'hook-sqlalchemy.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+35800 INFO: Processing pre-safe-import-module hook 'hook-importlib_metadata.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+35801 INFO: Setuptools: 'importlib_metadata' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.importlib_metadata'!
+35816 INFO: Processing standard module hook 'hook-setuptools.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+35859 INFO: Processing pre-safe-import-module hook 'hook-distutils.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+35924 INFO: Processing pre-safe-import-module hook 'hook-jaraco.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+35925 INFO: Setuptools: 'jaraco' appears to be a full setuptools-vendored copy - creating alias to 'setuptools._vendor.jaraco'!
+35942 INFO: Processing pre-safe-import-module hook 'hook-more_itertools.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+35943 INFO: Setuptools: 'more_itertools' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.more_itertools'!
+36218 INFO: Processing pre-safe-import-module hook 'hook-packaging.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+36500 INFO: Processing standard module hook 'hook-setuptools._vendor.jaraco.text.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+36502 INFO: Processing pre-safe-import-module hook 'hook-importlib_resources.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+36518 INFO: Processing pre-safe-import-module hook 'hook-backports.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+36518 INFO: Setuptools: 'backports' appears to be a full setuptools-vendored copy - creating alias to 'setuptools._vendor.backports'!
+37068 INFO: Processing pre-safe-import-module hook 'hook-tomli.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+37069 INFO: Setuptools: 'tomli' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.tomli'!
+37697 INFO: Processing pre-safe-import-module hook 'hook-wheel.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+37698 INFO: Setuptools: 'wheel' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.wheel'!
+37783 INFO: Processing standard module hook 'hook-setuptools._vendor.importlib_metadata.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+37877 INFO: Processing pre-safe-import-module hook 'hook-zipp.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+37878 INFO: Setuptools: 'zipp' appears to be a setuptools-vendored copy - creating alias to 'setuptools._vendor.zipp'!
+40031 INFO: Processing standard module hook 'hook-pydantic.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+40899 INFO: Processing standard module hook 'hook-rich.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+41694 INFO: Processing standard module hook 'hook-pygments.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+44377 INFO: Processing standard module hook 'hook-zoneinfo.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+45737 INFO: Processing standard module hook 'hook-av.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+48417 INFO: Processing pre-safe-import-module hook 'hook-tensorflow.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\pre_safe_import_module'
+49039 INFO: Processing standard module hook 'hook-certifi.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+49283 INFO: Processing standard module hook 'hook-anyio.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+51313 INFO: Processing standard module hook 'hook-pandas.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+53625 INFO: Processing standard module hook 'hook-pytz.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+56188 INFO: Processing standard module hook 'hook-pandas.io.formats.style.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+58010 INFO: Processing standard module hook 'hook-pandas.plotting.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+58615 INFO: Processing standard module hook 'hook-openpyxl.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+58772 INFO: Processing standard module hook 'hook-lxml.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+59213 INFO: Processing standard module hook 'hook-lxml.etree.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+59518 INFO: Processing standard module hook 'hook-xml.etree.cElementTree.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+60489 INFO: Processing standard module hook 'hook-PIL.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+60564 INFO: Processing standard module hook 'hook-PIL.Image.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+61103 INFO: Processing standard module hook 'hook-PIL.ImageFilter.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+62790 INFO: Processing standard module hook 'hook-sqlite3.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+63316 INFO: Processing standard module hook 'hook-pandas.io.clipboard.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+63609 INFO: Processing standard module hook 'hook-dateutil.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+63769 INFO: Processing pre-safe-import-module hook 'hook-six.moves.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks\\pre_safe_import_module'
+64034 INFO: Processing standard module hook 'hook-fsspec.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+64704 INFO: Processing standard module hook 'hook-xml.dom.domreg.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+65124 INFO: Processing standard module hook 'hook-pytest.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+65508 INFO: Processing standard module hook 'hook-py.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+69706 INFO: Processing standard module hook 'hook-onnxruntime.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+69862 INFO: Processing standard module hook 'hook-docx.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+71148 INFO: Processing standard module hook 'hook-reportlab.lib.utils.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+71251 INFO: Processing standard module hook 'hook-reportlab.pdfbase._fontdata.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+73415 INFO: Analyzing hidden import 'ayehear.storage.migrations'
+73415 INFO: Analyzing hidden import 'psycopg'
+73661 INFO: Processing standard module hook 'hook-psycopg_binary.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+74555 INFO: Analyzing hidden import 'psycopg.types.text'
+74555 ERROR: Hidden import 'psycopg.types.text' not found
+74555 INFO: Analyzing hidden import 'psycopg.types.date'
+74555 ERROR: Hidden import 'psycopg.types.date' not found
+74555 INFO: Analyzing hidden import 'sqlalchemy.dialects.postgresql'
+74920 INFO: Processing standard module hook 'hook-psycopg2.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+75053 INFO: Analyzing hidden import 'psycopg._dns'
+75068 INFO: Analyzing hidden import 'psycopg.crdb'
+75097 INFO: Analyzing hidden import 'psycopg.pq._debug'
+75110 INFO: Analyzing hidden import 'psycopg.types.shapely'
+75124 INFO: Analyzing hidden import 'sqlalchemy.dialects.postgresql.provision'
+75143 INFO: Processing module hooks (post-graph stage)...
+76177 INFO: Processing standard module hook 'hook-lxml.isoschematron.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+76211 WARNING: Hidden import "mx.DateTime" not found!
+79881 INFO: Processing standard module hook 'hook-PIL.SpiderImagePlugin.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+84585 INFO: Processing standard module hook 'hook-sqlalchemy.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+84959 WARNING: Hidden import "pysqlite2" not found!
+84960 WARNING: Hidden import "MySQLdb" not found!
+86461 INFO: Processing standard module hook 'hook-lxml.objectify.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+86461 INFO: Processing standard module hook 'hook-tzdata.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\_pyinstaller_hooks_contrib\\stdhooks'
+87004 INFO: Performing binary vs. data reclassification (1432 entries)
+92406 INFO: Looking for ctypes DLLs
+92473 INFO: Analyzing run-time hooks ...
+92482 INFO: Including run-time hook 'pyi_rth_setuptools.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+92491 INFO: Including run-time hook 'pyi_rth_pkgutil.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+92499 INFO: Including run-time hook 'pyi_rth_multiprocessing.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+92509 INFO: Including run-time hook 'pyi_rth_inspect.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+92519 INFO: Including run-time hook 'pyi_rth_pyside6.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks\\rthooks'
+92529 INFO: Processing pre-find-module-path hook 'hook-_pyi_rth_utils.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks\\pre_find_module_path'
+92540 INFO: Processing standard module hook 'hook-_pyi_rth_utils.py' from 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PyInstaller\\hooks'
+92646 INFO: Creating base_library.zip...
+92659 INFO: Looking for dynamic libraries
+96131 INFO: Extra DLL search directories (AddDllDirectory): ['C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\shiboken6', 'C:\\Users\\sasch\\AppData\\Roaming\\Python\\Python312\\site-packages\\psycopg2_binary.libs', 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\psycopg_binary.libs', 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\numpy.libs', 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\av.libs', 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\ctranslate2', 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\ctranslate2/../_rocm_sdk_core/bin', 'C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\pandas.libs']
+96131 INFO: Extra DLL search directories (PATH): ['C:\\Users\\sasch\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\site-packages\\PySide6']
+100394 WARNING: Library not found: could not resolve 'libmysql.dll', dependency of 'C:\\Users\\sasch\\AppData\\Roaming\\Python\\Python312\\site-packages\\_mysql_connector.cp312-win_amd64.pyd'.
+100534 INFO: Warnings written to G:\Repo\aye-hear\build\aye-hear\warn-aye-hear.txt
+100695 INFO: Graph cross-reference written to G:\Repo\aye-hear\build\aye-hear\xref-aye-hear.html
+100796 INFO: checking PYZ
+100797 INFO: Building PYZ because PYZ-00.toc is non existent
+100797 INFO: Building PYZ (ZlibArchive) G:\Repo\aye-hear\build\aye-hear\PYZ-00.pyz
+102426 INFO: Building PYZ (ZlibArchive) G:\Repo\aye-hear\build\aye-hear\PYZ-00.pyz completed successfully.
+102459 INFO: checking PKG
+102459 INFO: Building PKG because PKG-00.toc is non existent
+102459 INFO: Building PKG (CArchive) AyeHear.pkg
+102501 INFO: Building PKG (CArchive) AyeHear.pkg completed successfully.
+102502 INFO: Bootloader C:\Users\sasch\AppData\Local\Programs\Python\Python312\Lib\site-packages\PyInstaller\bootloader\Windows-64bit-intel\runw.exe
+102502 INFO: checking EXE
+102502 INFO: Building EXE because EXE-00.toc is non existent
+102502 INFO: Building EXE from EXE-00.toc
+102502 INFO: Copying bootloader EXE to G:\Repo\aye-hear\build\aye-hear\AyeHear.exe
+102506 INFO: Copying icon to EXE
+102556 INFO: Copying 0 resources to EXE
+102556 INFO: Embedding manifest in EXE
+103130 INFO: Appending PKG archive to EXE
+103205 INFO: Fixing EXE headers
+104555 INFO: Building EXE from EXE-00.toc completed successfully.
+104565 INFO: checking COLLECT
+104565 INFO: Building COLLECT because COLLECT-00.toc is non existent
+104565 INFO: Building COLLECT COLLECT-00.toc
+108334 INFO: Building COLLECT COLLECT-00.toc completed successfully.
+108354 INFO: Build complete! The results are available in: G:\Repo\aye-hear\dist
+Inno Setup 6 Command-Line Compiler
+Copyright (C) 1997-2026 Jordan Russell. All rights reserved.
+Portions Copyright (C) 2000-2026 Martijn Laan. All rights reserved.
+Portions Copyright (C) 2001-2004 Alex Yackimoff. All rights reserved.
+https://www.innosetup.com
+
+Compiler engine version: Inno Setup 6.7.1
+Non-commercial use only
+
+Preprocessing
+   Reading file: C:\Users\sasch\AppData\Local\Programs\Inno Setup 6\ISPPBuiltins.iss
+Parsing [Setup] section, line 22
+Parsing [Setup] section, line 23
+Parsing [Setup] section, line 24
+Parsing [Setup] section, line 25
+Parsing [Setup] section, line 26
+Parsing [Setup] section, line 27
+Parsing [Setup] section, line 28
+Parsing [Setup] section, line 31
+Parsing [Setup] section, line 32
+Parsing [Setup] section, line 35
+Parsing [Setup] section, line 36
+Parsing [Setup] section, line 37
+Parsing [Setup] section, line 38
+Parsing [Setup] section, line 41
+Parsing [Setup] section, line 42
+Parsing [Setup] section, line 43
+Parsing [Setup] section, line 44
+Parsing [Setup] section, line 45
+Parsing [Setup] section, line 46
+Parsing [Setup] section, line 47
+Parsing [Setup] section, line 50
+Parsing [Setup] section, line 51
+Parsing [Setup] section, line 52
+Parsing [Setup] section, line 55
+Parsing [Setup] section, line 56
+Parsing [Setup] section, line 57
+Parsing [Setup] section, line 58
+Parsing [Setup] section, line 59
+Parsing [Setup] section, line 60
+Parsing [Setup] section, line 61
+Parsing [Setup] section, line 62
+Reading file (WizardImageFile)
+   Reading file: G:\Repo\aye-hear\build\installer\..\..\assets\AYE HEAR Installer Grafik 164x314.png
+Reading file (WizardSmallImageFile)
+   Reading file: G:\Repo\aye-hear\build\installer\..\..\assets\installer-header.bmp
+Preparing Setup program executable
+   Verification successful
+   Updating icons (Setup.e32)
+   Updating version info (Setup.e32)
+Determining language code pages
+Parsing [Languages] section, line 67
+   Reading file: C:\Users\sasch\AppData\Local\Programs\Inno Setup 6\Default.isl
+   Messages in script file
+Reading default messages from Default.isl
+Parsing [Languages] section, line 67
+   Reading file: C:\Users\sasch\AppData\Local\Programs\Inno Setup 6\Default.isl
+Parsing [LangOptions], [Messages], and [CustomMessages] sections
+   Messages in script file
+Reading [Code] section
+Parsing [Tasks] section, line 72
+Parsing [Icons] section, line 109
+Parsing [Icons] section, line 110
+Parsing [Icons] section, line 111
+Parsing [Registry] section, line 162
+Parsing [UninstallDelete] section, line 155
+Parsing [Run] section, line 121
+Parsing [Run] section, line 131
+Parsing [Run] section, line 138
+Parsing [UninstallRun] section, line 146
+Parsing [Files] section, line 82
+Parsing [Files] section, line 87
+Parsing [Files] section, line 92
+Parsing [Files] section, line 96
+Parsing [Files] section, line 98
+Compiling [Code] section
+Creating setup files
+   Verification successful
+   Updating icons (Setup.exe)
+   Storing: G:\Repo\aye-hear\dist\AyeHear\_internal\models\whisper\TheChola\whisper-large-v3-turbo-german-faster-whisper\config.json
+   Storing: G:\Repo\aye-hear\dist\AyeHear\_internal\models\whisper\TheChola\whisper-large-v3-turbo-german-faster-whisper\model.bin
+   Storing: G:\Repo\aye-hear\dist\AyeHear\_internal\models\whisper\TheChola\whisper-large-v3-turbo-german-faster-whisper\preprocessor_config.json
+   Storing: G:\Repo\aye-hear\dist\AyeHear\_internal\models\whisper\TheChola\whisper-large-v3-turbo-german-faster-whisper\tokenizer.json
+   Storing: G:\Repo\aye-hear\dist\AyeHear\_internal\models\whisper\TheChola\whisper-large-v3-turbo-german-faster-whisper\vocabulary.json
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\AyeHear.exe
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\aye_hear_version.txt
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\81d243bd2c585b0f4821__mypyc.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\base_library.zip
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\dbgcore.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\dbghelp.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\libcrypto-3-x64.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\libcrypto-3.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\libffi-8.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\libssl-3-x64.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\libssl-3.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\msvcp140.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pyexpat.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\python3.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\python312.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\select.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\sqlite3.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\unicodedata.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\vcruntime140.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\vcruntime140_1.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\_asyncio.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\_bz2.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\_cffi_backend.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\_ctypes.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\_decimal.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\_elementtree.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\_hashlib.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\_lzma.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\_multiprocessing.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\_mysql_connector.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\_overlapped.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\_queue.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\_socket.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\_sqlite3.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\_ssl.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\_uuid.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\_wmi.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\_zoneinfo.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\bitstream.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\buffer.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\descriptor.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\device.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\dictionary.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\error.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\format.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\frame.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\index.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\logging.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\opaque.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\option.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\packet.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\plane.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\stream.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\utils.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\_core.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\audio\codeccontext.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\audio\fifo.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\audio\format.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\audio\frame.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\audio\layout.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\audio\plane.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\audio\resampler.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\audio\stream.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\codec\codec.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\codec\context.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\codec\hwaccel.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\container\core.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\container\input.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\container\output.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\container\pyio.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\container\streams.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\filter\context.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\filter\filter.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\filter\graph.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\filter\link.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\filter\loudnorm.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\sidedata\encparams.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\sidedata\motionvectors.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\sidedata\sidedata.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\subtitles\codeccontext.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\subtitles\stream.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\subtitles\subtitle.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\video\codeccontext.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\video\format.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\video\frame.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\video\plane.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\video\reformatter.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av\video\stream.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\avcodec-62-3940774d70936a4a2ea89886c85e9317.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\avdevice-62-766e6dd5f8c7fd8d737de0ee962a3bfd.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\avfilter-11-f92a6b8cb3ef788fc4280b60af7ff6b5.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\avformat-62-2be7dd535524c05af04f1022f20ff113.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\avutil-60-f9538342a3d3617535a6e391bd72c482.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\libdav1d-2854208e7402bc0207d81c69183d2d55.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\libgcc_s_seh-1-3a8ef13ba1b41e1f6f0c464b6cc39141.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\libiconv-2-ae7b916fbe4f07d00594ccf5b482cd92.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\libmp3lame-0-a40e869d35020af0f107aa1ac8422722.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\libogg-0-3c0d59d85a7487ccfe2b7e3f1ec0a8e6.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\libopencore-amrnb-0-a12cef9e3ba1bd5045a731c65b6f09ea.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\libopencore-amrwb-0-cf5ea681342bef4ee8af3e51e6be55d7.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\libopenh264-7-750382b3e9621d634b578275276a2ff7.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\libopus-0-fb6521a3026e90bf1d367739ba9d7e1c.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\libsharpyuv-01e2902fb55969a9ac20a3341865c1ef.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\libspeex-1-ba4815f6ed79adf1b23cd127d9d8eaab.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\libstdc++-6-6ebbb912d64b3a5dab46558325e09937.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\libSvtAv1Enc-fb4b3af5fd3747228b98cb4aefb94824.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\libvorbis-0-8cd95dec6ff8998dc9f6dcfa8f2d7774.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\libvorbisenc-2-2f569ff7b44c838288ad93bb99e3a711.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\libvpl-0ab370e90005ea546d35a470a4f868f5.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\libvpx-1-9d6803226398ef2833bb80efd4316820.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\libwebp-3b7b09eb07baa72c65eb22fd48b02534.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\libwebpmux-53ac7751e913f0e551cf8009d2a980b0.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\libwinpthread-1-48c4238b59e26fb10619fa726758a7eb.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\libx264-165-a7a268a1f003004287007cd3db81cdbf.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\libx265-69ce56c9697f2c7ef6b7218fe3c79e94.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\swresample-6-5c7b6591ccd2418794032a025b353420.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\swscale-9-83e116b1f922de2417186c4b455a287a.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\av.libs\zlib1-29152992f0da46321a6677f166b0d3ff.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\ayehear\storage\migrations\001_initial_schema.sql
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\ayehear\storage\migrations\002_remove_segment_text_column.sql
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\ayehear\storage\migrations\003_participant_naming_constraints.sql
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\ayehear\storage\migrations\004_transcript_correction_log.sql
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\ayehear\storage\migrations\005_add_transcript_confidence_columns.sql
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\certifi\cacert.pem
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\certifi\py.typed
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\charset_normalizer\cd.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\charset_normalizer\md.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\click-8.3.3.dist-info\INSTALLER
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\click-8.3.3.dist-info\METADATA
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\click-8.3.3.dist-info\RECORD
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\click-8.3.3.dist-info\WHEEL
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\click-8.3.3.dist-info\licenses\LICENSE.txt
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\config\default.yaml
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\config\models\README.md
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\ctranslate2\ctranslate2.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\ctranslate2\libiomp5md.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\ctranslate2\_ext.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\dateutil\zoneinfo\dateutil-zoneinfo.tar.gz
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\docx\py.typed
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\docx\templates\default-comments.xml
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\docx\templates\default-footer.xml
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\docx\templates\default-header.xml
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\docx\templates\default-settings.xml
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\docx\templates\default-styles.xml
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\docx\templates\default.docx
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\docx\templates\default-docx-template\[Content_Types].xml
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\docx\templates\default-docx-template\customXml\item1.xml
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\docx\templates\default-docx-template\customXml\itemProps1.xml
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\docx\templates\default-docx-template\customXml\_rels\item1.xml.rels
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\docx\templates\default-docx-template\docProps\app.xml
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\docx\templates\default-docx-template\docProps\core.xml
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\docx\templates\default-docx-template\docProps\thumbnail.jpeg
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\docx\templates\default-docx-template\word\document.xml
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\docx\templates\default-docx-template\word\fontTable.xml
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\docx\templates\default-docx-template\word\numbering.xml
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\docx\templates\default-docx-template\word\settings.xml
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\docx\templates\default-docx-template\word\styles.xml
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\docx\templates\default-docx-template\word\stylesWithEffects.xml
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\docx\templates\default-docx-template\word\webSettings.xml
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\docx\templates\default-docx-template\word\theme\theme1.xml
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\docx\templates\default-docx-template\word\_rels\document.xml.rels
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\docx\templates\default-docx-template\_rels\.rels
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\greenlet\_greenlet.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\hf_xet\hf_xet.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\librt\internal.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\lxml\builder.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\lxml\etree.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\lxml\objectify.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\lxml\sax.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\lxml\_elementpath.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\lxml\html\diff.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\lxml\html\_difflib.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\lxml\isoschematron\resources\rng\iso-schematron.rng
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\lxml\isoschematron\resources\xsl\RNG2Schtrn.xsl
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\lxml\isoschematron\resources\xsl\XSD2Schtrn.xsl
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\lxml\isoschematron\resources\xsl\iso-schematron-xslt1\iso_abstract_expand.xsl
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\lxml\isoschematron\resources\xsl\iso-schematron-xslt1\iso_dsdl_include.xsl
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\lxml\isoschematron\resources\xsl\iso-schematron-xslt1\iso_schematron_message.xsl
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\lxml\isoschematron\resources\xsl\iso-schematron-xslt1\iso_schematron_skeleton_for_xslt1.xsl
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\lxml\isoschematron\resources\xsl\iso-schematron-xslt1\iso_svrl_for_xslt1.xsl
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\lxml\isoschematron\resources\xsl\iso-schematron-xslt1\readme.txt
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\applytype.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\argmap.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\binder.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\cache.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\checker.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\checker_shared.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\checker_state.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\checkexpr.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\checkmember.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\checkpattern.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\checkstrformat.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\constant_fold.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\constraints.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\copytype.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\defaults.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\erasetype.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\errorcodes.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\errors.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\error_formatter.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\expandtype.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\exprtotype.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\fastparse.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\fixup.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\graph_utils.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\infer.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\join.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\literals.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\lookup.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\maptype.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\meet.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\messages.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\message_registry.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\mro.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\nativeparse.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\nodes.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\operators.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\options.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\parse.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\patterns.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\plugin.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\reachability.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\scope.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\semanal.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\semanal_enum.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\semanal_namedtuple.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\semanal_newtype.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\semanal_shared.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\semanal_typeddict.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\sharedparse.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\solve.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\state.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\strconv.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\subtypes.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\traverser.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\treetransform.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\tvar_scope.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\typeanal.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\typeops.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\types.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\typestate.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\types_utils.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\typetraverser.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\typevars.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\typevartuples.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\type_visitor.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\util.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\visitor.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\__init__.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\plugins\common.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\plugins\dataclasses.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\mypy\server\trigger.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\numpy\fft\_pocketfft_umath.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\numpy\linalg\_umath_linalg.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\numpy\random\bit_generator.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\numpy\random\mtrand.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\numpy\random\_bounded_integers.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\numpy\random\_common.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\numpy\random\_generator.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\numpy\random\_mt19937.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\numpy\random\_pcg64.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\numpy\random\_philox.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\numpy\random\_sfc64.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\numpy\_core\_multiarray_tests.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\numpy\_core\_multiarray_umath.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\numpy-2.3.3.dist-info\DELVEWHEEL
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\numpy-2.3.3.dist-info\entry_points.txt
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\numpy-2.3.3.dist-info\INSTALLER
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\numpy-2.3.3.dist-info\LICENSE.txt
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\numpy-2.3.3.dist-info\METADATA
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\numpy-2.3.3.dist-info\RECORD
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\numpy-2.3.3.dist-info\WHEEL
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\numpy.libs\libscipy_openblas64_-860d95b1c38e637ce4509f5fa24fbf2a.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\numpy.libs\msvcp140-a4c2229bdc2a2a630acdc095b4d86008.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\onnxruntime\capi\onnxruntime.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\onnxruntime\capi\onnxruntime_providers_shared.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\onnxruntime\capi\onnxruntime_pybind11_state.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\io\formats\templates\html.tpl
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\io\formats\templates\html_style.tpl
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\io\formats\templates\html_table.tpl
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\io\formats\templates\latex.tpl
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\io\formats\templates\latex_longtable.tpl
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\io\formats\templates\latex_table.tpl
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\io\formats\templates\string.tpl
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\algos.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\arrays.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\byteswap.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\groupby.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\hashing.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\hashtable.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\index.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\indexing.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\internals.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\interval.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\join.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\json.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\lib.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\missing.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\ops.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\ops_dispatch.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\pandas_datetime.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\pandas_parser.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\parsers.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\properties.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\reshape.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\sas.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\sparse.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\testing.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\tslib.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\writers.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\tslibs\base.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\tslibs\ccalendar.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\tslibs\conversion.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\tslibs\dtypes.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\tslibs\fields.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\tslibs\nattype.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\tslibs\np_datetime.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\tslibs\offsets.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\tslibs\parsing.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\tslibs\period.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\tslibs\strptime.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\tslibs\timedeltas.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\tslibs\timestamps.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\tslibs\timezones.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\tslibs\tzconversion.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\tslibs\vectorized.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\window\aggregations.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas\_libs\window\indexers.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pandas.libs\msvcp140-a4c2229bdc2a2a630acdc095b4d86008.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PIL\_avif.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PIL\_imaging.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PIL\_imagingcms.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PIL\_imagingft.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PIL\_imagingmath.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PIL\_imagingtk.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PIL\_webp.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\psutil\_psutil_windows.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\psycopg-3.3.3.dist-info\INSTALLER
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\psycopg-3.3.3.dist-info\METADATA
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\psycopg-3.3.3.dist-info\RECORD
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\psycopg-3.3.3.dist-info\top_level.txt
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\psycopg-3.3.3.dist-info\WHEEL
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\psycopg-3.3.3.dist-info\licenses\LICENSE.txt
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\psycopg2\_psycopg.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\psycopg2_binary.libs\libcrypto-3-x64-51c45f697a173917ac2ce2ccbe4291ee.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\psycopg2_binary.libs\libpq-39ced5d7c01d21795d0b9597d2cf5921.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\psycopg2_binary.libs\libssl-3-x64-d3fc11f8b66f745a6288de6a00662144.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\psycopg_binary\pq.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\psycopg_binary\_psycopg.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\psycopg_binary-3.3.3.dist-info\DELVEWHEEL
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\psycopg_binary-3.3.3.dist-info\INSTALLER
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\psycopg_binary-3.3.3.dist-info\METADATA
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\psycopg_binary-3.3.3.dist-info\RECORD
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\psycopg_binary-3.3.3.dist-info\top_level.txt
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\psycopg_binary-3.3.3.dist-info\WHEEL
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\psycopg_binary-3.3.3.dist-info\licenses\LICENSE.txt
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\psycopg_binary.libs\libcrypto-3-x64-9d8ebfcf25deffd4bd483c2b6ee3e0f2.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\psycopg_binary.libs\libpq-b18ae1666ae41b9adf6163ce232d8be4.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\psycopg_binary.libs\libssl-3-x64-5ab4d4dac3d08bcc5ba6aa92d5162116.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pydantic-2.13.3.dist-info\INSTALLER
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pydantic-2.13.3.dist-info\METADATA
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pydantic-2.13.3.dist-info\RECORD
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pydantic-2.13.3.dist-info\WHEEL
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pydantic-2.13.3.dist-info\licenses\LICENSE
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pydantic_core\_pydantic_core.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\MSVCP140.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\MSVCP140_1.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\MSVCP140_2.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\opengl32sw.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\pyside6.abi3.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\Qt6Core.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\Qt6Gui.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\Qt6Network.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\Qt6OpenGL.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\Qt6Pdf.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\Qt6Qml.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\Qt6QmlMeta.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\Qt6QmlModels.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\Qt6QmlWorkerScript.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\Qt6Quick.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\Qt6Svg.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\Qt6VirtualKeyboard.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\Qt6Widgets.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\QtCore.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\QtGui.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\QtNetwork.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\QtWidgets.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\VCRUNTIME140.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\VCRUNTIME140_1.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\plugins\generic\qtuiotouchplugin.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\plugins\iconengines\qsvgicon.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\plugins\imageformats\qgif.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\plugins\imageformats\qicns.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\plugins\imageformats\qico.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\plugins\imageformats\qjpeg.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\plugins\imageformats\qpdf.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\plugins\imageformats\qsvg.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\plugins\imageformats\qtga.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\plugins\imageformats\qtiff.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\plugins\imageformats\qwbmp.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\plugins\imageformats\qwebp.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\plugins\networkinformation\qnetworklistmanager.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\plugins\platforminputcontexts\qtvirtualkeyboardplugin.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\plugins\platforms\qdirect2d.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\plugins\platforms\qminimal.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\plugins\platforms\qoffscreen.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\plugins\platforms\qwindows.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\plugins\styles\qmodernwindowsstyle.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\plugins\tls\qcertonlybackend.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\plugins\tls\qopensslbackend.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\plugins\tls\qschannelbackend.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_ar.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_bg.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_ca.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_cs.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_da.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_de.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_en.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_es.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_fa.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_fi.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_fr.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_gd.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_he.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_hr.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_hu.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_it.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_ja.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_ka.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_ko.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_lg.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_lv.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_nl.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_nn.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_pl.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_pt_BR.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_ru.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_sk.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_sv.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_tr.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_uk.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_zh_CN.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qtbase_zh_TW.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_ar.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_bg.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_ca.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_cs.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_da.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_de.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_en.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_es.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_fa.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_fi.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_fr.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_gd.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_gl.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_he.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_ar.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_bg.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_ca.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_cs.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_da.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_de.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_en.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_es.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_fr.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_gl.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_hr.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_hu.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_it.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_ja.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_ka.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_ko.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_nl.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_nn.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_pl.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_pt_BR.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_ru.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_sk.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_sl.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_sv.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_tr.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_uk.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_zh_CN.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_help_zh_TW.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_hr.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_hu.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_it.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_ja.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_ka.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_ko.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_lg.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_lt.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_lv.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_nl.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_nn.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_pl.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_pt_BR.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_pt_PT.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_ru.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_sk.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_sl.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_sv.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_tr.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_uk.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_zh_CN.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\PySide6\translations\qt_zh_TW.qm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\CET
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\CST6CDT
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Cuba
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\EET
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Egypt
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Eire
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\EST
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\EST5EDT
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Factory
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\GB
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\GB-Eire
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\GMT
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\GMT+0
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\GMT-0
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\GMT0
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Greenwich
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Hongkong
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\HST
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Iceland
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Iran
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\iso3166.tab
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Israel
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Jamaica
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Japan
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Kwajalein
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\leapseconds
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Libya
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\MET
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\MST
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\MST7MDT
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Navajo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\NZ
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\NZ-CHAT
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Poland
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Portugal
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\PRC
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\PST8PDT
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\ROC
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\ROK
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Singapore
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Turkey
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\tzdata.zi
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\UCT
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Universal
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\UTC
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\W-SU
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\WET
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\zone.tab
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\zone1970.tab
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\zonenow.tab
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Zulu
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Abidjan
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Accra
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Addis_Ababa
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Algiers
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Asmara
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Asmera
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Bamako
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Bangui
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Banjul
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Bissau
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Blantyre
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Brazzaville
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Bujumbura
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Cairo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Casablanca
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Ceuta
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Conakry
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Dakar
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Dar_es_Salaam
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Djibouti
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Douala
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\El_Aaiun
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Freetown
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Gaborone
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Harare
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Johannesburg
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Juba
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Kampala
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Khartoum
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Kigali
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Kinshasa
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Lagos
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Libreville
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Lome
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Luanda
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Lubumbashi
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Lusaka
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Malabo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Maputo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Maseru
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Mbabane
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Mogadishu
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Monrovia
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Nairobi
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Ndjamena
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Niamey
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Nouakchott
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Ouagadougou
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Porto-Novo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Sao_Tome
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Timbuktu
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Tripoli
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Tunis
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Africa\Windhoek
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Adak
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Anchorage
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Anguilla
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Antigua
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Araguaina
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Aruba
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Asuncion
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Atikokan
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Atka
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Bahia
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Bahia_Banderas
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Barbados
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Belem
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Belize
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Blanc-Sablon
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Boa_Vista
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Bogota
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Boise
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Buenos_Aires
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Cambridge_Bay
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Campo_Grande
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Cancun
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Caracas
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Catamarca
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Cayenne
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Cayman
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Chicago
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Chihuahua
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Ciudad_Juarez
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Coral_Harbour
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Cordoba
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Costa_Rica
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Coyhaique
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Creston
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Cuiaba
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Curacao
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Danmarkshavn
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Dawson
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Dawson_Creek
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Denver
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Detroit
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Dominica
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Edmonton
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Eirunepe
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\El_Salvador
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Ensenada
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Fortaleza
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Fort_Nelson
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Fort_Wayne
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Glace_Bay
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Godthab
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Goose_Bay
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Grand_Turk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Grenada
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Guadeloupe
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Guatemala
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Guayaquil
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Guyana
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Halifax
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Havana
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Hermosillo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Indianapolis
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Inuvik
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Iqaluit
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Jamaica
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Jujuy
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Juneau
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Knox_IN
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Kralendijk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\La_Paz
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Lima
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Los_Angeles
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Louisville
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Lower_Princes
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Maceio
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Managua
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Manaus
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Marigot
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Martinique
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Matamoros
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Mazatlan
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Mendoza
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Menominee
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Merida
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Metlakatla
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Mexico_City
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Miquelon
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Moncton
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Monterrey
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Montevideo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Montreal
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Montserrat
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Nassau
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\New_York
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Nipigon
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Nome
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Noronha
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Nuuk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Ojinaga
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Panama
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Pangnirtung
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Paramaribo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Phoenix
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Port-au-Prince
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Porto_Acre
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Porto_Velho
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Port_of_Spain
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Puerto_Rico
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Punta_Arenas
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Rainy_River
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Rankin_Inlet
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Recife
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Regina
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Resolute
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Rio_Branco
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Rosario
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Santarem
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Santa_Isabel
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Santiago
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Santo_Domingo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Sao_Paulo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Scoresbysund
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Shiprock
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Sitka
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\St_Barthelemy
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\St_Johns
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\St_Kitts
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\St_Lucia
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\St_Thomas
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\St_Vincent
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Swift_Current
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Tegucigalpa
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Thule
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Thunder_Bay
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Tijuana
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Toronto
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Tortola
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Vancouver
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Virgin
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Whitehorse
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Winnipeg
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Yakutat
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Yellowknife
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Argentina\Buenos_Aires
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Argentina\Catamarca
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Argentina\ComodRivadavia
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Argentina\Cordoba
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Argentina\Jujuy
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Argentina\La_Rioja
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Argentina\Mendoza
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Argentina\Rio_Gallegos
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Argentina\Salta
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Argentina\San_Juan
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Argentina\San_Luis
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Argentina\Tucuman
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Argentina\Ushuaia
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Indiana\Indianapolis
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Indiana\Knox
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Indiana\Marengo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Indiana\Petersburg
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Indiana\Tell_City
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Indiana\Vevay
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Indiana\Vincennes
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Indiana\Winamac
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Kentucky\Louisville
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\Kentucky\Monticello
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\North_Dakota\Beulah
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\North_Dakota\Center
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\America\North_Dakota\New_Salem
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Antarctica\Casey
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Antarctica\Davis
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Antarctica\DumontDUrville
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Antarctica\Macquarie
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Antarctica\Mawson
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Antarctica\McMurdo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Antarctica\Palmer
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Antarctica\Rothera
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Antarctica\South_Pole
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Antarctica\Syowa
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Antarctica\Troll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Antarctica\Vostok
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Arctic\Longyearbyen
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Aden
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Almaty
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Amman
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Anadyr
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Aqtau
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Aqtobe
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Ashgabat
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Ashkhabad
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Atyrau
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Baghdad
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Bahrain
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Baku
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Bangkok
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Barnaul
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Beirut
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Bishkek
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Brunei
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Calcutta
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Chita
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Choibalsan
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Chongqing
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Chungking
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Colombo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Dacca
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Damascus
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Dhaka
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Dili
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Dubai
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Dushanbe
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Famagusta
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Gaza
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Harbin
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Hebron
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Hong_Kong
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Hovd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Ho_Chi_Minh
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Irkutsk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Istanbul
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Jakarta
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Jayapura
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Jerusalem
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Kabul
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Kamchatka
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Karachi
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Kashgar
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Kathmandu
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Katmandu
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Khandyga
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Kolkata
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Krasnoyarsk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Kuala_Lumpur
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Kuching
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Kuwait
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Macao
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Macau
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Magadan
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Makassar
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Manila
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Muscat
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Nicosia
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Novokuznetsk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Novosibirsk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Omsk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Oral
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Phnom_Penh
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Pontianak
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Pyongyang
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Qatar
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Qostanay
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Qyzylorda
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Rangoon
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Riyadh
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Saigon
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Sakhalin
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Samarkand
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Seoul
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Shanghai
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Singapore
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Srednekolymsk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Taipei
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Tashkent
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Tbilisi
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Tehran
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Tel_Aviv
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Thimbu
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Thimphu
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Tokyo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Tomsk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Ujung_Pandang
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Ulaanbaatar
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Ulan_Bator
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Urumqi
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Ust-Nera
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Vientiane
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Vladivostok
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Yakutsk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Yangon
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Yekaterinburg
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Asia\Yerevan
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Atlantic\Azores
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Atlantic\Bermuda
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Atlantic\Canary
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Atlantic\Cape_Verde
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Atlantic\Faeroe
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Atlantic\Faroe
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Atlantic\Jan_Mayen
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Atlantic\Madeira
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Atlantic\Reykjavik
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Atlantic\South_Georgia
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Atlantic\Stanley
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Atlantic\St_Helena
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Australia\ACT
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Australia\Adelaide
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Australia\Brisbane
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Australia\Broken_Hill
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Australia\Canberra
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Australia\Currie
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Australia\Darwin
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Australia\Eucla
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Australia\Hobart
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Australia\LHI
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Australia\Lindeman
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Australia\Lord_Howe
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Australia\Melbourne
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Australia\North
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Australia\NSW
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Australia\Perth
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Australia\Queensland
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Australia\South
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Australia\Sydney
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Australia\Tasmania
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Australia\Victoria
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Australia\West
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Australia\Yancowinna
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Brazil\Acre
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Brazil\DeNoronha
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Brazil\East
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Brazil\West
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Canada\Atlantic
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Canada\Central
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Canada\Eastern
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Canada\Mountain
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Canada\Newfoundland
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Canada\Pacific
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Canada\Saskatchewan
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Canada\Yukon
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Chile\Continental
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Chile\EasterIsland
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT+0
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT+1
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT+10
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT+11
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT+12
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT+2
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT+3
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT+4
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT+5
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT+6
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT+7
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT+8
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT+9
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT-0
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT-1
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT-10
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT-11
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT-12
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT-13
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT-14
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT-2
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT-3
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT-4
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT-5
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT-6
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT-7
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT-8
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT-9
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\GMT0
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\Greenwich
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\UCT
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\Universal
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\UTC
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Etc\Zulu
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Amsterdam
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Andorra
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Astrakhan
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Athens
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Belfast
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Belgrade
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Berlin
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Bratislava
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Brussels
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Bucharest
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Budapest
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Busingen
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Chisinau
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Copenhagen
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Dublin
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Gibraltar
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Guernsey
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Helsinki
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Isle_of_Man
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Istanbul
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Jersey
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Kaliningrad
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Kiev
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Kirov
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Kyiv
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Lisbon
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Ljubljana
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\London
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Luxembourg
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Madrid
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Malta
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Mariehamn
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Minsk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Monaco
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Moscow
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Nicosia
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Oslo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Paris
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Podgorica
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Prague
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Riga
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Rome
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Samara
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\San_Marino
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Sarajevo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Saratov
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Simferopol
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Skopje
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Sofia
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Stockholm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Tallinn
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Tirane
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Tiraspol
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Ulyanovsk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Uzhgorod
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Vaduz
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Vatican
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Vienna
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Vilnius
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Volgograd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Warsaw
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Zagreb
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Zaporozhye
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Europe\Zurich
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Indian\Antananarivo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Indian\Chagos
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Indian\Christmas
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Indian\Cocos
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Indian\Comoro
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Indian\Kerguelen
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Indian\Mahe
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Indian\Maldives
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Indian\Mauritius
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Indian\Mayotte
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Indian\Reunion
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Mexico\BajaNorte
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Mexico\BajaSur
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Mexico\General
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Apia
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Auckland
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Bougainville
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Chatham
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Chuuk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Easter
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Efate
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Enderbury
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Fakaofo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Fiji
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Funafuti
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Galapagos
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Gambier
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Guadalcanal
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Guam
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Honolulu
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Johnston
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Kanton
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Kiritimati
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Kosrae
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Kwajalein
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Majuro
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Marquesas
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Midway
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Nauru
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Niue
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Norfolk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Noumea
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Pago_Pago
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Palau
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Pitcairn
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Pohnpei
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Ponape
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Port_Moresby
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Rarotonga
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Saipan
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Samoa
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Tahiti
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Tarawa
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Tongatapu
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Truk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Wake
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Wallis
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\Pacific\Yap
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\US\Alaska
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\US\Aleutian
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\US\Arizona
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\US\Central
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\US\East-Indiana
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\US\Eastern
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\US\Hawaii
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\US\Indiana-Starke
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\US\Michigan
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\US\Mountain
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\US\Pacific
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\pytz\zoneinfo\US\Samoa
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\setuptools\_vendor\importlib_metadata-8.7.1.dist-info\INSTALLER
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\setuptools\_vendor\importlib_metadata-8.7.1.dist-info\METADATA
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\setuptools\_vendor\importlib_metadata-8.7.1.dist-info\RECORD
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\setuptools\_vendor\importlib_metadata-8.7.1.dist-info\REQUESTED
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\setuptools\_vendor\importlib_metadata-8.7.1.dist-info\top_level.txt
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\setuptools\_vendor\importlib_metadata-8.7.1.dist-info\WHEEL
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\setuptools\_vendor\importlib_metadata-8.7.1.dist-info\licenses\LICENSE
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\setuptools\_vendor\jaraco\text\Lorem ipsum.txt
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\shiboken6\MSVCP140.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\shiboken6\MSVCP140_1.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\shiboken6\Shiboken.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\shiboken6\shiboken6.abi3.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\shiboken6\VCRUNTIME140.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\shiboken6\VCRUNTIME140_1.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\sqlalchemy\cyextension\collections.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\sqlalchemy\cyextension\immutabledict.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\sqlalchemy\cyextension\processors.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\sqlalchemy\cyextension\resultproxy.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\sqlalchemy\cyextension\util.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tokenizers\tokenizers.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tqdm-4.67.3.dist-info\entry_points.txt
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tqdm-4.67.3.dist-info\INSTALLER
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tqdm-4.67.3.dist-info\METADATA
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tqdm-4.67.3.dist-info\RECORD
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tqdm-4.67.3.dist-info\top_level.txt
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tqdm-4.67.3.dist-info\WHEEL
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tqdm-4.67.3.dist-info\licenses\LICENCE
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zones
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\CET
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\CST6CDT
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Cuba
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\EET
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Egypt
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Eire
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\EST
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\EST5EDT
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Factory
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\GB
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\GB-Eire
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\GMT
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\GMT+0
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\GMT-0
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\GMT0
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Greenwich
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Hongkong
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\HST
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Iceland
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Iran
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\iso3166.tab
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Israel
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Jamaica
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Japan
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Kwajalein
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\leapseconds
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Libya
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\MET
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\MST
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\MST7MDT
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Navajo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\NZ
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\NZ-CHAT
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Poland
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Portugal
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\PRC
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\PST8PDT
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\ROC
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\ROK
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Singapore
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Turkey
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\tzdata.zi
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\UCT
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Universal
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\UTC
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\W-SU
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\WET
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\zone.tab
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\zone1970.tab
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\zonenow.tab
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Zulu
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Abidjan
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Accra
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Addis_Ababa
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Algiers
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Asmara
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Asmera
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Bamako
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Bangui
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Banjul
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Bissau
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Blantyre
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Brazzaville
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Bujumbura
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Cairo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Casablanca
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Ceuta
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Conakry
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Dakar
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Dar_es_Salaam
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Djibouti
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Douala
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\El_Aaiun
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Freetown
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Gaborone
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Harare
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Johannesburg
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Juba
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Kampala
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Khartoum
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Kigali
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Kinshasa
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Lagos
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Libreville
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Lome
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Luanda
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Lubumbashi
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Lusaka
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Malabo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Maputo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Maseru
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Mbabane
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Mogadishu
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Monrovia
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Nairobi
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Ndjamena
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Niamey
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Nouakchott
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Ouagadougou
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Porto-Novo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Sao_Tome
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Timbuktu
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Tripoli
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Tunis
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Africa\Windhoek
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Adak
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Anchorage
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Anguilla
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Antigua
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Araguaina
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Aruba
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Asuncion
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Atikokan
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Atka
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Bahia
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Bahia_Banderas
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Barbados
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Belem
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Belize
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Blanc-Sablon
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Boa_Vista
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Bogota
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Boise
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Buenos_Aires
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Cambridge_Bay
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Campo_Grande
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Cancun
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Caracas
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Catamarca
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Cayenne
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Cayman
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Chicago
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Chihuahua
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Ciudad_Juarez
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Coral_Harbour
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Cordoba
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Costa_Rica
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Coyhaique
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Creston
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Cuiaba
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Curacao
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Danmarkshavn
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Dawson
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Dawson_Creek
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Denver
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Detroit
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Dominica
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Edmonton
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Eirunepe
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\El_Salvador
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Ensenada
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Fortaleza
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Fort_Nelson
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Fort_Wayne
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Glace_Bay
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Godthab
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Goose_Bay
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Grand_Turk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Grenada
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Guadeloupe
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Guatemala
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Guayaquil
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Guyana
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Halifax
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Havana
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Hermosillo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Indianapolis
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Inuvik
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Iqaluit
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Jamaica
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Jujuy
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Juneau
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Knox_IN
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Kralendijk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\La_Paz
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Lima
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Los_Angeles
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Louisville
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Lower_Princes
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Maceio
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Managua
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Manaus
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Marigot
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Martinique
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Matamoros
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Mazatlan
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Mendoza
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Menominee
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Merida
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Metlakatla
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Mexico_City
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Miquelon
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Moncton
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Monterrey
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Montevideo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Montreal
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Montserrat
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Nassau
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\New_York
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Nipigon
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Nome
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Noronha
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Nuuk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Ojinaga
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Panama
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Pangnirtung
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Paramaribo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Phoenix
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Port-au-Prince
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Porto_Acre
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Porto_Velho
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Port_of_Spain
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Puerto_Rico
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Punta_Arenas
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Rainy_River
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Rankin_Inlet
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Recife
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Regina
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Resolute
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Rio_Branco
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Rosario
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Santarem
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Santa_Isabel
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Santiago
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Santo_Domingo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Sao_Paulo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Scoresbysund
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Shiprock
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Sitka
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\St_Barthelemy
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\St_Johns
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\St_Kitts
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\St_Lucia
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\St_Thomas
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\St_Vincent
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Swift_Current
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Tegucigalpa
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Thule
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Thunder_Bay
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Tijuana
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Toronto
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Tortola
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Vancouver
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Virgin
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Whitehorse
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Winnipeg
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Yakutat
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Yellowknife
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Argentina\Buenos_Aires
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Argentina\Catamarca
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Argentina\ComodRivadavia
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Argentina\Cordoba
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Argentina\Jujuy
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Argentina\La_Rioja
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Argentina\Mendoza
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Argentina\Rio_Gallegos
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Argentina\Salta
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Argentina\San_Juan
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Argentina\San_Luis
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Argentina\Tucuman
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Argentina\Ushuaia
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Indiana\Indianapolis
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Indiana\Knox
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Indiana\Marengo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Indiana\Petersburg
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Indiana\Tell_City
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Indiana\Vevay
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Indiana\Vincennes
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Indiana\Winamac
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Kentucky\Louisville
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\Kentucky\Monticello
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\North_Dakota\Beulah
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\North_Dakota\Center
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\America\North_Dakota\New_Salem
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Antarctica\Casey
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Antarctica\Davis
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Antarctica\DumontDUrville
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Antarctica\Macquarie
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Antarctica\Mawson
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Antarctica\McMurdo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Antarctica\Palmer
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Antarctica\Rothera
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Antarctica\South_Pole
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Antarctica\Syowa
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Antarctica\Troll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Antarctica\Vostok
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Arctic\Longyearbyen
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Aden
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Almaty
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Amman
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Anadyr
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Aqtau
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Aqtobe
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Ashgabat
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Ashkhabad
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Atyrau
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Baghdad
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Bahrain
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Baku
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Bangkok
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Barnaul
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Beirut
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Bishkek
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Brunei
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Calcutta
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Chita
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Choibalsan
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Chongqing
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Chungking
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Colombo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Dacca
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Damascus
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Dhaka
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Dili
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Dubai
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Dushanbe
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Famagusta
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Gaza
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Harbin
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Hebron
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Hong_Kong
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Hovd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Ho_Chi_Minh
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Irkutsk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Istanbul
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Jakarta
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Jayapura
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Jerusalem
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Kabul
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Kamchatka
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Karachi
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Kashgar
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Kathmandu
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Katmandu
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Khandyga
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Kolkata
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Krasnoyarsk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Kuala_Lumpur
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Kuching
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Kuwait
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Macao
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Macau
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Magadan
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Makassar
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Manila
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Muscat
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Nicosia
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Novokuznetsk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Novosibirsk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Omsk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Oral
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Phnom_Penh
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Pontianak
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Pyongyang
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Qatar
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Qostanay
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Qyzylorda
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Rangoon
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Riyadh
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Saigon
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Sakhalin
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Samarkand
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Seoul
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Shanghai
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Singapore
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Srednekolymsk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Taipei
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Tashkent
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Tbilisi
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Tehran
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Tel_Aviv
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Thimbu
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Thimphu
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Tokyo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Tomsk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Ujung_Pandang
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Ulaanbaatar
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Ulan_Bator
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Urumqi
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Ust-Nera
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Vientiane
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Vladivostok
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Yakutsk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Yangon
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Yekaterinburg
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Asia\Yerevan
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Atlantic\Azores
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Atlantic\Bermuda
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Atlantic\Canary
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Atlantic\Cape_Verde
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Atlantic\Faeroe
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Atlantic\Faroe
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Atlantic\Jan_Mayen
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Atlantic\Madeira
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Atlantic\Reykjavik
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Atlantic\South_Georgia
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Atlantic\Stanley
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Atlantic\St_Helena
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Australia\ACT
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Australia\Adelaide
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Australia\Brisbane
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Australia\Broken_Hill
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Australia\Canberra
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Australia\Currie
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Australia\Darwin
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Australia\Eucla
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Australia\Hobart
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Australia\LHI
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Australia\Lindeman
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Australia\Lord_Howe
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Australia\Melbourne
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Australia\North
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Australia\NSW
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Australia\Perth
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Australia\Queensland
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Australia\South
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Australia\Sydney
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Australia\Tasmania
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Australia\Victoria
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Australia\West
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Australia\Yancowinna
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Brazil\Acre
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Brazil\DeNoronha
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Brazil\East
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Brazil\West
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Canada\Atlantic
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Canada\Central
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Canada\Eastern
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Canada\Mountain
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Canada\Newfoundland
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Canada\Pacific
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Canada\Saskatchewan
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Canada\Yukon
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Chile\Continental
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Chile\EasterIsland
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT+0
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT+1
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT+10
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT+11
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT+12
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT+2
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT+3
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT+4
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT+5
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT+6
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT+7
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT+8
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT+9
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT-0
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT-1
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT-10
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT-11
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT-12
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT-13
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT-14
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT-2
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT-3
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT-4
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT-5
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT-6
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT-7
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT-8
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT-9
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\GMT0
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\Greenwich
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\UCT
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\Universal
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\UTC
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Etc\Zulu
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Amsterdam
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Andorra
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Astrakhan
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Athens
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Belfast
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Belgrade
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Berlin
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Bratislava
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Brussels
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Bucharest
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Budapest
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Busingen
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Chisinau
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Copenhagen
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Dublin
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Gibraltar
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Guernsey
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Helsinki
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Isle_of_Man
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Istanbul
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Jersey
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Kaliningrad
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Kiev
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Kirov
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Kyiv
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Lisbon
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Ljubljana
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\London
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Luxembourg
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Madrid
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Malta
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Mariehamn
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Minsk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Monaco
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Moscow
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Nicosia
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Oslo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Paris
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Podgorica
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Prague
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Riga
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Rome
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Samara
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\San_Marino
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Sarajevo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Saratov
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Simferopol
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Skopje
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Sofia
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Stockholm
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Tallinn
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Tirane
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Tiraspol
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Ulyanovsk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Uzhgorod
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Vaduz
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Vatican
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Vienna
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Vilnius
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Volgograd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Warsaw
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Zagreb
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Zaporozhye
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Europe\Zurich
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Indian\Antananarivo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Indian\Chagos
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Indian\Christmas
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Indian\Cocos
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Indian\Comoro
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Indian\Kerguelen
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Indian\Mahe
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Indian\Maldives
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Indian\Mauritius
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Indian\Mayotte
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Indian\Reunion
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Mexico\BajaNorte
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Mexico\BajaSur
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Mexico\General
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Apia
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Auckland
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Bougainville
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Chatham
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Chuuk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Easter
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Efate
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Enderbury
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Fakaofo
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Fiji
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Funafuti
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Galapagos
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Gambier
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Guadalcanal
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Guam
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Honolulu
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Johnston
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Kanton
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Kiritimati
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Kosrae
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Kwajalein
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Majuro
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Marquesas
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Midway
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Nauru
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Niue
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Norfolk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Noumea
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Pago_Pago
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Palau
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Pitcairn
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Pohnpei
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Ponape
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Port_Moresby
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Rarotonga
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Saipan
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Samoa
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Tahiti
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Tarawa
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Tongatapu
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Truk
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Wake
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Wallis
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\Pacific\Yap
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\US\Alaska
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\US\Aleutian
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\US\Arizona
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\US\Central
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\US\East-Indiana
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\US\Eastern
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\US\Hawaii
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\US\Indiana-Starke
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\US\Michigan
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\US\Mountain
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\US\Pacific
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\tzdata\zoneinfo\US\Samoa
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\yaml\_yaml.cp312-win_amd64.pyd
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\_sounddevice_data\portaudio-binaries\libportaudio64bit-asio.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\_sounddevice_data\portaudio-binaries\libportaudio64bit.dll
+   Compressing: G:\Repo\aye-hear\dist\AyeHear\_internal\_sounddevice_data\portaudio-binaries\README.md
+   Compressing: G:\Repo\aye-hear\build\installer\runtime-install-notes.txt
+   Compressing: G:\Repo\aye-hear\build\installer\..\..\tools\scripts\Install-PostgresRuntime.ps1
+   Compressing: G:\Repo\aye-hear\build\installer\..\..\tools\scripts\Start-AyeHearRuntime.ps1
+   Compressing Setup program executable
+   Updating version info (Setup.exe)
+   Updating manifest (Setup.exe)
+
+
+Successful compile (76,734 sec). Resulting Setup program filename is:
+G:\Repo\aye-hear\dist\AyeHear-Setup-0.6.8.exe
