@@ -153,15 +153,16 @@ class DatabaseBootstrap:
             },
         )
         # Disable automatic schema creation — migrations own the schema
-        # Add event listener for disconnect events to prevent cascading failures
+        # Add pool-level event listener for disconnect events (HEAR-168 diagnostic aid).
+        # Must be registered on engine.pool, not engine directly.
         try:
-            @event.listens_for(engine, "disconnect")
+            @event.listens_for(engine.pool, "disconnect")
             def receive_disconnect(dbapi_conn, connection_record):
-                """Handle premature disconnections (e.g. server restart, network failure)."""
-                logger.debug("Database connection lost; will reconnect on next access.")
+                """Log premature disconnections (e.g. server restart, network failure)."""
+                logger.warning("DB pool: connection disconnected unexpectedly; will reconnect on next checkout.")
         except Exception as exc:
-            # Skip event registration if engine doesn't support it (e.g. mocked in tests)
-            logger.debug("Could not register disconnect event listener: %s", exc)
+            # Skip event registration if pool doesn't support it (e.g. mocked in tests)
+            logger.debug("Could not register pool disconnect event listener: %s", exc)
         
         return engine
 

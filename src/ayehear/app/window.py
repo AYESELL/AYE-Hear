@@ -770,10 +770,33 @@ class MainWindow(QMainWindow):
                 meeting_persisted = True
                 logger.info("Meeting persisted to DB: %s", meeting_id)
             except Exception as exc:
+                # HEAR-168: Temporarily lift the transaction guard so the error handler
+                # can call _reload_persistence_layer() and attempt a reconnect.
+                # The guard exists to prevent the readiness timer from interfering;
+                # the failed transaction is already dead so the guard no longer protects anything.
+                self._persistence_transaction_active = False
                 self._handle_persistence_error(
                     "Failed to persist meeting to DB; using in-memory id",
                     exc,
                 )
+                # If recovery succeeded, _meeting_repo is restored (not None).
+                # Retry the INSERT exactly once with the fresh session.
+                if self._meeting_repo is not None:
+                    try:
+                        db_meeting = self._meeting_repo.create(
+                            title=title,
+                            meeting_type=self._meeting_type.currentText(),
+                            mode=self._meeting_type.currentText(),
+                        )
+                        self._meeting_repo.start(db_meeting.id)
+                        meeting_id = db_meeting.id
+                        meeting_persisted = True
+                        logger.info("Meeting persisted to DB after reconnect: %s", meeting_id)
+                    except Exception as retry_exc:
+                        logger.warning("Retry after reconnect also failed: %s", retry_exc)
+                        self._disable_persistence("Failed to persist meeting to DB after reconnect")
+                # Re-arm the guard: the commit block below still needs it.
+                self._persistence_transaction_active = True
 
         if meeting_persisted and self._participant_repo is not None and self._session is not None:
             # Build participant_id_map: list-item UUID -> DB Participant.id
