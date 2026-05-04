@@ -974,9 +974,17 @@ class MainWindow(QMainWindow):
         self._mic_level_widget.set_initializing()
         try:
             profile = self._selected_audio_profile()
+            # HEAR-168: resolve wav_output_dir against install root so that the
+            # relative path "runtime/wav" maps to <install_root>/runtime/wav
+            # instead of <CWD>/runtime/wav (which for packaged EXE = app/).
+            from ayehear.utils.paths import resolve_install_root as _resolve_root
+            _wav_dir_raw = self.runtime_config.privacy.wav_output_dir
+            _wav_path = Path(_wav_dir_raw)
+            if not _wav_path.is_absolute():
+                _wav_path = _resolve_root() / _wav_path
             wav_config = WavPersistenceConfig(
                 enabled=self.runtime_config.privacy.wav_persistence_enabled,
-                output_dir=Path(self.runtime_config.privacy.wav_output_dir),
+                output_dir=_wav_path,
                 delete_on_meeting_end=self.runtime_config.privacy.wav_delete_on_meeting_end,
                 retention_days=self.runtime_config.privacy.wav_retention_days,
             )
