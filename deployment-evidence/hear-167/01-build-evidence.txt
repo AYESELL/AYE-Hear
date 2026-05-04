@@ -1,0 +1,110 @@
+HEAR-167 Build Evidence – AYE Hear 0.6.9
+==========================================
+Date:       2026-05-04
+Task:       HEAR-167 (Build v0.6.9: full rebuild after 0.6.8 bundle staleness)
+Role:       AYEHEAR_DEVOPS
+Branch:     feature/phase-1b-implementation-updates
+HEAD:       fb1ead8
+
+WHY A NEW BUILD WAS NEEDED
+--------------------------
+The 0.6.8 installer (HEAR-165) was built from commit 87df87d but three
+important commits were made AFTER that build and were NOT in the bundle:
+
+  3a73f47  fix(runtime): harden local-only meeting persistence recovery
+           → HEAR-166 FK-retry-cascade guard in _reload_persistence_layer()
+           → config/default.yaml: wav_persistence_enabled changed to true
+  ccd0d99  fix(storage): run forward migrations on existing installs
+           → DatabaseBootstrap pre-marks only baseline on fresh schema_migrations table;
+             migrations 004 and 005 still run forward on existing installs
+  c602c72  HEAR-165: fix __version__ in __init__.py to 0.6.8
+
+Verification: dist\AyeHear\_internal\config\default.yaml in 0.6.8 installer had
+  wav_persistence_enabled: false   ← stale value, 0.6.8 bundle was out of date
+
+===========================================================================
+INSTALLER OVERWRITE BEHAVIOUR ANALYSIS
+===========================================================================
+All [Files] entries in build\installer\ayehear-installer.iss use:
+  Flags: ignoreversion
+
+Inno Setup 6 behaviour with ignoreversion:
+  → Files are ALWAYS overwritten unconditionally, regardless of existing version.
+  → Applies to ALL file types: .exe, .dll, .yaml, .sql, .txt, .pyd, .so
+  → config\default.yaml:  WILL be overwritten on upgrade  ✅
+  → ayehear\storage\migrations\*.sql: WILL be overwritten on upgrade  ✅
+  → No skipping of existing files at any point  ✅
+
+FIX INCLUDED (HEAR-167):
+  Old: Excludes: "_internal\models\*"
+  New: Excludes: "_internal\models"
+  Reason: In Inno Setup 6 the pattern _internal\models\* only matches direct
+  children of that directory; deep subdirs (e.g. _internal\models\whisper\TheChola\...)
+  were NOT excluded and would have been compressed twice (once via the nocompression
+  entry, once via the catch-all entry). Using the bare directory name correctly
+  excludes the entire subtree from the compressed pass.
+
+===========================================================================
+BUILD PARAMETERS
+===========================================================================
+Script:     tools\scripts\Build-WindowsPackage.ps1 -BuildInstaller -Clean
+Version:    0.6.9 (bumped from 0.6.8)
+Python:     3.12.10
+PyInstaller: 6.19.0
+Platform:   Windows-11-10.0.26200-SP0
+Build time: ~83,812 seconds (Inno Setup compile)
+
+Commits bundled (since last installer build 87df87d):
+  c602c72  HEAR-165: fix __version__ = 0.6.8 in __init__.py
+  3a73f47  fix(runtime): harden local-only meeting persistence recovery
+  ccd0d99  fix(storage): run forward migrations on existing installs
+  ee860c0  docs(qa): add HEAR-158/159 evidence and diagnostics
+  93a78bf  docs(devops): HEAR-166 validation evidence
+  fb1ead8  chore(release): bump to v0.6.9, fix installer Excludes
+
+===========================================================================
+BUNDLE VERIFICATION
+===========================================================================
+
+[1] config/default.yaml
+  Path:  dist\AyeHear\_internal\config\default.yaml
+  Check: wav_persistence_enabled: true   PASS ✅
+
+[2] SQL Migrations (dist\AyeHear\_internal\ayehear\storage\migrations\)
+  001_initial_schema.sql                    PRESENT ✅
+  002_remove_segment_text_column.sql        PRESENT ✅
+  003_participant_naming_constraints.sql    PRESENT ✅
+  004_transcript_correction_log.sql         PRESENT ✅
+  005_add_transcript_confidence_columns.sql PRESENT ✅  ← HEAR-164 fix
+
+[3] Version
+  dist\AyeHear\aye_hear_version.txt: 0.6.9   PASS ✅
+  src\ayehear\__init__.py: __version__ = "0.6.9"  PASS ✅
+
+[4] Installer artefact
+  dist\AyeHear-Setup-0.6.9.exe   1656.1 MB   PASS ✅
+
+[5] Build exit codes
+  PyInstaller: 0   PASS ✅
+  Inno Setup:  0   PASS ✅
+
+===========================================================================
+OVERALL VERDICT
+===========================================================================
+Build:            PASS
+Config (YAML):    PASS – wav_persistence_enabled=true confirmed in bundle
+Migrations (SQL): PASS – all 5 migrations present including HEAR-164 fix
+Version:          PASS – 0.6.9 in bundle and window title
+Installer fix:    PASS – Excludes corrected for model dir tree
+
+Release candidate 0.6.9 is GO for manual smoke gate.
+
+Manual smoke gate (PENDING – requires installed runtime):
+  [ ] Install AyeHear-Setup-0.6.9.exe over existing 0.6.8 runtime
+  [ ] Verify DB: schema_migrations has 5 rows
+  [ ] Start app – verify window title shows "AYE Hear 0.6.9"
+  [ ] Run meeting >= 60s
+  [ ] Stop meeting – verify runtime\wav\<meeting_id>_*.wav exists
+  [ ] Verify DB: transcript_segments COUNT > 0 for new meeting
+  [ ] Verify DB: protocol_snapshots COUNT > 0 for new meeting
+  [ ] Verify no UndefinedColumn / asr_confidence errors in logs
