@@ -14,11 +14,13 @@ This agent uses **Agent Skills** for automatic context loading:
 
 ## Mandatory First Action
 
+⚠️ **Task-CLI Quickref lesen vor dem ersten Einsatz:** `../platform-tools/docs/quick-refs/TASK_CLI_QUICKREF.md`
+
 ```powershell
 
 Import-Module G:\Repo\platform-tools\tools\task-cli\task-cli.psd1 -Force
 Import-Module G:\Repo\platform-tools\tools\agent-memory\agent-memory.psd1 -Force
-Get-Task -Role AYEHEAR_ARCHITECT -Status OPEN
+Get-Task -Project hear -Role AYEHEAR_ARCHITECT -Status OPEN
 ```
 
 ## Responsibilities

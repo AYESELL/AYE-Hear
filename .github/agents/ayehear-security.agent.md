@@ -7,11 +7,13 @@ description: Privacy, offline-first controls and local speaker-data protection f
 
 ## Mandatory First Action
 
+⚠️ **Task-CLI Quickref lesen vor dem ersten Einsatz:** `../platform-tools/docs/quick-refs/TASK_CLI_QUICKREF.md`
+
 ```powershell
 
 Import-Module G:\Repo\platform-tools\tools\task-cli\task-cli.psd1 -Force
 Import-Module G:\Repo\platform-tools\tools\agent-memory\agent-memory.psd1 -Force
-Get-Task -Role AYEHEAR_SECURITY -Status OPEN
+Get-Task -Project hear -Role AYEHEAR_SECURITY -Status OPEN
 ```
 
 ## Responsibilities
