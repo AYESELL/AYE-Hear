@@ -28,6 +28,8 @@ protocol:
 models:
   whisper_profile: balanced
   whisper_model: TheChola/whisper-large-v3-turbo-german-faster-whisper
+  whisper_model_by_language:
+    de: TheChola/whisper-large-v3-turbo-german-faster-whisper
   ollama_model: mistral:7b
 
 # Privacy / Retention controls (ADR-0015, HEAR-142, HEAR-156)

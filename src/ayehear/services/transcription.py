@@ -178,6 +178,14 @@ class TranscriptionService:
     def active_profile(self) -> str:
         return self.profile
 
+    def configure(self, *, model_name: str, language: str) -> None:
+        """Apply ASR language/model updates; force lazy reload when model changes."""
+        if self.model_name != model_name:
+            self.model_name = model_name
+            self._model = None
+            self._model_ready.clear()
+        self.language = language
+
     def set_profile(self, profile: str) -> None:
         if profile not in _PROFILES:
             raise ValueError(f"Unknown profile '{profile}'. Valid: {list(_PROFILES)}")

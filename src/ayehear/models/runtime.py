@@ -59,6 +59,7 @@ class ProtocolSettings(BaseModel):
 class ModelSettings(BaseModel):
     whisper_profile: str = "balanced"
     whisper_model: str = "TheChola/whisper-large-v3-turbo-german-faster-whisper"
+    whisper_model_by_language: dict[str, str] = Field(default_factory=dict)
     ollama_model: str = "mistral:7b"
 
 

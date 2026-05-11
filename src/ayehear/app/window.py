@@ -49,6 +49,7 @@ from ayehear.services.audio_capture import (
     WavPersistenceConfig,
     enumerate_input_devices,
 )
+from ayehear.services.asr_language import AsrResolution, resolve_asr_language_and_model
 from ayehear.services.protocol_engine import ProtocolEngine
 from ayehear.services.speaker_manager import SpeakerManager
 from ayehear.services.transcription import AdaptiveTranscriptionQueue, TranscriptionService
@@ -108,10 +109,11 @@ class MainWindow(QMainWindow):
         self._active_meeting_id: str | None = None
         self._session: MeetingSession | None = None
         self._audio_capture_service: AudioCaptureService | None = None
+        initial_asr = self._resolve_asr_configuration(self.runtime_config.protocol.language)
         self._transcription_service = TranscriptionService(
-            model_name=self.runtime_config.models.whisper_model,
+            model_name=initial_asr.asr_model_name,
             profile=self.runtime_config.models.whisper_profile,
-            language="de",
+            language=initial_asr.asr_language,
             transcript_repo=transcript_repo,
         )
         # HEAR-160: Start background ASR model warm-up immediately at app start.
@@ -563,13 +565,30 @@ class MainWindow(QMainWindow):
     # HEAR-093: Protocol language change handler
     def _on_protocol_language_changed(self, _index: int) -> None:
         """Propagate selected protocol language to i18n and protocol generation."""
+        if self._active_meeting_id is not None:
+            idx = self._protocol_language.findData(self.runtime_config.protocol.language)
+            if idx >= 0:
+                self._protocol_language.blockSignals(True)
+                self._protocol_language.setCurrentIndex(idx)
+                self._protocol_language.blockSignals(False)
+            logger.debug("Protocol/ASR language change ignored during active meeting.")
+            return
+
         selected_language = resolve_language(str(self._protocol_language.currentData() or "de"))
         self.runtime_config.protocol.language = selected_language
         self.runtime_config.protocol.protocol_language = selected_language
+        resolved_asr = self._resolve_asr_configuration(selected_language)
+        self._transcription_service.configure(
+            model_name=resolved_asr.asr_model_name,
+            language=resolved_asr.asr_language,
+        )
         self._translator.set_language(selected_language)
         self._protocol_engine.set_language(selected_language)
         self._retranslate_ui()
         logger.debug("Protocol/UI language set to: %s", selected_language)
+
+    def _resolve_asr_configuration(self, requested_language: str | None) -> AsrResolution:
+        return resolve_asr_language_and_model(requested_language, self.runtime_config.models)
 
     def _retranslate_ui(self) -> None:
         self._header_label.setText(self._tr("ui.app.workspace_title"))
@@ -815,6 +834,24 @@ class MainWindow(QMainWindow):
             )
             return
 
+        selected_language = resolve_language(str(self._protocol_language.currentData() or self.runtime_config.protocol.language))
+        self.runtime_config.protocol.language = selected_language
+        self.runtime_config.protocol.protocol_language = selected_language
+        self._translator.set_language(selected_language)
+        self._protocol_engine.set_language(selected_language)
+
+        resolved_asr = self._resolve_asr_configuration(selected_language)
+        self._transcription_service.configure(
+            model_name=resolved_asr.asr_model_name,
+            language=resolved_asr.asr_language,
+        )
+        logger.info(
+            "ASR selection resolved on meeting start: selected_language=%s asr_language=%s asr_model=%s",
+            selected_language,
+            resolved_asr.asr_language,
+            resolved_asr.asr_model_name,
+        )
+
         import uuid
 
         participants: list[Participant] = []
@@ -977,6 +1014,7 @@ class MainWindow(QMainWindow):
         self._meeting_status_label.setStyleSheet("font-weight: 700; color: #16A34A;")
         self._start_meeting_btn.setEnabled(False)
         self._stop_meeting_btn.setEnabled(True)
+        self._protocol_language.setEnabled(False)
         # HEAR-075: enable export while meeting is active
         self._export_btn.setEnabled(True)
         self._export_path_label.setText("")
@@ -1020,6 +1058,7 @@ class MainWindow(QMainWindow):
         self._meeting_status_label.setStyleSheet("font-weight: 600; color: #64748B;")
         self._start_meeting_btn.setEnabled(True)
         self._stop_meeting_btn.setEnabled(False)
+        self._protocol_language.setEnabled(True)
         # HEAR-075: keep export accessible after recording stops
         # (export button stays enabled so user can export the final protocol)
         self.append_transcript_line(self._tr("ui.meeting.stopped.line"))
