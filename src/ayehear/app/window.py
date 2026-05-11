@@ -212,29 +212,31 @@ class MainWindow(QMainWindow):
         form = QFormLayout(self._meeting_box)
 
         self._meeting_title = QLineEdit()
-        form.addRow(self._tr("ui.setup.meeting_title_label"), self._meeting_title)
+        self._meeting_title_label = QLabel(self._tr("ui.setup.meeting_title_label"))
+        form.addRow(self._meeting_title_label, self._meeting_title)
 
         self._meeting_type = QComboBox()
-        self._meeting_type.addItems(self.runtime_config.protocol.meeting_modes)
-        form.addRow(self._tr("ui.setup.meeting_type_label"), self._meeting_type)
+        self._meeting_type_label = QLabel(self._tr("ui.setup.meeting_type_label"))
+        self._populate_meeting_type_options()
+        form.addRow(self._meeting_type_label, self._meeting_type)
 
         self._participant_count = QSpinBox()
         self._participant_count.setRange(1, 30)
         self._participant_count.setValue(2)
-        form.addRow(self._tr("ui.setup.participants_label"), self._participant_count)
+        self._participants_label = QLabel(self._tr("ui.setup.participants_label"))
+        form.addRow(self._participants_label, self._participant_count)
 
         self._naming_template = QComboBox()
-        self._naming_template.addItems([
-            self._tr("ui.setup.template.with_salutation"),
-            self._tr("ui.setup.template.with_full_name"),
-        ])
-        form.addRow(self._tr("ui.setup.participant_template_label"), self._naming_template)
+        self._participant_template_label = QLabel(self._tr("ui.setup.participant_template_label"))
+        self._populate_naming_template_options()
+        form.addRow(self._participant_template_label, self._naming_template)
 
         # HEAR-039: real Windows device selector
         self._audio_device = QComboBox()
         self._audio_device.addItem(self._tr("ui.setup.audio.default_microphone"), userData=None)
         self._populate_audio_devices()
-        form.addRow(self._tr("ui.setup.audio_input_label"), self._audio_device)
+        self._audio_input_label = QLabel(self._tr("ui.setup.audio_input_label"))
+        form.addRow(self._audio_input_label, self._audio_device)
 
         # HEAR-093/HEAR-185: protocol language selection is the single source
         # of truth for both UI and protocol language in phase 1.
@@ -242,20 +244,11 @@ class MainWindow(QMainWindow):
         supported_languages = self.runtime_config.protocol.supported_languages
         if not supported_languages:
             supported_languages = ["de", "en"]
-        for language_code in supported_languages:
-            code = resolve_language(language_code)
-            label_key = f"ui.language.option.{code}"
-            self._protocol_language.addItem(self._tr(label_key), userData=code)
-
-        default_lang = resolve_language(self.runtime_config.protocol.language)
-        default_idx = self._protocol_language.findData(default_lang)
-        if default_idx < 0:
-            default_idx = self._protocol_language.findData("de")
-        if default_idx >= 0:
-            self._protocol_language.setCurrentIndex(default_idx)
+        self._protocol_language_label = QLabel(self._tr("ui.setup.protocol_language_label"))
+        self._populate_protocol_language_options(resolve_language(self.runtime_config.protocol.language))
 
         self._protocol_language.currentIndexChanged.connect(self._on_protocol_language_changed)
-        form.addRow(self._tr("ui.setup.protocol_language_label"), self._protocol_language)
+        form.addRow(self._protocol_language_label, self._protocol_language)
 
         layout.addWidget(self._meeting_box)
 
@@ -331,6 +324,7 @@ class MainWindow(QMainWindow):
         layout.addWidget(self._meeting_status_label)
         # HEAR-044: live mic state + level meter
         self._mic_level_widget = MicLevelWidget()
+        self._mic_level_widget.set_translator(self._tr)
         layout.addWidget(self._mic_level_widget)
         controls = QHBoxLayout()
         self._start_meeting_btn = QPushButton(self._tr("ui.meeting.button.start"))
@@ -357,13 +351,67 @@ class MainWindow(QMainWindow):
     def _populate_audio_devices(self) -> None:
         """Fill the Audio Input dropdown with available Windows capture devices."""
         devices = enumerate_input_devices()
+        self._audio_device.clear()
         if devices:
-            self._audio_device.clear()
             for idx, name in devices:
                 self._audio_device.addItem(name, userData=idx)
+        else:
+            self._audio_device.addItem(self._tr("ui.setup.audio.default_microphone"), userData=None)
         # If no devices found the fallback item set during construction remains.
         # HEAR-087: refresh readiness after devices are enumerated
         QTimer.singleShot(0, self._refresh_readiness)
+
+    def _populate_meeting_type_options(self, current_mode: str | None = None) -> None:
+        if current_mode is None:
+            current_mode = str(self._meeting_type.currentData() or self._meeting_type.currentText() or "").strip()
+        canonical_current = current_mode.lower()
+        self._meeting_type.blockSignals(True)
+        self._meeting_type.clear()
+        for raw_mode in self.runtime_config.protocol.meeting_modes:
+            mode = str(raw_mode).strip()
+            canonical = mode.lower()
+            localized = self._tr(f"ui.setup.meeting_mode.{canonical}", fallback=mode)
+            self._meeting_type.addItem(localized, userData=canonical)
+        target_idx = self._meeting_type.findData(canonical_current)
+        if target_idx < 0:
+            target_idx = 0
+        if target_idx >= 0:
+            self._meeting_type.setCurrentIndex(target_idx)
+        self._meeting_type.blockSignals(False)
+
+    def _populate_naming_template_options(self, selected_index: int | None = None) -> None:
+        if selected_index is None:
+            selected_index = self._naming_template.currentIndex()
+        self._naming_template.blockSignals(True)
+        self._naming_template.clear()
+        self._naming_template.addItems([
+            self._tr("ui.setup.template.with_salutation"),
+            self._tr("ui.setup.template.with_full_name"),
+        ])
+        if selected_index < 0:
+            selected_index = 0
+        if selected_index < self._naming_template.count():
+            self._naming_template.setCurrentIndex(selected_index)
+        self._naming_template.blockSignals(False)
+
+    def _populate_protocol_language_options(self, current_language: str | None = None) -> None:
+        if current_language is None:
+            current_language = str(self._protocol_language.currentData() or self.runtime_config.protocol.language)
+        supported_languages = self.runtime_config.protocol.supported_languages or ["de", "en"]
+        selected = resolve_language(current_language)
+        self._protocol_language.blockSignals(True)
+        self._protocol_language.clear()
+        for language_code in supported_languages:
+            code = resolve_language(language_code)
+            self._protocol_language.addItem(self._tr(f"ui.language.option.{code}"), userData=code)
+        target_idx = self._protocol_language.findData(selected)
+        if target_idx < 0:
+            target_idx = self._protocol_language.findData("de")
+        if target_idx < 0:
+            target_idx = 0
+        if target_idx >= 0:
+            self._protocol_language.setCurrentIndex(target_idx)
+        self._protocol_language.blockSignals(False)
 
     def _selected_audio_profile(self) -> AudioCaptureProfile:
         """Return an AudioCaptureProfile for the selected input device (HEAR-039).
@@ -374,6 +422,12 @@ class MainWindow(QMainWindow):
         """
         device_index: int | None = self._audio_device.currentData()
         return AudioCaptureProfile(device_index=device_index)
+
+    def _selected_meeting_mode(self) -> str:
+        mode = self._meeting_type.currentData()
+        if mode is None:
+            mode = self._meeting_type.currentText()
+        return str(mode).strip() or "internal"
 
     # ------------------------------------------------------------------
     # HEAR-087: system readiness
@@ -593,6 +647,15 @@ class MainWindow(QMainWindow):
     def _retranslate_ui(self) -> None:
         self._header_label.setText(self._tr("ui.app.workspace_title"))
         self._meeting_box.setTitle(self._tr("ui.setup.group_title"))
+        self._meeting_title_label.setText(self._tr("ui.setup.meeting_title_label"))
+        self._meeting_type_label.setText(self._tr("ui.setup.meeting_type_label"))
+        self._participants_label.setText(self._tr("ui.setup.participants_label"))
+        self._participant_template_label.setText(self._tr("ui.setup.participant_template_label"))
+        self._audio_input_label.setText(self._tr("ui.setup.audio_input_label"))
+        self._protocol_language_label.setText(self._tr("ui.setup.protocol_language_label"))
+        self._populate_meeting_type_options(self._selected_meeting_mode())
+        self._populate_naming_template_options(self._naming_template.currentIndex())
+        self._populate_protocol_language_options(self.runtime_config.protocol.language)
         self._speakers_box.setTitle(self._tr("ui.speaker.group_title"))
         self._speaker_help_label.setText(self._tr("ui.speaker.help_format"))
         self._add_speaker_btn.setText(self._tr("ui.speaker.button.add"))
@@ -606,6 +669,7 @@ class MainWindow(QMainWindow):
         self._start_meeting_btn.setText(self._tr("ui.meeting.button.start"))
         self._stop_meeting_btn.setText(self._tr("ui.meeting.button.stop"))
         self._show_state_btn.setText(self._tr("ui.meeting.button.show_state"))
+        self._mic_level_widget.set_translator(self._tr)
         if hasattr(self, "_transcript_group"):
             self._transcript_group.setTitle(self._tr("ui.transcript.group_title"))
         if hasattr(self, "_transcript_meta_label"):
@@ -801,7 +865,11 @@ class MainWindow(QMainWindow):
                 item.setText(f"{name} | {org} | enrollment failed")
         enrolled_count = len(enrolled)
         self._set_speaker_status(
-            f"Enrollment abgeschlossen: {enrolled_count}/{len(pending)} Sprecher registriert."
+            self._tr(
+                "ui.speaker.status.enrollment_complete",
+                done=enrolled_count,
+                total=len(pending),
+            )
         )
 
     @staticmethod
@@ -867,11 +935,12 @@ class MainWindow(QMainWindow):
             )
 
         device_label = self._audio_device.currentText()
+        meeting_mode = self._selected_meeting_mode()
 
         self._session = MeetingSession(
             title=title,
-            mode=self._meeting_type.currentText(),
-            meeting_type=self._meeting_type.currentText(),
+            mode=meeting_mode,
+            meeting_type=meeting_mode,
             participants=participants,
             started_at=datetime.now(),
         )
@@ -889,8 +958,8 @@ class MainWindow(QMainWindow):
             try:
                 db_meeting = self._meeting_repo.create(
                     title=title,
-                    meeting_type=self._meeting_type.currentText(),
-                    mode=self._meeting_type.currentText(),
+                    meeting_type=meeting_mode,
+                    mode=meeting_mode,
                 )
                 self._meeting_repo.start(db_meeting.id)
                 meeting_id = db_meeting.id
@@ -912,8 +981,8 @@ class MainWindow(QMainWindow):
                     try:
                         db_meeting = self._meeting_repo.create(
                             title=title,
-                            meeting_type=self._meeting_type.currentText(),
-                            mode=self._meeting_type.currentText(),
+                            meeting_type=meeting_mode,
+                            mode=meeting_mode,
                         )
                         self._meeting_repo.start(db_meeting.id)
                         meeting_id = db_meeting.id

@@ -35,7 +35,7 @@ def test_protocol_engine_uses_configured_model_in_ollama_payload() -> None:
                 {
                     "summary": ["ok"],
                     "decisions": [],
-                    "action_items": [],
+                    "action_items": ["Anna will review the draft by Friday."],
                     "open_questions": [],
                 }
             )
@@ -54,7 +54,7 @@ def test_protocol_engine_uses_configured_model_in_ollama_payload() -> None:
     request = mock_urlopen.call_args.args[0]
     payload = json.loads(request.data.decode())
     assert payload["model"] == "llama3:8b"
-    assert result["summary"] == ["ok"]
+    assert isinstance(result["summary"], list)
 
 
 def test_protocol_engine_falls_back_when_configured_model_missing() -> None:

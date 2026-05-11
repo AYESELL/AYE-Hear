@@ -23,6 +23,10 @@ def test_mainwindow_labels_are_german_in_de_mode(qapp):
     win = _make_window("de", qapp)
 
     assert win._meeting_box.title() == "Meeting-Setup"
+    assert win._meeting_title_label.text() == "Meeting-Titel"
+    assert win._meeting_type_label.text() == "Meeting-Typ"
+    assert win._protocol_language_label.text() == "Protokollsprache"
+    assert win._meeting_type.currentText() == "intern"
     assert win._speakers_box.title() == "Sprecher-Enrollment"
     assert win._start_meeting_btn.text() == "Meeting starten"
     assert win._export_btn.text() == "Protokoll exportieren..."
@@ -36,6 +40,10 @@ def test_mainwindow_labels_are_english_in_en_mode(qapp):
     win = _make_window("en", qapp)
 
     assert win._meeting_box.title() == "Meeting Setup"
+    assert win._meeting_title_label.text() == "Meeting Title"
+    assert win._meeting_type_label.text() == "Meeting Type"
+    assert win._protocol_language_label.text() == "Protocol Language"
+    assert win._meeting_type.currentText() == "internal"
     assert win._speakers_box.title() == "Speaker Enrollment"
     assert win._start_meeting_btn.text() == "Start Meeting"
     assert win._export_btn.text() == "Export Protocol..."
@@ -55,6 +63,10 @@ def test_protocol_language_switch_retranslates_core_labels(qapp):
 
     assert win._header_label.text() == "AYE Hear Workspace"
     assert win._meeting_box.title() == "Meeting Setup"
+    assert win._meeting_title_label.text() == "Meeting Title"
+    assert win._meeting_type_label.text() == "Meeting Type"
+    assert win._protocol_language_label.text() == "Protocol Language"
+    assert win._meeting_type.currentText() == "internal"
     assert win._start_meeting_btn.text() == "Start Meeting"
     assert win._export_btn.text() == "Export Protocol..."
 

@@ -37,6 +37,11 @@ logger = logging.getLogger(__name__)
 # lightweight "deferred" snapshot so the ASR thread can run uncontested.
 _PROTOCOL_CPU_DEFER_THRESHOLD = 80.0  # percent
 
+_TRANSCRIPT_NOISE_PATTERNS: tuple[re.Pattern[str], ...] = (
+    re.compile(r"untertitelung\s+des\s+zdf", re.IGNORECASE),
+    re.compile(r"^\s*\[?music\]?\s*$", re.IGNORECASE),
+)
+
 
 def _get_cpu_pct() -> float:
     """Return current system-wide CPU percent (0–100).  0.0 if psutil missing."""
@@ -439,11 +444,18 @@ class ProtocolEngine:
             # chronological order; speaker_name already reflects any manual
             # corrections applied via apply_correction() (HEAR-022 / ADR-0007).
             segments = self._transcripts.list_for_protocol(meeting_id)
-            return [
+            lines = [
                 f"[{s.start_ms}ms] {s.speaker_name}: {s.text}"
                 for s in segments
                 if s.text
             ]
+            filtered = [line for line in lines if not self._is_noise_transcript_text(line)]
+            if len(filtered) != len(lines):
+                logger.info(
+                    "Filtered %d transcript noise line(s) before protocol extraction.",
+                    len(lines) - len(filtered),
+                )
+            return filtered
         except Exception as exc:
             logger.error("Failed to load transcript for %s: %s", meeting_id, exc)
             return []
@@ -492,6 +504,17 @@ class ProtocolEngine:
         try:
             available_models = self._ensure_model_available()
             content = self._extract_via_ollama(lines)
+
+            if use_fallback and self._should_apply_quality_fallback(lines, content):
+                self._set_diagnostics(
+                    status="rule_based_fallback",
+                    reason="quality_gate_weak_llm_output",
+                    fallback_used=True,
+                    available_models=available_models,
+                )
+                logger.info("LLM quality gate triggered, using rule-based extraction fallback.")
+                return self._extract_rule_based(lines)
+
             self._set_diagnostics(
                 status="ollama",
                 reason="Structured extraction completed.",
@@ -523,12 +546,18 @@ class ProtocolEngine:
         "de": (
             "Du bist ein Meeting-Assistent. Extrahiere ein strukturiertes Protokoll "
             "aus dem folgenden Transkript. Antworte ausschließlich mit JSON (kein Markdown). "
-            "WICHTIG: Schreibe ALLE Inhalte ausschließlich auf Deutsch. Verwende keine andere Sprache."
+            "WICHTIG: Schreibe ALLE Inhalte ausschließlich auf Deutsch. Verwende keine andere Sprache. "
+            "Nutze nur Informationen aus dem Transkript, keine Annahmen. "
+            "Fülle decisions/action_items/open_questions nur mit konkreten, belegbaren Punkten. "
+            "Wenn keine belastbaren Punkte vorhanden sind, gib leere Listen zurück."
         ),
         "en": (
             "You are a meeting assistant. Extract a structured protocol from the following "
             "transcript. Reply exclusively with JSON (no Markdown). "
-            "IMPORTANT: Write ALL content exclusively in English. Do not use any other language."
+            "IMPORTANT: Write ALL content exclusively in English. Do not use any other language. "
+            "Use only information present in the transcript, no assumptions. "
+            "Populate decisions/action_items/open_questions only with concrete, evidence-backed items. "
+            "If there is no reliable evidence, return empty lists."
         ),
     }
     _DEFAULT_LANGUAGE_INSTRUCTION = _LANGUAGE_INSTRUCTIONS["de"]
@@ -554,6 +583,7 @@ class ProtocolEngine:
         prompt = (
             f"{instruction}\n"
             "Schema: {\"summary\": [...], \"decisions\": [...], \"action_items\": [...], \"open_questions\": []}\n\n"
+            "Regeln: summary max. 3 kurze Stichpunkte; action_items nur mit klarer Aufgabe (optional Verantwortlich/Faelligkeit, falls im Transkript genannt).\n\n"
             f"Transkript:\n{transcript_text}\n\n"
             f"{lang_reminder}"
         )
@@ -632,3 +662,42 @@ class ProtocolEngine:
             action_items=action_items,
             open_questions=open_questions,
         )
+
+    @staticmethod
+    def _contains_signal_lines(lines: list[str]) -> bool:
+        signal_pattern = re.compile(
+            r"\b(wir entscheiden|entschieden|beschlossen|agreed|decided|bitte|todo|action item|aufgabe|should|must|will)\b|\?",
+            re.IGNORECASE,
+        )
+        return any(signal_pattern.search(line) for line in lines)
+
+    def _should_apply_quality_fallback(self, lines: list[str], content: ProtocolContent) -> bool:
+        # Trigger fallback only when transcript has clear signals but LLM output
+        # remains effectively empty/low-value.
+        if not self._contains_signal_lines(lines):
+            return False
+
+        structured_count = (
+            len(content.decisions) + len(content.action_items) + len(content.open_questions)
+        )
+        if structured_count > 0:
+            return False
+
+        if not content.summary:
+            return True
+
+        first = content.summary[0].strip().lower()
+        if len(first) < 20:
+            return True
+
+        generic_markers = (
+            "meeting recorded",
+            "meeting initialized",
+            "meeting started",
+            "kein transkript",
+            "no transcript",
+        )
+        return any(marker in first for marker in generic_markers)
+
+    def _is_noise_transcript_text(self, text: str) -> bool:
+        return any(pattern.search(text) for pattern in _TRANSCRIPT_NOISE_PATTERNS)

@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import enum
 import logging
-from typing import Optional
+from typing import Callable, Optional
 
 from PySide6.QtCore import QTimer, Signal, Slot
 from PySide6.QtWidgets import (
@@ -67,13 +67,26 @@ def rms_to_band(rms: float) -> LevelBand:
     return LevelBand.HIGH
 
 
-_GUIDANCE = {
+_GUIDANCE_KEYS = {
+    LevelBand.LOW: "ui.mic.guidance.low",
+    LevelBand.OK: "ui.mic.guidance.ok",
+    LevelBand.HIGH: "ui.mic.guidance.high",
+}
+
+_GUIDANCE_FALLBACKS = {
     LevelBand.LOW: "Speak louder or move closer to microphone.",
     LevelBand.OK: "Input level looks good.",
     LevelBand.HIGH: "Input is very loud; reduce distance or gain.",
 }
 
-_STATE_LABEL = {
+_STATE_KEYS = {
+    MicState.IDLE: "ui.mic.state.idle",
+    MicState.INITIALIZING: "ui.mic.state.initializing",
+    MicState.ACTIVE: "ui.mic.state.active",
+    MicState.ERROR: "ui.mic.state.error",
+}
+
+_STATE_FALLBACKS = {
     MicState.IDLE: "Mic idle",
     MicState.INITIALIZING: "Mic initializing...",
     MicState.ACTIVE: "Mic active",
@@ -108,6 +121,7 @@ class MicLevelWidget(QWidget):
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
+        self._translator: Callable[[str], str] | None = None
         self._state: MicState = MicState.IDLE
         self._last_rms: float = 0.0
         self._pending_rms: float = 0.0
@@ -162,6 +176,20 @@ class MicLevelWidget(QWidget):
     def state(self) -> MicState:
         return self._state
 
+    def set_translator(self, translator: Callable[[str], str] | None) -> None:
+        """Set optional translator callback and refresh visible texts."""
+        self._translator = translator
+        self.retranslate()
+
+    def retranslate(self) -> None:
+        """Re-apply all visible labels in the currently active language."""
+        self._apply_state(self._state)
+        if self._state == MicState.DEGRADED:
+            self._state_label.setText(self._t("ui.mic.state.no_signal", "No signal for 3s"))
+            self._guidance_label.setText(
+                self._t("ui.mic.guidance.no_signal", "No signal detected. Check microphone connection.")
+            )
+
     def set_initializing(self) -> None:
         """Call when the capture service has been requested to open the device."""
         self._transition(MicState.INITIALIZING)
@@ -176,7 +204,8 @@ class MicLevelWidget(QWidget):
         """Call when the capture device fails or the stream closes unexpectedly."""
         self._no_signal_timer.stop()
         self._level_timer.stop()
-        label = f"Mic error: {reason}" if reason else "Mic error"
+        error_base = self._t("ui.mic.state.error", "Mic error")
+        label = f"{error_base}: {reason}" if reason else error_base
         self._state_label.setText(label)
         self._level_bar.setValue(0)
         self._guidance_label.setText("")
@@ -232,21 +261,25 @@ class MicLevelWidget(QWidget):
         self._level_bar.setStyleSheet(
             f"QProgressBar::chunk {{ background-color: {color}; }}"
         )
-        self._guidance_label.setText(_GUIDANCE[band])
+        self._guidance_label.setText(self._t(_GUIDANCE_KEYS[band], _GUIDANCE_FALLBACKS[band]))
 
     @Slot()
     def _on_no_signal_timeout(self) -> None:
         """3 s without a non-silent segment → Degraded."""
         if self._state == MicState.ACTIVE:
             self._transition(MicState.DEGRADED)
-            self._state_label.setText("No signal for 3s")
-            self._guidance_label.setText("No signal detected. Check microphone connection.")
+            self._state_label.setText(self._t("ui.mic.state.no_signal", "No signal for 3s"))
+            self._guidance_label.setText(
+                self._t("ui.mic.guidance.no_signal", "No signal detected. Check microphone connection.")
+            )
 
     # ── State-transition helper ────────────────────────────────────────────────
 
     def _apply_state(self, state: MicState) -> None:
         """Apply visual representation for a state (no transition logic)."""
-        self._state_label.setText(_STATE_LABEL.get(state, state.value))
+        self._state_label.setText(
+            self._t(_STATE_KEYS.get(state, state.value), _STATE_FALLBACKS.get(state, state.value))
+        )
         if state in (MicState.IDLE, MicState.ERROR):
             self._level_bar.setValue(0)
             self._guidance_label.setText("")
@@ -261,3 +294,9 @@ class MicLevelWidget(QWidget):
         self._state = new_state
         self._apply_state(new_state)
         self.state_changed.emit(new_state)
+
+    def _t(self, key: str, fallback: str) -> str:
+        if self._translator is None:
+            return fallback
+        value = self._translator(key)
+        return fallback if value == key else value

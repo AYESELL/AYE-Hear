@@ -6,6 +6,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from ayehear.services.protocol_engine import ProtocolEngine
+from ayehear.services.protocol_engine import ProtocolContent
 
 
 # ---------------------------------------------------------------------------
@@ -121,6 +122,7 @@ def test_generate_persists_action_items() -> None:
         snapshot_repo=mock_snapshot_repo,
         transcript_repo=mock_transcript_repo,
     )
+    engine._extract_via_ollama = MagicMock(side_effect=Exception("mocked unavailable"))  # type: ignore
     engine.generate("m-003")
 
     # Action item was extracted from 'Bitte sende…' and add_action_item called
@@ -149,6 +151,46 @@ def test_rule_based_no_duplicate_classification() -> None:
     # Should appear only in action_items, not in decisions
     assert len(content.action_items) == 1
     assert len(content.decisions) == 0
+
+
+def test_quality_gate_triggers_rule_based_fallback_for_weak_llm_output() -> None:
+    engine = ProtocolEngine()
+    lines = ["Anna: Wir entscheiden uns fuer Option A."]
+
+    with (
+        pytest.MonkeyPatch.context() as mp,
+    ):
+        mp.setattr(engine, "_ensure_model_available", lambda: ["mistral:7b"])
+        mp.setattr(
+            engine,
+            "_extract_via_ollama",
+            lambda _lines: ProtocolContent(summary=["ok"], decisions=[], action_items=[], open_questions=[]),
+        )
+
+        result = engine.summarize_window(lines)
+
+    assert any("Option A" in d for d in result["decisions"])
+    assert engine.last_diagnostics["status"] == "rule_based_fallback"
+    assert engine.last_diagnostics["fallback_used"] is True
+
+
+def test_quality_gate_respects_allow_fallback_false() -> None:
+    engine = ProtocolEngine(fallback_enabled=False)
+    lines = ["Anna: Wir entscheiden uns fuer Option A."]
+
+    weak = ProtocolContent(summary=["ok"], decisions=[], action_items=[], open_questions=[])
+    with (
+        pytest.MonkeyPatch.context() as mp,
+    ):
+        mp.setattr(engine, "_ensure_model_available", lambda: ["mistral:7b"])
+        mp.setattr(engine, "_extract_via_ollama", lambda _lines: weak)
+
+        result = engine.summarize_window(lines, allow_fallback=False)
+
+    assert result["decisions"] == []
+    assert result["summary"] == ["ok"]
+    assert engine.last_diagnostics["status"] == "ollama"
+    assert engine.last_diagnostics["fallback_used"] is False
 
 
 # ---------------------------------------------------------------------------
