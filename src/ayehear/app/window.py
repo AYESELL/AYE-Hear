@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (
     QFormLayout,
     QGroupBox,
     QHBoxLayout,
+    QInputDialog,
     QLabel,
     QLineEdit,
     QListWidget,
@@ -1529,6 +1530,7 @@ class MainWindow(QMainWindow):
         self,
         meeting_id: str | None,
         title: str,
+        profile_id: str = "ops",
     ) -> "list[Path]":
         """Export the current protocol and transcript as multi-format artifacts.
 
@@ -1588,6 +1590,7 @@ class MainWindow(QMainWindow):
                 start_time=start_time,
                 end_time=end_time,
                 snapshot_content=self._resolve_snapshot_content(meeting_id),
+                profile_id=profile_id,
             )
             # Markdown
             md_path = out_dir / f"{base_name}-protocol.md"
@@ -1668,6 +1671,7 @@ class MainWindow(QMainWindow):
         start_time: str | None = None,
         end_time: str | None = None,
         snapshot_content: dict | None = None,
+        profile_id: str = "ops",
     ) -> str:
         """Convert a plain-text protocol draft to branded AYE Hear Markdown.
 
@@ -1680,6 +1684,17 @@ class MainWindow(QMainWindow):
         """
         import datetime as _dt
         import re
+
+        from ayehear.services.export_profiles import get_profile
+        from ayehear.services.decision_risk import (
+            score_decision as _score_decision,
+            get_high_risk_decisions as _get_high_risk_decisions,
+            EMOJI_MAP as _RISK_EMOJI,
+            LABEL_MAP as _RISK_LABEL,
+            RISK_HIGH as _RISK_HIGH,
+        )
+
+        profile = get_profile(profile_id)
 
         now = _dt.datetime.now()
         date_iso = now.strftime("%Y-%m-%d")
@@ -1733,7 +1748,7 @@ class MainWindow(QMainWindow):
 
         # --- ROI Score block (V2-04, HEAR-175) ---
         score_lines: list[str] = []
-        if snapshot_content is not None:
+        if profile.include_score and snapshot_content is not None:
             from ayehear.services.meeting_score import calculate_roi_score
             roi = calculate_roi_score(snapshot_content)
             s = roi["score"]
@@ -1761,19 +1776,24 @@ class MainWindow(QMainWindow):
             "Transcript": "🎙 Transkript",
         }
 
+        include_sections: dict[str, bool] = {
+            "Summary": profile.include_summary,
+            "Decisions": profile.include_decisions,
+            "Action Items": profile.include_action_items,
+            "Open Questions": profile.include_open_questions,
+            "Next Steps": profile.include_next_steps,
+            # Team and CEO outputs intentionally hide raw transcript for focus.
+            "Transcript": profile.id in ("ops", "compliance"),
+        }
+
         # --- Parse draft sections ---
+        preamble: list[str] = []
+        section_lines: dict[str, list[str]] = {k: [] for k in _SECTION_MAP}
         action_items_raw: list[str] = []
         decisions_raw: list[str] = []
-        in_action_items = False
-        in_decisions = False
+        current_section: str | None = None
         body_lines: list[str] = []
 
-        # Decision risk scoring (V2-02, HEAR-176)
-        from ayehear.services.decision_risk import (
-            score_decision as _score_decision,
-            get_high_risk_decisions as _get_high_risk_decisions,
-            EMOJI_MAP as _RISK_EMOJI,
-        )
         # Prefer decisions from structured snapshot_content when available
         _snapshot_decisions: list[str] = (
             snapshot_content.get("decisions", []) if snapshot_content else []
@@ -1782,29 +1802,62 @@ class MainWindow(QMainWindow):
         for raw in draft.splitlines():
             stripped = raw.strip()
             if stripped in _SECTION_MAP:
-                icon_label = _SECTION_MAP[stripped]
-                body_lines.append(f"## {icon_label}")
-                in_action_items = (stripped == "Action Items")
-                in_decisions = (stripped == "Decisions")
+                current_section = stripped
             else:
-                if in_decisions and stripped.startswith("- "):
-                    decision_text = stripped[2:]
-                    decisions_raw.append(decision_text)
-                    assessed = _score_decision(decision_text)
-                    emoji = _RISK_EMOJI[assessed["risk_level"]]
-                    body_lines.append(f"- {decision_text} {emoji}")
+                if current_section is None:
+                    preamble.append(raw)
                 else:
-                    body_lines.append(raw)
-                if in_action_items and stripped.startswith("- "):
-                    action_items_raw.append(stripped[2:])
+                    section_lines[current_section].append(raw)
+
+        decisions_rendered = 0
+        max_decisions = profile.max_decisions
+
+        if preamble:
+            body_lines.extend(preamble)
+            body_lines.append("")
+
+        for section_name, icon_label in _SECTION_MAP.items():
+            if not include_sections.get(section_name, True):
+                continue
+
+            lines = section_lines.get(section_name, [])
+            if section_name == "Decisions":
+                rendered_lines: list[str] = []
+                for line in lines:
+                    stripped = line.strip()
+                    if stripped.startswith("- "):
+                        if max_decisions is not None and decisions_rendered >= max_decisions:
+                            continue
+                        decision_text = stripped[2:]
+                        decisions_raw.append(decision_text)
+                        assessed = _score_decision(decision_text)
+                        emoji = _RISK_EMOJI[assessed["risk_level"]]
+                        rendered_lines.append(f"- {decision_text} {emoji}")
+                        decisions_rendered += 1
+                    else:
+                        rendered_lines.append(line)
+                lines = rendered_lines
+            elif section_name == "Action Items":
+                for line in lines:
+                    stripped = line.strip()
+                    if stripped.startswith("- "):
+                        action_items_raw.append(stripped[2:])
+
+            body_lines.append(f"## {icon_label}")
+            body_lines.extend(lines)
+            body_lines.append("")
 
         # If snapshot_content supplies decisions not in draft, prefer those
         all_decisions = _snapshot_decisions if _snapshot_decisions else decisions_raw
+        if max_decisions is not None:
+            all_decisions = all_decisions[:max_decisions]
         risk_entries = _get_high_risk_decisions(all_decisions)
+        if profile.risk_filter == "high":
+            risk_entries = [entry for entry in risk_entries if entry["risk_level"] == _RISK_HIGH]
 
         # --- Decision Risk section (V2-02, HEAR-176) ---
         risk_section_lines: list[str] = []
-        if risk_entries:
+        if profile.include_risk_table and risk_entries:
             risk_section_lines = [
                 "",
                 "## \u26a0\ufe0f Entscheidungsrisiken",
@@ -1812,7 +1865,6 @@ class MainWindow(QMainWindow):
                 "| Entscheidung | Risiko | Indikatoren |",
                 "|---|---|---|",
             ]
-            from ayehear.services.decision_risk import LABEL_MAP as _RISK_LABEL
             for entry in risk_entries:
                 emoji = _RISK_EMOJI[entry["risk_level"]]
                 label = _RISK_LABEL[entry["risk_level"]]
@@ -1841,38 +1893,64 @@ class MainWindow(QMainWindow):
             task_text = date_pattern.sub("", rest).replace("bis", "").strip().rstrip(",").strip()
             table_rows.append((task_text or rest, name, due))
 
-        if not table_rows:
-            table_rows = [("Keine offenen Aufgaben", "—", "—")]
+        table_lines: list[str] = []
+        if profile.include_task_table:
+            if not table_rows:
+                table_rows = [("Keine offenen Aufgaben", "—", "—")]
 
-        table_lines = [
-            "",
-            "---",
-            "",
-            "## Aufgabenliste",
-            "",
-            "| # | Aufgabe | Verantwortlich | Fällig |",
-            "|---|---------|---------------|--------|",
-        ]
-        for idx, (task, responsible, due) in enumerate(table_rows, start=1):
-            table_lines.append(f"| {idx} | {task} | {responsible} | {due} |")
+            table_lines = [
+                "",
+                "---",
+                "",
+                "## Aufgabenliste",
+                "",
+                "| # | Aufgabe | Verantwortlich | Fällig |",
+                "|---|---------|---------------|--------|",
+            ]
+            for idx, (task, responsible, due) in enumerate(table_rows, start=1):
+                table_lines.append(f"| {idx} | {task} | {responsible} | {due} |")
+
+        compliance_lines: list[str] = []
+        if profile.include_compliance_note:
+            compliance_lines = [
+                "",
+                "## 🔏 Datenschutz & Compliance",
+                "",
+                "Dieses Protokoll wurde ausschließlich lokal verarbeitet. Keine Audio-, Transkript- oder Protokolldaten haben die lokale Systemgrenze verlassen.  ",
+                "Offline-Verarbeitung bestätigt gemäß ADR-0001 (AYE Hear Offline-First Prinzip).",
+                "",
+            ]
 
         # --- Footer ---
-        footer_lines = [
-            "",
-            "---",
-            "",
-            "*Dieses Protokoll wurde automatisch mit AYE Hear erstellt · Offline-Verarbeitung bestätigt · Bitte vor offiziellem Versand prüfen.*",
-            "",
-            "*Protokoll- und Transkriptqualität kann durch Modell- und Akustikbeschränkungen beeinträchtigt sein. Menschliche Prüfung vor offiziellem Versand erforderlich.*",
-        ]
+        footer_lines: list[str] = []
+        if profile.include_ai_disclaimer or profile.include_offline_attestation:
+            attest_parts = ["Dieses Protokoll wurde automatisch mit AYE Hear erstellt"]
+            if profile.include_offline_attestation:
+                attest_parts.append("Offline-Verarbeitung bestätigt")
+            attest_parts.append("Bitte vor offiziellem Versand prüfen")
+            footer_lines.extend(["", "---", "", f"*{' · '.join(attest_parts)}.*"])
+            if profile.include_ai_disclaimer:
+                footer_lines.extend(
+                    [
+                        "",
+                        "*Protokoll- und Transkriptqualität kann durch Modell- und Akustikbeschränkungen beeinträchtigt sein. Menschliche Prüfung vor offiziellem Versand erforderlich.*",
+                    ]
+                )
 
-        all_lines = fm_lines + header_lines + score_lines + body_lines + risk_section_lines + table_lines + footer_lines
+        all_lines = fm_lines + header_lines + score_lines + body_lines + risk_section_lines + table_lines + compliance_lines + footer_lines
         return "\n".join(all_lines)
 
     def _do_export_protocol(self) -> None:
         """Export the current protocol draft to <install_root>/exports/ as Markdown."""
         import datetime as _dt
         from ayehear.utils.paths import exports_dir as _exports_dir
+        from ayehear.services.export_profiles import (
+            PROFILE_CEO,
+            PROFILE_OPS,
+            PROFILE_TEAM,
+            PROFILE_COMPLIANCE,
+            PROFILE_LABELS,
+        )
 
         draft = self._protocol_view.toPlainText().strip()
         if not draft or draft.startswith("[DEGRADED]"):
@@ -1886,6 +1964,24 @@ class MainWindow(QMainWindow):
         if self._session is not None:
             title = self._session.title or ""
 
+        profile_ids = [PROFILE_CEO, PROFILE_OPS, PROFILE_TEAM, PROFILE_COMPLIANCE]
+        profile_labels = [PROFILE_LABELS[pid] for pid in profile_ids]
+        selected_label, ok = QInputDialog.getItem(
+            self,
+            "Export-Profil",
+            "Zielgruppe / Profil:",
+            profile_labels,
+            profile_ids.index(PROFILE_OPS),
+            False,
+        )
+        if not ok:
+            return
+        profile_id = PROFILE_OPS
+        for pid in profile_ids:
+            if PROFILE_LABELS[pid] == selected_label:
+                profile_id = pid
+                break
+
         timestamp = _dt.datetime.now().strftime("%Y%m%d_%H%M%S")
         safe_title = "".join(c if c.isalnum() or c in "-_" else "_" for c in title)[:40]
         filename = f"protocol_{safe_title}_{timestamp}.md" if safe_title else f"protocol_{timestamp}.md"
@@ -1893,10 +1989,32 @@ class MainWindow(QMainWindow):
         try:
             out_dir = _exports_dir()
             out_path = out_dir / filename
-            header = f"# Meeting Protocol — {title}\n\nExported: {_dt.datetime.now().isoformat()}\n\n"
-            out_path.write_text(header + draft, encoding="utf-8")
+            participants: list[str] = []
+            if self._session is not None and hasattr(self, "_speakers_list"):
+                for i in range(self._speakers_list.count()):
+                    item = self._speakers_list.item(i)
+                    if item is not None:
+                        participants.append(item.text().split("|")[0].strip())
+            start_time: str | None = None
+            end_time: str | None = None
+            if self._session is not None:
+                if getattr(self._session, "started_at", None) is not None:
+                    start_time = self._session.started_at.strftime("%H:%M")
+                if getattr(self._session, "ended_at", None) is not None:
+                    end_time = self._session.ended_at.strftime("%H:%M")
+            md_text = self._format_as_markdown(
+                draft,
+                title,
+                self._meeting_type.currentText() if hasattr(self, "_meeting_type") else "",
+                participants=participants,
+                start_time=start_time,
+                end_time=end_time,
+                snapshot_content=self._resolve_snapshot_content(self._active_meeting_id),
+                profile_id=profile_id,
+            )
+            out_path.write_text(md_text, encoding="utf-8")
             self._export_path_label.setText(f"Exportiert: {out_path}")
-            logger.info("Protocol exported to %s", out_path)
+            logger.info("Protocol exported to %s (profile=%s)", out_path, profile_id)
             QMessageBox.information(
                 self,
                 "Export erfolgreich",
