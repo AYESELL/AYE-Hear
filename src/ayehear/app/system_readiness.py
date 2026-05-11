@@ -19,7 +19,7 @@ import logging
 import time
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
@@ -347,11 +347,11 @@ _STATE_COLORS = {
     ReadinessState.UNKNOWN: ("#64748B", "\u23f3"),    # grey + hourglass
 }
 
-_AGGREGATE_TEXTS = {
-    ReadinessState.READY: "Product Path Ready",
-    ReadinessState.DEGRADED: "Product Path Degraded",
-    ReadinessState.BLOCKED: "Product Path Blocked \u2014 stop product-complete testing",
-    ReadinessState.UNKNOWN: "Readiness Unknown",
+_AGGREGATE_TEXT_KEYS = {
+    ReadinessState.READY: "ui.readiness.aggregate.ready",
+    ReadinessState.DEGRADED: "ui.readiness.aggregate.degraded",
+    ReadinessState.BLOCKED: "ui.readiness.aggregate.blocked",
+    ReadinessState.UNKNOWN: "ui.readiness.aggregate.unknown",
 }
 
 
@@ -364,14 +364,19 @@ class SystemReadinessWidget(QGroupBox):
         layout.addWidget(widget)
     """
 
-    def __init__(self, parent: QWidget | None = None) -> None:
-        super().__init__("System Readiness", parent)
+    def __init__(
+        self,
+        parent: QWidget | None = None,
+        translator: Callable[[str], str] | None = None,
+    ) -> None:
+        self._translator = translator
+        super().__init__(self._tr("ui.readiness.title", "System Readiness"), parent)
         self._layout = QVBoxLayout(self)
         self._layout.setSpacing(4)
         self._layout.setContentsMargins(8, 8, 8, 8)
 
         # Aggregate top-line
-        self._aggregate_label = QLabel("\u23f3 Checking readiness\u2026")
+        self._aggregate_label = QLabel(self._tr("ui.readiness.checking", "⏳ Checking readiness..."))
         self._aggregate_label.setStyleSheet("font-weight: 700; font-size: 12px;")
         self._layout.addWidget(self._aggregate_label)
 
@@ -379,9 +384,19 @@ class SystemReadinessWidget(QGroupBox):
         self._component_rows: list[QLabel] = []
 
         # Refresh button
-        self._refresh_btn = QPushButton("Refresh Status")
+        self._refresh_btn = QPushButton(self._tr("ui.readiness.refresh_button", "Refresh Status"))
         self._refresh_btn.setFixedHeight(24)
         self._layout.addWidget(self._refresh_btn)
+
+    def _tr(self, key: str, fallback: str) -> str:
+        if self._translator is None:
+            return fallback
+        translated = self._translator(key)
+        return translated if translated != key else fallback
+
+    def retranslate(self) -> None:
+        self.setTitle(self._tr("ui.readiness.title", "System Readiness"))
+        self._refresh_btn.setText(self._tr("ui.readiness.refresh_button", "Refresh Status"))
 
     # Public API ----------------------------------------------------------------
 
@@ -417,7 +432,7 @@ class SystemReadinessWidget(QGroupBox):
 
         # Update aggregate
         agg_color, agg_icon = _STATE_COLORS[aggregate]
-        agg_text = _AGGREGATE_TEXTS[aggregate]
+        agg_text = self._tr(_AGGREGATE_TEXT_KEYS[aggregate], "Readiness Unknown")
         self._aggregate_label.setText(f"{agg_icon} {agg_text}")
         self._aggregate_label.setStyleSheet(
             f"font-weight: 700; font-size: 12px; color: {agg_color};"
@@ -426,7 +441,10 @@ class SystemReadinessWidget(QGroupBox):
         # Stop-test warning (hard stop)
         if aggregate == ReadinessState.BLOCKED:
             self._aggregate_label.setToolTip(
-                "Critical backend missing \u2014 stop product-complete test and inspect runtime setup."
+                self._tr(
+                    "ui.readiness.tooltip.blocked",
+                    "Critical backend missing - stop product-complete test and inspect runtime setup.",
+                )
             )
         elif aggregate == ReadinessState.DEGRADED:
             # Check if LLM is degraded specifically
@@ -436,7 +454,10 @@ class SystemReadinessWidget(QGroupBox):
             )
             if llm_degraded:
                 self._aggregate_label.setToolTip(
-                    "Protocol fallback active \u2014 do not treat protocol results as product-complete evidence."
+                    self._tr(
+                        "ui.readiness.tooltip.llm_degraded",
+                        "Protocol fallback active - do not treat protocol results as product-complete evidence.",
+                    )
                 )
             else:
                 self._aggregate_label.setToolTip("")
@@ -446,7 +467,9 @@ class SystemReadinessWidget(QGroupBox):
     def set_unknown(self) -> None:
         """Reset to UNKNOWN state (shown at startup before first check)."""
         color, icon = _STATE_COLORS[ReadinessState.UNKNOWN]
-        self._aggregate_label.setText(f"{icon} Readiness Unknown")
+        self._aggregate_label.setText(
+            f"{icon} {self._tr('ui.readiness.aggregate.unknown', 'Readiness Unknown')}"
+        )
         self._aggregate_label.setStyleSheet(
             f"font-weight: 700; font-size: 12px; color: {color};"
         )

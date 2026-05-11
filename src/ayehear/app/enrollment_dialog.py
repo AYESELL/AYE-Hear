@@ -53,11 +53,6 @@ _STATUS_RECORDING = "recording..."
 _STATUS_ENROLLED_PREFIX = "enrolled"
 _STATUS_FAILED = "enrollment failed"
 
-# Enrollment phrase shown to the user (German, clear and natural)
-_ENROLLMENT_PHRASE = (
-    "\u201eMein Name ist [Ihr Name] und ich nehme an diesem Meeting teil.\u201c"
-)
-
 
 class EnrollmentDialog(QDialog):
     """Modal dialog for pre-meeting voice enrollment of all pending speakers.
@@ -74,6 +69,7 @@ class EnrollmentDialog(QDialog):
         *,
         recording_duration_ms: int = _DEFAULT_RECORDING_MS,
         capture_factory: Callable[[], AudioCaptureService] | None = None,
+        translator: Callable[[str], str] | None = None,
         parent: QWidget | None = None,
     ) -> None:
         """Initialise the dialog.
@@ -94,6 +90,7 @@ class EnrollmentDialog(QDialog):
         self._speaker_manager = speaker_manager
         self._recording_duration_ms = recording_duration_ms
         self._capture_factory = capture_factory or self._default_capture_factory
+        self._translator = translator
 
         self._capture_service: AudioCaptureService | None = None
         self._captured_chunks: list[np.ndarray] = []
@@ -114,29 +111,54 @@ class EnrollmentDialog(QDialog):
         self._progress_timer.setInterval(_PROGRESS_TICK_MS)
         self._progress_timer.timeout.connect(self._tick_progress)
 
+    def _tr(self, key: str, fallback: str, **kwargs: object) -> str:
+        if self._translator is None:
+            value = fallback
+        else:
+            value = self._translator(key)
+            if value == key:
+                value = fallback
+        if kwargs:
+            try:
+                return value.format(**kwargs)
+            except Exception:
+                return value
+        return value
+
     # ------------------------------------------------------------------
     # UI construction
     # ------------------------------------------------------------------
 
     def _setup_ui(self) -> None:
-        self.setWindowTitle("Stimm-Enrollment")
+        self.setWindowTitle(self._tr("ui.enrollment.dialog.title", "Voice Enrollment"))
         self.setMinimumWidth(520)
         layout = QVBoxLayout(self)
         layout.setSpacing(12)
 
-        instr_box = QGroupBox("Anleitung")
+        instr_box = QGroupBox(self._tr("ui.enrollment.group.instructions", "Instructions"))
         instr_layout = QVBoxLayout(instr_box)
         instr_layout.addWidget(QLabel(
-            "Sprechen Sie nach dem Klick auf <b>Aufnehmen</b> die folgende Phrase\n"
-            "laut und deutlich in das Mikrofon (7 Sekunden):"
+            self._tr(
+                "ui.enrollment.instructions.body",
+                "After clicking <b>Record</b>, speak the following phrase\\n"
+                "clearly into the microphone (7 seconds):",
+            )
         ))
-        phrase_lbl = QLabel(_ENROLLMENT_PHRASE)
+        phrase_lbl = QLabel(
+            self._tr(
+                "ui.enrollment.phrase",
+                '"My name is [your name] and I am taking part in this meeting."',
+            )
+        )
         phrase_lbl.setStyleSheet("font-style: italic; font-size: 13px; color: #2D6CDF;")
         phrase_lbl.setWordWrap(True)
         instr_layout.addWidget(phrase_lbl)
         layout.addWidget(instr_box)
 
-        layout.addWidget(QLabel("Sprecher (auswählen, dann Aufnehmen drücken):"))
+        layout.addWidget(QLabel(self._tr(
+            "ui.enrollment.list.label",
+            "Speakers (select one, then press Record):",
+        )))
         self._speaker_list = QListWidget()
         for name, org, participant_id in self._pending_speakers:
             item = QListWidgetItem(f"{name} | {org}")
@@ -146,7 +168,7 @@ class EnrollmentDialog(QDialog):
             self._speaker_list.setCurrentRow(0)
         layout.addWidget(self._speaker_list)
 
-        self._status_lbl = QLabel("Bereit zur Aufnahme.")
+        self._status_lbl = QLabel(self._tr("ui.enrollment.status.ready", "Ready to record."))
         self._status_lbl.setStyleSheet("font-weight: 600;")
         layout.addWidget(self._status_lbl)
 
@@ -158,12 +180,12 @@ class EnrollmentDialog(QDialog):
         layout.addWidget(self._progress_bar)
 
         btn_row = QHBoxLayout()
-        self._record_btn = QPushButton("\u25b6\ufe0f Aufnehmen (7 s)")
+        self._record_btn = QPushButton(self._tr("ui.enrollment.button.record", "▶️ Record (7 s)"))
         self._record_btn.clicked.connect(self._on_record_clicked)
         self._record_btn.setProperty("buttonClass", "primary")
         btn_row.addWidget(self._record_btn)
 
-        close_btn = QPushButton("Fertig")
+        close_btn = QPushButton(self._tr("ui.enrollment.button.done", "Done"))
         close_btn.clicked.connect(self.accept)
         close_btn.setProperty("buttonClass", "secondary")
         btn_row.addWidget(close_btn)
@@ -185,7 +207,10 @@ class EnrollmentDialog(QDialog):
         """Start audio capture for the currently selected speaker."""
         item = self._speaker_list.currentItem()
         if item is None:
-            self._set_status("Bitte zuerst einen Sprecher aus der Liste auswählen.", error=False)
+            self._set_status(self._tr(
+                "ui.enrollment.select_required",
+                "Please select a speaker from the list first.",
+            ), error=False)
             return
 
         name, org, _participant_id = item.data(Qt.ItemDataRole.UserRole)
@@ -198,8 +223,15 @@ class EnrollmentDialog(QDialog):
         self._record_btn.setEnabled(False)
 
         # Update list item to show "recording" state
-        item.setText(f"{name} | {org} | {_STATUS_RECORDING}")
-        self._set_status(f"Aufnahme für {name!r} läuft… sprechen Sie jetzt!", error=False)
+        item.setText(f"{name} | {org} | {self._tr('ui.enrollment.status.recording', _STATUS_RECORDING)}")
+        self._set_status(
+            self._tr(
+                "ui.enrollment.status.recording_hint",
+                "Recording for '{name}' in progress... speak now!",
+                name=name,
+            ),
+            error=False,
+        )
 
         # Start audio capture
         self._capture_service = self._capture_factory()
@@ -207,8 +239,15 @@ class EnrollmentDialog(QDialog):
             self._capture_service.start(self._on_audio_segment)
         except Exception as exc:
             logger.error("Audio capture start failed: %s", exc)
-            item.setText(f"{name} | {org} | {_STATUS_FAILED}")
-            self._set_status(f"Audio-Start fehlgeschlagen: {exc}", error=True)
+            item.setText(f"{name} | {org} | {self._tr('ui.enrollment.status.failed', _STATUS_FAILED)}")
+            self._set_status(
+                self._tr(
+                    "ui.enrollment.status.audio_start_failed",
+                    "Audio start failed: {error}",
+                    error=exc,
+                ),
+                error=True,
+            )
             self._capture_service = None
             self._record_btn.setEnabled(True)
             return
@@ -252,9 +291,12 @@ class EnrollmentDialog(QDialog):
         name, org, participant_id = item.data(Qt.ItemDataRole.UserRole)
 
         if not chunks:
-            item.setText(f"{name} | {org} | {_STATUS_PENDING}")
+            item.setText(f"{name} | {org} | {self._tr('ui.enrollment.status.pending', _STATUS_PENDING)}")
             self._set_status(
-                "Keine Audiodaten aufgenommen. Mikrofon prüfen und erneut versuchen.",
+                self._tr(
+                    "ui.enrollment.status.no_audio",
+                    "No audio captured. Check microphone and try again.",
+                ),
                 error=True,
             )
             self._record_btn.setEnabled(True)
@@ -278,7 +320,14 @@ class EnrollmentDialog(QDialog):
         samples: list[float],
     ) -> None:
         """Extract embedding and persist speaker profile via SpeakerManager."""
-        self._set_status(f"Embedding wird berechnet für {name!r}…", error=False)
+        self._set_status(
+            self._tr(
+                "ui.enrollment.status.embedding",
+                "Calculating embedding for '{name}'...",
+                name=name,
+            ),
+            error=False,
+        )
 
         try:
             result = self._speaker_manager.enroll(
@@ -288,17 +337,30 @@ class EnrollmentDialog(QDialog):
             )
         except Exception as exc:
             logger.error("Enrollment raised exception for '%s': %s", name, exc)
-            item.setText(f"{name} | {org} | {_STATUS_FAILED}")
-            self._set_status(f"Enrollment fehlgeschlagen: {exc}", error=True)
+            item.setText(f"{name} | {org} | {self._tr('ui.enrollment.status.failed', _STATUS_FAILED)}")
+            self._set_status(
+                self._tr(
+                    "ui.enrollment.status.failed_detail",
+                    "Enrollment failed for '{name}': {error}",
+                    name=name,
+                    error=exc,
+                ),
+                error=True,
+            )
             self._record_btn.setEnabled(True)
             return
 
         if result.success:
             self._enrolled_results[participant_id] = result.profile_id
-            item.setText(f"{name} | {org} | {_STATUS_ENROLLED_PREFIX} (id: {result.profile_id[:8]})")
+            enrolled_prefix = self._tr("ui.enrollment.status.enrolled_prefix", _STATUS_ENROLLED_PREFIX)
+            item.setText(f"{name} | {org} | {enrolled_prefix} (id: {result.profile_id[:8]})")
             self._set_status(
-                f"\u2713 {name!r} erfolgreich enrolliert"
-                f" (Embedding-Dim: {result.embedding_dim}).",
+                self._tr(
+                    "ui.enrollment.status.success",
+                    "✓ '{name}' enrolled successfully (embedding dim: {embedding_dim}).",
+                    name=name,
+                    embedding_dim=result.embedding_dim,
+                ),
                 error=False,
             )
             logger.info(
@@ -308,9 +370,14 @@ class EnrollmentDialog(QDialog):
                 result.embedding_dim,
             )
         else:
-            item.setText(f"{name} | {org} | {_STATUS_FAILED}")
+            item.setText(f"{name} | {org} | {self._tr('ui.enrollment.status.failed', _STATUS_FAILED)}")
             self._set_status(
-                f"Enrollment fehlgeschlagen für {name!r}: {result.error}",
+                self._tr(
+                    "ui.enrollment.status.failed_detail",
+                    "Enrollment failed for '{name}': {error}",
+                    name=name,
+                    error=result.error,
+                ),
                 error=True,
             )
             logger.error("Enrollment failed for '%s': %s", name, result.error)

@@ -188,8 +188,11 @@ class MainWindow(QMainWindow):
         self._asr_timer.timeout.connect(self._process_pending_audio)
         self.transcript_line_ready.connect(self.append_transcript_line)
 
-    def _tr(self, key: str, **kwargs: object) -> str:
-        return self._translator.tr(key, **kwargs)
+    def _tr(self, key: str, fallback: str | None = None, **kwargs: object) -> str:
+        translated = self._translator.tr(key, **kwargs)
+        if fallback is not None and translated == key:
+            return fallback
+        return translated
 
     # ------------------------------------------------------------------
     # Panel builders
@@ -203,33 +206,33 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout(panel)
         layout.setSpacing(12)
 
-        meeting_box = QGroupBox("Meeting Setup")
-        form = QFormLayout(meeting_box)
+        self._meeting_box = QGroupBox(self._tr("ui.setup.group_title"))
+        form = QFormLayout(self._meeting_box)
 
         self._meeting_title = QLineEdit()
-        form.addRow("Meeting Title", self._meeting_title)
+        form.addRow(self._tr("ui.setup.meeting_title_label"), self._meeting_title)
 
         self._meeting_type = QComboBox()
         self._meeting_type.addItems(self.runtime_config.protocol.meeting_modes)
-        form.addRow("Meeting Type", self._meeting_type)
+        form.addRow(self._tr("ui.setup.meeting_type_label"), self._meeting_type)
 
         self._participant_count = QSpinBox()
         self._participant_count.setRange(1, 30)
         self._participant_count.setValue(2)
-        form.addRow("Participants", self._participant_count)
+        form.addRow(self._tr("ui.setup.participants_label"), self._participant_count)
 
         self._naming_template = QComboBox()
         self._naming_template.addItems([
-            "Herr/Frau + Last Name + Company",
-            "First Name + Last Name + Company",
+            self._tr("ui.setup.template.with_salutation"),
+            self._tr("ui.setup.template.with_full_name"),
         ])
-        form.addRow("Participant Template", self._naming_template)
+        form.addRow(self._tr("ui.setup.participant_template_label"), self._naming_template)
 
         # HEAR-039: real Windows device selector
         self._audio_device = QComboBox()
-        self._audio_device.addItem("Windows default microphone", userData=None)
+        self._audio_device.addItem(self._tr("ui.setup.audio.default_microphone"), userData=None)
         self._populate_audio_devices()
-        form.addRow("Audio Input", self._audio_device)
+        form.addRow(self._tr("ui.setup.audio_input_label"), self._audio_device)
 
         # HEAR-093/HEAR-185: protocol language selection is the single source
         # of truth for both UI and protocol language in phase 1.
@@ -252,13 +255,12 @@ class MainWindow(QMainWindow):
         self._protocol_language.currentIndexChanged.connect(self._on_protocol_language_changed)
         form.addRow(self._tr("ui.setup.protocol_language_label"), self._protocol_language)
 
-        layout.addWidget(meeting_box)
+        layout.addWidget(self._meeting_box)
 
-        speakers_box = QGroupBox("Speaker Enrollment")
-        speakers_layout = QVBoxLayout(speakers_box)
-        speakers_layout.addWidget(QLabel(
-            "Doppelklick zum Bearbeiten. Format: Name | Organisation | Status"
-        ))
+        self._speakers_box = QGroupBox(self._tr("ui.speaker.group_title"))
+        speakers_layout = QVBoxLayout(self._speakers_box)
+        self._speaker_help_label = QLabel(self._tr("ui.speaker.help_format"))
+        speakers_layout.addWidget(self._speaker_help_label)
 
         self._speakers_list = QListWidget()
         self._speakers_list.setEditTriggers(
@@ -282,21 +284,21 @@ class MainWindow(QMainWindow):
         self._speakers_list.itemChanged.connect(self._on_speaker_item_changed)
 
         speaker_btn_row = QHBoxLayout()
-        add_btn = QPushButton("+ Add")
-        add_btn.setToolTip("Neuen Sprecher hinzufügen")
-        add_btn.clicked.connect(self._add_speaker)
-        add_btn.setProperty("buttonClass", "secondary")
-        edit_btn = QPushButton("Edit")
-        edit_btn.setToolTip("Ausgewählten Sprecher bearbeiten")
-        edit_btn.clicked.connect(self._edit_speaker)
-        edit_btn.setProperty("buttonClass", "secondary")
-        remove_btn = QPushButton("Remove")
-        remove_btn.setToolTip("Ausgewählten Sprecher entfernen")
-        remove_btn.clicked.connect(self._remove_speaker)
-        remove_btn.setProperty("buttonClass", "destructive")
-        speaker_btn_row.addWidget(add_btn)
-        speaker_btn_row.addWidget(edit_btn)
-        speaker_btn_row.addWidget(remove_btn)
+        self._add_speaker_btn = QPushButton(self._tr("ui.speaker.button.add"))
+        self._add_speaker_btn.setToolTip(self._tr("ui.speaker.tooltip.add"))
+        self._add_speaker_btn.clicked.connect(self._add_speaker)
+        self._add_speaker_btn.setProperty("buttonClass", "secondary")
+        self._edit_speaker_btn = QPushButton(self._tr("ui.speaker.button.edit"))
+        self._edit_speaker_btn.setToolTip(self._tr("ui.speaker.tooltip.edit"))
+        self._edit_speaker_btn.clicked.connect(self._edit_speaker)
+        self._edit_speaker_btn.setProperty("buttonClass", "secondary")
+        self._remove_speaker_btn = QPushButton(self._tr("ui.speaker.button.remove"))
+        self._remove_speaker_btn.setToolTip(self._tr("ui.speaker.tooltip.remove"))
+        self._remove_speaker_btn.clicked.connect(self._remove_speaker)
+        self._remove_speaker_btn.setProperty("buttonClass", "destructive")
+        speaker_btn_row.addWidget(self._add_speaker_btn)
+        speaker_btn_row.addWidget(self._edit_speaker_btn)
+        speaker_btn_row.addWidget(self._remove_speaker_btn)
         speakers_layout.addLayout(speaker_btn_row)
 
         # HEAR-040: visible feedback label for speaker actions
@@ -304,44 +306,44 @@ class MainWindow(QMainWindow):
         self._speaker_status.setStyleSheet("color: #16A34A; font-weight: 600;")
         speakers_layout.addWidget(self._speaker_status)
 
-        apply_template_btn = QPushButton("Apply Participant Template")
-        apply_template_btn.clicked.connect(self._apply_participant_template)
-        apply_template_btn.setProperty("buttonClass", "primary")
-        speakers_layout.addWidget(apply_template_btn)
+        self._apply_template_btn = QPushButton(self._tr("ui.speaker.button.apply_template"))
+        self._apply_template_btn.clicked.connect(self._apply_participant_template)
+        self._apply_template_btn.setProperty("buttonClass", "primary")
+        speakers_layout.addWidget(self._apply_template_btn)
 
-        start_enrollment_btn = QPushButton("Start Enrollment")
-        start_enrollment_btn.clicked.connect(self._start_enrollment)
-        start_enrollment_btn.setProperty("buttonClass", "primary")
-        speakers_layout.addWidget(start_enrollment_btn)
+        self._start_enrollment_btn = QPushButton(self._tr("ui.speaker.button.start_enrollment"))
+        self._start_enrollment_btn.clicked.connect(self._start_enrollment)
+        self._start_enrollment_btn.setProperty("buttonClass", "primary")
+        speakers_layout.addWidget(self._start_enrollment_btn)
 
-        layout.addWidget(speakers_box)
+        layout.addWidget(self._speakers_box)
 
         # HEAR-087: system readiness indicators
-        self._readiness_widget = SystemReadinessWidget()
+        self._readiness_widget = SystemReadinessWidget(translator=self._tr)
         self._readiness_widget.set_refresh_callback(self._refresh_readiness)
         layout.addWidget(self._readiness_widget)
 
         # HEAR-041: meeting status indicator
-        self._meeting_status_label = QLabel("\u26aa Kein aktives Meeting")
+        self._meeting_status_label = QLabel(self._tr("ui.meeting.status.inactive"))
         self._meeting_status_label.setStyleSheet("font-weight: 600; color: #64748B;")
         layout.addWidget(self._meeting_status_label)
         # HEAR-044: live mic state + level meter
         self._mic_level_widget = MicLevelWidget()
         layout.addWidget(self._mic_level_widget)
         controls = QHBoxLayout()
-        self._start_meeting_btn = QPushButton("Start Meeting")
+        self._start_meeting_btn = QPushButton(self._tr("ui.meeting.button.start"))
         self._start_meeting_btn.clicked.connect(self._start_meeting)
         self._start_meeting_btn.setProperty("buttonClass", "primary")
-        self._stop_meeting_btn = QPushButton("Stop Meeting")
+        self._stop_meeting_btn = QPushButton(self._tr("ui.meeting.button.stop"))
         self._stop_meeting_btn.clicked.connect(self._stop_meeting)
         self._stop_meeting_btn.setEnabled(False)
         self._stop_meeting_btn.setProperty("buttonClass", "destructive")
-        show_state_btn = QPushButton("Show Current State")
-        show_state_btn.clicked.connect(self._show_current_state)
-        show_state_btn.setProperty("buttonClass", "secondary")
+        self._show_state_btn = QPushButton(self._tr("ui.meeting.button.show_state"))
+        self._show_state_btn.clicked.connect(self._show_current_state)
+        self._show_state_btn.setProperty("buttonClass", "secondary")
         controls.addWidget(self._start_meeting_btn)
         controls.addWidget(self._stop_meeting_btn)
-        controls.addWidget(show_state_btn)
+        controls.addWidget(self._show_state_btn)
         layout.addLayout(controls)
         layout.addStretch(1)
         return panel
@@ -566,14 +568,54 @@ class MainWindow(QMainWindow):
         self.runtime_config.protocol.protocol_language = selected_language
         self._translator.set_language(selected_language)
         self._protocol_engine.set_language(selected_language)
-        self._header_label.setText(self._tr("ui.app.workspace_title"))
+        self._retranslate_ui()
         logger.debug("Protocol/UI language set to: %s", selected_language)
+
+    def _retranslate_ui(self) -> None:
+        self._header_label.setText(self._tr("ui.app.workspace_title"))
+        self._meeting_box.setTitle(self._tr("ui.setup.group_title"))
+        self._speakers_box.setTitle(self._tr("ui.speaker.group_title"))
+        self._speaker_help_label.setText(self._tr("ui.speaker.help_format"))
+        self._add_speaker_btn.setText(self._tr("ui.speaker.button.add"))
+        self._add_speaker_btn.setToolTip(self._tr("ui.speaker.tooltip.add"))
+        self._edit_speaker_btn.setText(self._tr("ui.speaker.button.edit"))
+        self._edit_speaker_btn.setToolTip(self._tr("ui.speaker.tooltip.edit"))
+        self._remove_speaker_btn.setText(self._tr("ui.speaker.button.remove"))
+        self._remove_speaker_btn.setToolTip(self._tr("ui.speaker.tooltip.remove"))
+        self._apply_template_btn.setText(self._tr("ui.speaker.button.apply_template"))
+        self._start_enrollment_btn.setText(self._tr("ui.speaker.button.start_enrollment"))
+        self._start_meeting_btn.setText(self._tr("ui.meeting.button.start"))
+        self._stop_meeting_btn.setText(self._tr("ui.meeting.button.stop"))
+        self._show_state_btn.setText(self._tr("ui.meeting.button.show_state"))
+        if hasattr(self, "_transcript_group"):
+            self._transcript_group.setTitle(self._tr("ui.transcript.group_title"))
+        if hasattr(self, "_transcript_meta_label"):
+            self._transcript_meta_label.setText(self._tr("ui.transcript.meta_label"))
+        if hasattr(self, "_protocol_box"):
+            self._protocol_box.setTitle(self._tr("ui.protocol.group_title"))
+        if hasattr(self, "_protocol_subtitle_label"):
+            self._protocol_subtitle_label.setText(self._tr("ui.protocol.subtitle"))
+        if hasattr(self, "_review_box"):
+            self._review_box.setTitle(self._tr("ui.review.group_title"))
+        if hasattr(self, "_review_subtitle_label"):
+            self._review_subtitle_label.setText(self._tr("ui.review.subtitle"))
+        if hasattr(self, "_speaker_override"):
+            self._speaker_override.setPlaceholderText(self._tr("ui.review.speaker_placeholder"))
+        if hasattr(self, "_correct_btn"):
+            self._correct_btn.setText(self._tr("ui.review.button.apply_correction"))
+        if hasattr(self, "_export_btn"):
+            self._export_btn.setText(self._tr("ui.export.button"))
+            self._export_btn.setToolTip(self._tr("ui.export.tooltip"))
+        if self._session is None:
+            self._meeting_status_label.setText(self._tr("ui.meeting.status.inactive"))
+        if self._readiness_widget is not None:
+            self._readiness_widget.retranslate()
 
     def _on_speaker_item_changed(self, item: QListWidgetItem) -> None:
         """Update feedback label after user commits an inline edit (HEAR-040)."""
         if self._speaker_list_updating:
             return
-        self._set_speaker_status(f"Gespeichert: {item.text()[:40]}")
+        self._set_speaker_status(self._tr("ui.speaker.status.saved", text=item.text()[:40]))
 
     def _set_speaker_status(self, message: str) -> None:
         """Show a short status message below the speaker list."""
@@ -588,7 +630,7 @@ class MainWindow(QMainWindow):
         self._speakers_list.addItem(item)
         self._speakers_list.setCurrentItem(item)
         self._speakers_list.editItem(item)
-        self._set_speaker_status("Neuer Sprecher hinzugef\u00fcgt \u2014 Namen direkt editieren.")
+        self._set_speaker_status(self._tr("ui.speaker.status.added"))
 
     def _edit_speaker(self) -> None:
         """Inline-Edit des ausgewählten Sprecher-Eintrags."""
@@ -599,10 +641,10 @@ class MainWindow(QMainWindow):
                 self._tr("ui.speaker.edit.title"),
                 self._tr("ui.speaker.select_required"),
             )
-            self._set_speaker_status("Kein Sprecher ausgew\u00e4hlt.")
+            self._set_speaker_status(self._tr("ui.speaker.status.none_selected"))
             return
         self._speakers_list.editItem(item)
-        self._set_speaker_status(f"Bearbeite: {item.text()[:40]}")
+        self._set_speaker_status(self._tr("ui.speaker.status.editing", text=item.text()[:40]))
 
     def _remove_speaker(self) -> None:
         """Entfernt den ausgewählten Sprecher nach Bestätigung."""
@@ -613,18 +655,18 @@ class MainWindow(QMainWindow):
                 self._tr("ui.speaker.remove.title"),
                 self._tr("ui.speaker.select_required"),
             )
-            self._set_speaker_status("Kein Sprecher ausgew\u00e4hlt.")
+            self._set_speaker_status(self._tr("ui.speaker.status.none_selected"))
             return
         answer = QMessageBox.question(
             self,
-            "Sprecher entfernen",
-            f"'{item.text()}' entfernen?",
+            self._tr("ui.speaker.remove.confirm_title"),
+            self._tr("ui.speaker.remove.confirm_body", entry=item.text()),
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
         )
         if answer == QMessageBox.StandardButton.Yes:
             name = item.text()
             self._speakers_list.takeItem(self._speakers_list.row(item))
-            self._set_speaker_status(f"Sprecher entfernt: {name[:40]}")
+            self._set_speaker_status(self._tr("ui.speaker.status.removed", text=name[:40]))
 
     def _get_speaker_texts(self) -> list[str]:
         """Gibt alle nicht-leeren Sprecher-Texte zurück."""
@@ -643,7 +685,9 @@ class MainWindow(QMainWindow):
         """Generiert Platzhalter-Sprecher aus Anzahl und Namens-Template."""
         import uuid as _uuid
         count = self._participant_count.value()
-        use_salutation = self._naming_template.currentText().startswith("Herr/Frau")
+        use_salutation = self._naming_template.currentText().startswith(
+            self._tr("ui.setup.template.with_salutation")
+        )
         self._speakers_list.clear()
         for i in range(1, count + 1):
             if use_salutation:
@@ -687,8 +731,8 @@ class MainWindow(QMainWindow):
         if self._speakers_list.count() == 0:
             QMessageBox.warning(
                 self,
-                "Enrollment",
-                "Bitte mindestens einen Sprecher hinzufügen.",
+                self._tr("ui.enrollment.title"),
+                self._tr("ui.meeting.start.missing_speakers"),
             )
             return
 
@@ -696,14 +740,15 @@ class MainWindow(QMainWindow):
         if not pending:
             QMessageBox.information(
                 self,
-                "Enrollment",
-                "Alle Sprecher sind bereits enrolliert.",
+                self._tr("ui.enrollment.title"),
+                self._tr("ui.enrollment.all_done"),
             )
             return
 
         dlg = EnrollmentDialog(
             pending_speakers=pending,
             speaker_manager=self._speaker_manager,
+            translator=self._tr,
             parent=self,
         )
         from PySide6.QtWidgets import QDialog
@@ -753,13 +798,21 @@ class MainWindow(QMainWindow):
         """Validiert das Setup und startet eine Meeting-Session."""
         title = self._meeting_title.text().strip()
         if not title:
-            QMessageBox.warning(self, "Start Meeting", "Bitte einen Meeting-Titel eingeben.")
+            QMessageBox.warning(
+                self,
+                self._tr("ui.meeting.start.title"),
+                self._tr("ui.meeting.start.missing_title"),
+            )
             self._meeting_title.setFocus()
             return
 
         speakers = self._get_speaker_texts()
         if not speakers:
-            QMessageBox.warning(self, "Start Meeting", "Bitte mindestens einen Sprecher hinzufügen.")
+            QMessageBox.warning(
+                self,
+                self._tr("ui.meeting.start.title"),
+                self._tr("ui.meeting.start.missing_speakers"),
+            )
             return
 
         import uuid
@@ -917,14 +970,10 @@ class MainWindow(QMainWindow):
                 "Snapshot-Generierung (ca. 10 s nach dem ersten Transkript).\n"
             )
         else:
-            self._protocol_view.setPlainText(
-                "[DEGRADED] Protokollentwurf nicht verfügbar — "
-                "Persistenz-Backend nicht verbunden.\n\n"
-                "Live-Transkript siehe Transkript-Panel."
-            )
+            self._protocol_view.setPlainText(self._tr("ui.protocol.degraded.unavailable"))
 
         # HEAR-041: visible session state
-        self._meeting_status_label.setText(f"\U0001f7e2 Meeting aktiv: {title}")
+        self._meeting_status_label.setText(self._tr("ui.meeting.status.active", title=title))
         self._meeting_status_label.setStyleSheet("font-weight: 700; color: #16A34A;")
         self._start_meeting_btn.setEnabled(False)
         self._stop_meeting_btn.setEnabled(True)
@@ -967,43 +1016,43 @@ class MainWindow(QMainWindow):
 
         self.stop_active_meeting()
         self._session = None
-        self._meeting_status_label.setText("\u26aa Kein aktives Meeting")
+        self._meeting_status_label.setText(self._tr("ui.meeting.status.inactive"))
         self._meeting_status_label.setStyleSheet("font-weight: 600; color: #64748B;")
         self._start_meeting_btn.setEnabled(True)
         self._stop_meeting_btn.setEnabled(False)
         # HEAR-075: keep export accessible after recording stops
         # (export button stays enabled so user can export the final protocol)
-        self.append_transcript_line("[--:--] Meeting beendet.")
+        self.append_transcript_line(self._tr("ui.meeting.stopped.line"))
 
     def _show_current_state(self) -> None:
         """Zeigt einen Dialog mit dem aktuellen Setup- und Session-Status (HEAR-041)."""
-        title = self._meeting_title.text().strip() or "(nicht gesetzt)"
+        title = self._meeting_title.text().strip() or self._tr("ui.meeting.state.unset")
         mode = self._meeting_type.currentText()
         device = self._audio_device.currentText()
         speakers = self._get_speaker_texts()
 
         lines = [
-            f"Meeting-Titel:  {title}",
-            f"Meeting-Typ:    {mode}",
-            f"Audio-Ger\u00e4t:   {device}",
-            f"Sprecher ({len(speakers)}):",
+            self._tr("ui.meeting.state.title_line", value=title),
+            self._tr("ui.meeting.state.type_line", value=mode),
+            self._tr("ui.meeting.state.device_line", value=device),
+            self._tr("ui.meeting.state.speakers_line", count=len(speakers)),
         ]
         for s in speakers:
             lines.append(f"  \u2022 {s}")
         lines.append("")
         if self._session is not None and self._session.started_at is not None:
-            lines.append(f"\u2705 Aktive Session: {self._session.title}")
-            lines.append(f"   Gestartet:    {self._session.started_at.strftime('%H:%M:%S')}")
-            lines.append(f"   Teilnehmer:   {len(self._session.participants)}")
+            lines.append(self._tr("ui.meeting.state.active_line", title=self._session.title))
+            lines.append(self._tr("ui.meeting.state.started_line", value=self._session.started_at.strftime('%H:%M:%S')))
+            lines.append(self._tr("ui.meeting.state.participants_line", count=len(self._session.participants)))
         else:
-            lines.append("\u26aa Keine aktive Meeting-Session.")
+            lines.append(self._tr("ui.meeting.state.none_active_line"))
 
-        QMessageBox.information(self, "Aktueller Status", "\n".join(lines))
+        QMessageBox.information(self, self._tr("ui.meeting.state.title"), "\n".join(lines))
 
     def _start_audio_pipeline(self) -> str:
         """Start the live audio capture + ASR buffering loop for the active meeting."""
         if self._active_meeting_id is None:
-            return "Audio-Pipeline nicht gestartet (kein aktives Meeting)."
+            return self._tr("ui.audio.pipeline.not_started", fallback="Audio pipeline not started (no active meeting).")
 
         self._clear_audio_buffer()
         self._asr_warned_no_text = False
@@ -1030,12 +1079,16 @@ class MainWindow(QMainWindow):
             self._adaptive_queue = AdaptiveTranscriptionQueue(self._do_transcribe_segment)
             self._asr_timer.start()
             self._mic_level_widget.set_active()
-            return "Audioaufnahme aktiv, Live-Transkription läuft."
+            return self._tr("ui.audio.pipeline.active", fallback="Audio capture active, live transcription running.")
         except Exception as exc:
             logger.error("Audio-Pipeline konnte nicht gestartet werden: %s", exc)
             self._audio_capture_service = None
             self._mic_level_widget.set_error(str(exc))
-            return f"Audio-Pipeline konnte nicht gestartet werden: {exc}"
+            return self._tr(
+                "ui.audio.pipeline.start_failed",
+                fallback="Audio pipeline could not be started: {error}",
+                error=exc,
+            )
 
     def _stop_audio_pipeline(self) -> None:
         self._asr_timer.stop()
@@ -1148,7 +1201,7 @@ class MainWindow(QMainWindow):
 
         if (result.error or not self._asr_warned_no_text) and not text:
             self.transcript_line_ready.emit(
-                f"[{stamp}] System: Audio erkannt, aber noch kein Transkriptions-Text verfügbar."
+                self._tr("ui.transcript.system_no_text", stamp=stamp)
             )
             self._asr_warned_no_text = True
 
@@ -1195,15 +1248,16 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout(panel)
         layout.setSpacing(12)
 
-        status = QGroupBox("Live Transcript")
-        status_layout = QVBoxLayout(status)
-        status_layout.addWidget(QLabel("Input: default microphone | Whisper profile: balanced"))
+        self._transcript_group = QGroupBox(self._tr("ui.transcript.group_title"))
+        status_layout = QVBoxLayout(self._transcript_group)
+        self._transcript_meta_label = QLabel(self._tr("ui.transcript.meta_label"))
+        status_layout.addWidget(self._transcript_meta_label)
 
         self._transcript_view = QPlainTextEdit()
         self._transcript_view.setReadOnly(True)
-        self._transcript_view.setPlainText("[00:00] System: Meeting initialized.")
+        self._transcript_view.setPlainText(self._tr("ui.transcript.initial_line"))
         status_layout.addWidget(self._transcript_view)
-        layout.addWidget(status)
+        layout.addWidget(self._transcript_group)
         return panel
 
     def _build_protocol_panel(self) -> QWidget:
@@ -1211,30 +1265,20 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout(panel)
         layout.setSpacing(12)
 
-        protocol_box = QGroupBox("Protocol Draft")
-        protocol_layout = QVBoxLayout(protocol_box)
-        protocol_layout.addWidget(QLabel(
-            "Decisions, action items and open questions update on significant events."
-        ))
+        self._protocol_box = QGroupBox(self._tr("ui.protocol.group_title"))
+        protocol_layout = QVBoxLayout(self._protocol_box)
+        self._protocol_subtitle_label = QLabel(self._tr("ui.protocol.subtitle"))
+        protocol_layout.addWidget(self._protocol_subtitle_label)
 
         self._protocol_view = QPlainTextEdit()
         self._protocol_view.setReadOnly(True)
-        self._protocol_view.setPlainText(
-            "Summary\n"
-            "- Meeting started with speaker enrollment.\n\n"
-            "Decisions\n"
-            "- Waiting for first confirmed decision.\n\n"
-            "Action Items\n"
-            "- No action items detected yet."
-        )
+        self._protocol_view.setPlainText(self._tr("ui.protocol.default_text"))
         protocol_layout.addWidget(self._protocol_view)
 
         # HEAR-075: visible export action
         export_row = QHBoxLayout()
-        self._export_btn = QPushButton("Export Protocol…")
-        self._export_btn.setToolTip(
-            "Protokoll als Markdown-Datei in den exports/-Ordner speichern"
-        )
+        self._export_btn = QPushButton(self._tr("ui.export.button"))
+        self._export_btn.setToolTip(self._tr("ui.export.tooltip"))
         self._export_btn.clicked.connect(self._do_export_protocol)
         self._export_btn.setEnabled(False)
         self._export_btn.setProperty("buttonClass", "primary")
@@ -1247,26 +1291,27 @@ class MainWindow(QMainWindow):
         self._export_path_label.setWordWrap(True)
         protocol_layout.addWidget(self._export_path_label)
 
-        layout.addWidget(protocol_box)
+        layout.addWidget(self._protocol_box)
 
-        quality_box = QGroupBox("Review Queue")
-        quality_layout = QVBoxLayout(quality_box)
-        quality_layout.addWidget(QLabel("Unknown speakers and low-confidence assignments appear here."))
+        self._review_box = QGroupBox(self._tr("ui.review.group_title"))
+        quality_layout = QVBoxLayout(self._review_box)
+        self._review_subtitle_label = QLabel(self._tr("ui.review.subtitle"))
+        quality_layout.addWidget(self._review_subtitle_label)
 
         self._review_list = QListWidget()
         quality_layout.addWidget(self._review_list)
 
         self._speaker_override = QComboBox()
         self._speaker_override.setEditable(True)
-        self._speaker_override.setPlaceholderText("Assign correct speaker name…")
+        self._speaker_override.setPlaceholderText(self._tr("ui.review.speaker_placeholder"))
         quality_layout.addWidget(self._speaker_override)
 
-        correct_btn = QPushButton("Apply Correction")
-        correct_btn.clicked.connect(self._apply_speaker_correction)
-        correct_btn.setProperty("buttonClass", "primary")
-        quality_layout.addWidget(correct_btn)
+        self._correct_btn = QPushButton(self._tr("ui.review.button.apply_correction"))
+        self._correct_btn.clicked.connect(self._apply_speaker_correction)
+        self._correct_btn.setProperty("buttonClass", "primary")
+        quality_layout.addWidget(self._correct_btn)
 
-        layout.addWidget(quality_box)
+        layout.addWidget(self._review_box)
         return panel
 
     # ------------------------------------------------------------------
@@ -1352,7 +1397,7 @@ class MainWindow(QMainWindow):
         self._review_list.clear()
 
         if self._transcript_repo is None or self._active_meeting_id is None:
-            item = QListWidgetItem("(No active meeting or repository not connected)")
+            item = QListWidgetItem(self._tr("ui.review.no_active"))
             item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsSelectable)
             self._review_list.addItem(item)
             return
@@ -1381,7 +1426,11 @@ class MainWindow(QMainWindow):
         corrected_name = self._speaker_override.currentText().strip()
 
         if selected is None or not corrected_name:
-            QMessageBox.warning(self, "Correction", "Select a segment and enter a speaker name.")
+            QMessageBox.warning(
+                self,
+                self._tr("ui.review.correction.title"),
+                self._tr("ui.review.correction.required"),
+            )
             return
 
         segment_id: str = selected.data(Qt.ItemDataRole.UserRole)
@@ -1394,7 +1443,11 @@ class MainWindow(QMainWindow):
             self._transcript_repo.apply_correction(segment_id, corrected_name)
             logger.info("Manual correction applied: segment=%s speaker=%s", segment_id, corrected_name)
         except Exception as exc:
-            QMessageBox.critical(self, "Error", f"Could not save correction:\n{exc}")
+            QMessageBox.critical(
+                self,
+                self._tr("ui.error.title"),
+                self._tr("ui.review.correction.save_failed", error=exc),
+            )
             return
 
         # Remove from queue and refresh protocol snapshot if available
@@ -1412,24 +1465,14 @@ class MainWindow(QMainWindow):
         if self._snapshot_repo is None or self._active_meeting_id is None:
             current = self._protocol_view.toPlainText()
             if not current.startswith(_PROTOCOL_DEGRADED_PREFIX):
-                self._protocol_view.setPlainText(
-                    f"{_PROTOCOL_DEGRADED_PREFIX} Protokollentwurf nicht verf\u00fcgbar \u2014 "
-                    "Persistenz-Backend nicht verbunden.\n\n"
-                    "Verbinden Sie die Datenbank, um die strukturierte Protokollerstellung "
-                    "gem\u00e4\u00df ADR-0005 zu aktivieren.\n\n"
-                    "Live-Transkript siehe Transkript-Panel."
-                )
+                self._protocol_view.setPlainText(self._tr("ui.protocol.degraded.unavailable"))
             return
         try:
             snapshot = self._snapshot_repo.latest(self._active_meeting_id)
             if snapshot is None:
                     current = self._protocol_view.toPlainText()
                     if not current.startswith(_PROTOCOL_DEGRADED_PREFIX):
-                        self._protocol_view.setPlainText(
-                            f"{_PROTOCOL_DEGRADED_PREFIX} Protokoll-Snapshot noch nicht verfügbar.\n\n"
-                            "Generierung läuft ... oder es ist ein Fehler aufgetreten.\n"
-                            "Bitte warten oder prüfen Sie das System-Readiness-Panel."
-                        )
+                        self._protocol_view.setPlainText(self._tr("ui.protocol.degraded.no_snapshot"))
                     return
             content = snapshot.snapshot_content or {}
             lines: list[str] = []
@@ -1983,9 +2026,17 @@ class MainWindow(QMainWindow):
         draft = self._protocol_view.toPlainText().strip()
         if not draft or draft.startswith("[DEGRADED]"):
             if draft.startswith("[DEGRADED]"):
-                QMessageBox.warning(self, "Export", "Kein exportierbarer Protokollentwurf vorhanden.\n\nDas Protokoll ist degradiert — Datenbankverbindung erforderlich.")
+                QMessageBox.warning(
+                    self,
+                    self._tr("ui.export.warning.title"),
+                    self._tr("ui.export.warning.degraded"),
+                )
             else:
-                QMessageBox.warning(self, "Export", "Das Protokoll ist noch leer — nichts zu exportieren.")
+                QMessageBox.warning(
+                    self,
+                    self._tr("ui.export.warning.title"),
+                    self._tr("ui.export.warning.empty"),
+                )
             return
 
         title = ""
@@ -1996,8 +2047,8 @@ class MainWindow(QMainWindow):
         profile_labels = [PROFILE_LABELS[pid] for pid in profile_ids]
         selected_label, ok = QInputDialog.getItem(
             self,
-            "Export-Profil",
-            "Zielgruppe / Profil:",
+            self._tr("ui.export.profile.title"),
+            self._tr("ui.export.profile.label"),
             profile_labels,
             profile_ids.index(PROFILE_OPS),
             False,
@@ -2041,16 +2092,20 @@ class MainWindow(QMainWindow):
                 profile_id=profile_id,
             )
             out_path.write_text(md_text, encoding="utf-8")
-            self._export_path_label.setText(f"Exportiert: {out_path}")
+            self._export_path_label.setText(self._tr("ui.export.path_label", path=out_path))
             logger.info("Protocol exported to %s (profile=%s)", out_path, profile_id)
             QMessageBox.information(
                 self,
-                "Export erfolgreich",
-                f"Protokoll gespeichert:\n{out_path}",
+                self._tr("ui.export.success.title"),
+                self._tr("ui.export.success.body", path=out_path),
             )
         except OSError as exc:
             logger.error("Protocol export failed: %s", exc)
-            QMessageBox.critical(self, "Export fehlgeschlagen", f"Fehler beim Schreiben:\n{exc}")
+            QMessageBox.critical(
+                self,
+                self._tr("ui.export.error.title"),
+                self._tr("ui.export.error.body", error=exc),
+            )
 
     _TRANSCRIPT_SECTION_HEADER = "## Transcript"
 
