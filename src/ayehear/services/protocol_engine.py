@@ -17,6 +17,7 @@ import urllib.request
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
+from ayehear.i18n import resolve_language
 from ayehear.services.action_item_quality import ActionItemQuality, ActionItemQualityEngine
 from ayehear.services.confidence_review import ConfidenceReviewQueue
 from ayehear.services.protocol_traceability import TraceabilityStore
@@ -111,16 +112,16 @@ class ProtocolEngine:
         transcript_repo: "TranscriptSegmentRepository | None" = None,
         ollama_base_url: str = "http://localhost:11434",
         ollama_model: str = "mistral:7b",
-        language: str = "Deutsch",
+        language: str = "de",
         fallback_enabled: bool = True,
     ) -> None:
         self._snapshots = snapshot_repo
         self._transcripts = transcript_repo
         self._ollama_base_url = self._validate_loopback_url(ollama_base_url)
         self._ollama_model = ollama_model
-        self._language = language
+        self._language = resolve_language(language)
         self._fallback_enabled = fallback_enabled
-        self._quality_engine = ActionItemQualityEngine(language=language)
+        self._quality_engine = ActionItemQualityEngine(language=self._language)
         self._last_diagnostics: dict[str, Any] = {
             "status": "idle",
             "reason": "",
@@ -128,6 +129,10 @@ class ProtocolEngine:
             "model": self._ollama_model,
             "available_models": [],
         }
+
+    def set_language(self, language: str) -> None:
+        self._language = resolve_language(language)
+        self._quality_engine = ActionItemQualityEngine(language=self._language)
 
     @staticmethod
     def _validate_loopback_url(url: str) -> str:
@@ -515,23 +520,18 @@ class ProtocolEngine:
 
     # Language → prompt instruction mapping (HEAR-093)
     _LANGUAGE_INSTRUCTIONS: dict[str, str] = {
-        "Deutsch": (
+        "de": (
             "Du bist ein Meeting-Assistent. Extrahiere ein strukturiertes Protokoll "
             "aus dem folgenden Transkript. Antworte ausschließlich mit JSON (kein Markdown). "
             "WICHTIG: Schreibe ALLE Inhalte ausschließlich auf Deutsch. Verwende keine andere Sprache."
         ),
-        "English": (
+        "en": (
             "You are a meeting assistant. Extract a structured protocol from the following "
             "transcript. Reply exclusively with JSON (no Markdown). "
             "IMPORTANT: Write ALL content exclusively in English. Do not use any other language."
         ),
-        "Francais": (
-            "Tu es un assistant de réunion. Extrais un protocole structuré du transcript "
-            "suivant. Réponds uniquement avec du JSON (pas de Markdown). "
-            "IMPORTANT: Rédige TOUT le contenu exclusivement en français. N'utilise aucune autre langue."
-        ),
     }
-    _DEFAULT_LANGUAGE_INSTRUCTION = _LANGUAGE_INSTRUCTIONS["Deutsch"]
+    _DEFAULT_LANGUAGE_INSTRUCTION = _LANGUAGE_INSTRUCTIONS["de"]
 
     def _extract_via_ollama(self, lines: list[str]) -> ProtocolContent:
         """Call local Ollama API for structured extraction."""
@@ -548,9 +548,8 @@ class ProtocolEngine:
         # Repeat the language instruction at the end of the prompt so it acts as
         # a final reinforcement for models that drift back to English (HEAR-168).
         lang_reminder = {
-            "Deutsch": "Antworte ausschließlich auf Deutsch.",
-            "English": "Reply exclusively in English.",
-            "Francais": "Réponds exclusivement en français.",
+            "de": "Antworte ausschließlich auf Deutsch.",
+            "en": "Reply exclusively in English.",
         }.get(self._language, "Antworte ausschließlich auf Deutsch.")
         prompt = (
             f"{instruction}\n"

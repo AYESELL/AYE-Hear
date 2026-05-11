@@ -207,6 +207,19 @@ _WEIGHTS: dict[ScoreReason, int] = {
 
 SHARPENING_THRESHOLD = 75  # items below this score are flagged "needs_sharpening"
 
+_LANGUAGE_KEY_ALIASES: dict[str, str] = {
+    "de": "Deutsch",
+    "de-de": "Deutsch",
+    "deutsch": "Deutsch",
+    "en": "English",
+    "en-us": "English",
+    "en-gb": "English",
+    "english": "English",
+    "fr": "Francais",
+    "fr-fr": "Francais",
+    "francais": "Francais",
+}
+
 
 # ---------------------------------------------------------------------------
 # Engine
@@ -220,13 +233,14 @@ class ActionItemQualityEngine:
     """
 
     def __init__(self, language: str = "Deutsch") -> None:
-        self._language = language
-        self._hints = _HINTS.get(language, _HINTS["Deutsch"])
+        canonical_language = _LANGUAGE_KEY_ALIASES.get(language.strip().lower(), language)
+        self._language = canonical_language
+        self._hints = _HINTS.get(canonical_language, _HINTS["Deutsch"])
         self._owner_pattern = {
             "Deutsch": _OWNER_PATTERNS_DE,
             "English": _OWNER_PATTERNS_EN,
             "Francais": _OWNER_PATTERNS_FR,
-        }.get(language, _OWNER_PATTERNS_DE)
+        }.get(canonical_language, _OWNER_PATTERNS_DE)
 
     def score(self, text: str) -> ActionItemQuality:
         """Evaluate a single action-item text.

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pydantic import BaseModel, Field
+from pydantic import model_validator
 
 
 class AppSettings(BaseModel):
@@ -26,10 +27,33 @@ class ProtocolSettings(BaseModel):
     update_interval_seconds: int = 45
     minimum_confidence: float = 0.65
     meeting_modes: list[str] = Field(default_factory=lambda: ["internal", "external"])
-    protocol_language: str = "Deutsch"
-    protocol_language_options: list[str] = Field(
-        default_factory=lambda: ["Deutsch", "English", "Francais"]
-    )
+    language: str = "de"
+    supported_languages: list[str] = Field(default_factory=lambda: ["de", "en"])
+
+    @model_validator(mode="before")
+    @classmethod
+    def _migrate_legacy_language_fields(cls, data: object) -> object:
+        if not isinstance(data, dict):
+            return data
+
+        payload = dict(data)
+        if "language" not in payload and "protocol_language" in payload:
+            payload["language"] = payload["protocol_language"]
+        if "supported_languages" not in payload and "protocol_language_options" in payload:
+            payload["supported_languages"] = payload["protocol_language_options"]
+        return payload
+
+    @property
+    def protocol_language(self) -> str:
+        return self.language
+
+    @protocol_language.setter
+    def protocol_language(self, value: str) -> None:
+        self.language = value
+
+    @property
+    def protocol_language_options(self) -> list[str]:
+        return self.supported_languages
 
 
 class ModelSettings(BaseModel):

@@ -10,40 +10,40 @@ from ayehear.services.protocol_engine import ProtocolEngine
 class TestProtocolSettings(unittest.TestCase):
     """ProtocolSettings model defaults and language list."""
 
-    def test_default_language_is_deutsch(self):
+    def test_default_language_is_de(self):
         s = ProtocolSettings()
-        assert s.protocol_language == "Deutsch"
+        assert s.language == "de"
+        assert s.protocol_language == "de"
 
-    def test_language_options_contain_de_en_fr(self):
+    def test_language_options_contain_de_en(self):
         s = ProtocolSettings()
-        assert "Deutsch" in s.protocol_language_options
-        assert "English" in s.protocol_language_options
-        assert "Francais" in s.protocol_language_options
+        assert "de" in s.supported_languages
+        assert "en" in s.supported_languages
 
     def test_custom_language_stored(self):
-        s = ProtocolSettings(protocol_language="English")
-        assert s.protocol_language == "English"
+        s = ProtocolSettings(language="en")
+        assert s.language == "en"
 
     def test_runtime_config_has_protocol_language(self):
         cfg = RuntimeConfig()
-        assert cfg.protocol.protocol_language == "Deutsch"
+        assert cfg.protocol.language == "de"
 
 
 class TestProtocolEngineLanguage(unittest.TestCase):
     """ProtocolEngine respects the language parameter in prompts."""
 
-    def test_default_language_is_deutsch(self):
+    def test_default_language_is_de(self):
         engine = ProtocolEngine()
-        assert engine._language == "Deutsch"
+        assert engine._language == "de"
 
     def test_custom_language_stored(self):
-        engine = ProtocolEngine(language="English")
-        assert engine._language == "English"
+        engine = ProtocolEngine(language="en")
+        assert engine._language == "en"
 
-    def test_set_language_runtime(self):
+    def test_set_language_runtime_with_normalization(self):
         engine = ProtocolEngine()
-        engine._language = "Francais"
-        assert engine._language == "Francais"
+        engine.set_language("en-US")
+        assert engine._language == "en"
 
     def _make_ollama_response(self, data: dict) -> MagicMock:
         body = json.dumps({"response": json.dumps(data)}).encode()
@@ -76,17 +76,13 @@ class TestProtocolEngineLanguage(unittest.TestCase):
         payload = json.loads(captured[0])
         return payload["prompt"]
 
-    def test_deutsch_prompt_mentions_german(self):
-        prompt = self._capture_prompt("Deutsch", ["Speaker: Hallo Welt"])
+    def test_de_prompt_mentions_german(self):
+        prompt = self._capture_prompt("de", ["Speaker: Hallo Welt"])
         assert "Deutsch" in prompt or "Protokoll" in prompt
 
     def test_english_prompt_in_english(self):
-        prompt = self._capture_prompt("English", ["Speaker: Hello world"])
+        prompt = self._capture_prompt("en", ["Speaker: Hello world"])
         assert "English" in prompt or "meeting assistant" in prompt.lower()
-
-    def test_francais_prompt_in_french(self):
-        prompt = self._capture_prompt("Francais", ["Speaker: Bonjour le monde"])
-        assert "français" in prompt.lower() or "réunion" in prompt.lower()
 
     def test_unknown_language_falls_back_to_deutsch(self):
         prompt = self._capture_prompt("Klingon", ["Speaker: Qapla"])

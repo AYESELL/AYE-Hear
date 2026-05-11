@@ -17,6 +17,10 @@ speaker_identification:
 protocol:
   update_interval_seconds: 45
   minimum_confidence: 0.65
+  language: de
+  supported_languages:
+    - de
+    - en
   meeting_modes:
     - internal
     - external

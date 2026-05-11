@@ -28,7 +28,7 @@ class ProtocolReplayService:
         self,
         *,
         ollama_base_url: str = "http://localhost:11434",
-        language: str = "Deutsch",
+        language: str = "de",
     ) -> None:
         self._ollama_base_url = ollama_base_url
         self._language = language

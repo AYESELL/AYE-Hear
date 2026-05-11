@@ -33,6 +33,7 @@ from PySide6.QtWidgets import (
 from ayehear.app.enrollment_dialog import EnrollmentDialog
 from ayehear.app.mic_level_widget import MicLevelWidget
 from ayehear.app.system_readiness import ReadinessChecker, SystemReadinessWidget
+from ayehear.i18n import Translator, resolve_language
 from ayehear.models.meeting import MeetingSession, Participant
 from ayehear.models.runtime import RuntimeConfig
 from ayehear.services.confidence_review import (
@@ -98,6 +99,7 @@ class MainWindow(QMainWindow):
     ) -> None:
         super().__init__()
         self.runtime_config = runtime_config
+        self._translator = Translator(self.runtime_config.protocol.language)
         self._db_session = db_session
         self._meeting_repo = meeting_repo
         self._participant_repo = participant_repo
@@ -126,6 +128,7 @@ class MainWindow(QMainWindow):
             snapshot_repo=snapshot_repo,
             transcript_repo=transcript_repo,
             ollama_model=self.runtime_config.models.ollama_model,
+            language=self._translator.language,
         )
         # HEAR-087: system readiness checker + widget (built in _build_setup_panel)
         self._readiness_checker = ReadinessChecker()
@@ -159,10 +162,10 @@ class MainWindow(QMainWindow):
         layout.setContentsMargins(16, 16, 16, 16)
         layout.setSpacing(12)
 
-        header = QLabel("AYE Hear Workspace")
-        header.setObjectName("pageTitle")
-        header.setStyleSheet("font-size: 24px; font-weight: 700;")
-        layout.addWidget(header)
+        self._header_label = QLabel(self._tr("ui.app.workspace_title"))
+        self._header_label.setObjectName("pageTitle")
+        self._header_label.setStyleSheet("font-size: 24px; font-weight: 700;")
+        layout.addWidget(self._header_label)
 
         splitter = QSplitter(Qt.Orientation.Horizontal)
         splitter.addWidget(self._build_setup_panel())
@@ -184,6 +187,9 @@ class MainWindow(QMainWindow):
         self._asr_timer.setInterval(1000)
         self._asr_timer.timeout.connect(self._process_pending_audio)
         self.transcript_line_ready.connect(self.append_transcript_line)
+
+    def _tr(self, key: str, **kwargs: object) -> str:
+        return self._translator.tr(key, **kwargs)
 
     # ------------------------------------------------------------------
     # Panel builders
@@ -225,17 +231,26 @@ class MainWindow(QMainWindow):
         self._populate_audio_devices()
         form.addRow("Audio Input", self._audio_device)
 
-        # HEAR-093: Protocol language selection (DE/EN/FR)
+        # HEAR-093/HEAR-185: protocol language selection is the single source
+        # of truth for both UI and protocol language in phase 1.
         self._protocol_language = QComboBox()
-        self._protocol_language.addItems(
-            self.runtime_config.protocol.protocol_language_options
-        )
-        default_lang = self.runtime_config.protocol.protocol_language
-        idx = self._protocol_language.findText(default_lang)
-        if idx >= 0:
-            self._protocol_language.setCurrentIndex(idx)
-        self._protocol_language.currentTextChanged.connect(self._on_protocol_language_changed)
-        form.addRow("Protocol Language", self._protocol_language)
+        supported_languages = self.runtime_config.protocol.supported_languages
+        if not supported_languages:
+            supported_languages = ["de", "en"]
+        for language_code in supported_languages:
+            code = resolve_language(language_code)
+            label_key = f"ui.language.option.{code}"
+            self._protocol_language.addItem(self._tr(label_key), userData=code)
+
+        default_lang = resolve_language(self.runtime_config.protocol.language)
+        default_idx = self._protocol_language.findData(default_lang)
+        if default_idx < 0:
+            default_idx = self._protocol_language.findData("de")
+        if default_idx >= 0:
+            self._protocol_language.setCurrentIndex(default_idx)
+
+        self._protocol_language.currentIndexChanged.connect(self._on_protocol_language_changed)
+        form.addRow(self._tr("ui.setup.protocol_language_label"), self._protocol_language)
 
         layout.addWidget(meeting_box)
 
@@ -544,10 +559,15 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------
 
     # HEAR-093: Protocol language change handler
-    def _on_protocol_language_changed(self, language: str) -> None:
-        """Propagate selected protocol language to ProtocolEngine."""
-        self._protocol_engine._language = language
-        logger.debug("Protocol language set to: %s", language)
+    def _on_protocol_language_changed(self, _index: int) -> None:
+        """Propagate selected protocol language to i18n and protocol generation."""
+        selected_language = resolve_language(str(self._protocol_language.currentData() or "de"))
+        self.runtime_config.protocol.language = selected_language
+        self.runtime_config.protocol.protocol_language = selected_language
+        self._translator.set_language(selected_language)
+        self._protocol_engine.set_language(selected_language)
+        self._header_label.setText(self._tr("ui.app.workspace_title"))
+        logger.debug("Protocol/UI language set to: %s", selected_language)
 
     def _on_speaker_item_changed(self, item: QListWidgetItem) -> None:
         """Update feedback label after user commits an inline edit (HEAR-040)."""
@@ -574,7 +594,11 @@ class MainWindow(QMainWindow):
         """Inline-Edit des ausgewählten Sprecher-Eintrags."""
         item = self._speakers_list.currentItem()
         if item is None:
-            QMessageBox.information(self, "Edit Speaker", "Bitte einen Sprecher ausw\u00e4hlen.")
+            QMessageBox.information(
+                self,
+                self._tr("ui.speaker.edit.title"),
+                self._tr("ui.speaker.select_required"),
+            )
             self._set_speaker_status("Kein Sprecher ausgew\u00e4hlt.")
             return
         self._speakers_list.editItem(item)
@@ -584,7 +608,11 @@ class MainWindow(QMainWindow):
         """Entfernt den ausgewählten Sprecher nach Bestätigung."""
         item = self._speakers_list.currentItem()
         if item is None:
-            QMessageBox.information(self, "Remove Speaker", "Bitte einen Sprecher ausw\u00e4hlen.")
+            QMessageBox.information(
+                self,
+                self._tr("ui.speaker.remove.title"),
+                self._tr("ui.speaker.select_required"),
+            )
             self._set_speaker_status("Kein Sprecher ausgew\u00e4hlt.")
             return
         answer = QMessageBox.question(

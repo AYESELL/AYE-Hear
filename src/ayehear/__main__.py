@@ -41,7 +41,7 @@ def main(argv: list[str] | None = None) -> int:
     configured_models = [config.models.ollama_model]
     # Prefer explicit --language flag; fall back to the value from runtime config
     # so that replay benchmarks use the same language as the running application.
-    language = args.language or config.protocol.protocol_language
+    language = args.language or config.protocol.language
     output_dir = Path(args.output_dir) if args.output_dir else exports_dir() / "replays"
     service = ProtocolReplayService(language=language)
     results = service.replay_baseline(
