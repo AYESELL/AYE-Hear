@@ -64,16 +64,22 @@ Write-Host "        pyinstaller $piOut  OK"
 $version = python -c "import tomllib; f=open('pyproject.toml','rb'); d=tomllib.load(f); print(d['project']['version'])"
 Write-Host "[version] $version"
 
-# ─── Whisper model staging (HEAR-062 / HEAR-094 / HEAR-139) ──────────────────
-# Stage the TheChola German fine-tuned faster-whisper model from the HuggingFace
-# cache into config/models/whisper/TheChola-german-turbo/ for offline bundling.
+# ─── Whisper model staging (HEAR-062 / HEAR-094 / HEAR-139 / HEAR-190) ───────
+# Stage the DE and EN-capable faster-whisper models from HuggingFace cache into
+# config/models/whisper/* for offline bundling.
 # On CI / build agents the model must be pre-downloaded before running this script:
 #   python -c "from faster_whisper import WhisperModel; WhisperModel('TheChola/whisper-large-v3-turbo-german-faster-whisper')"
-# HEAR-139: upgraded from 'small' to TheChola/whisper-large-v3-turbo-german-faster-whisper for DE-optimized ASR.
+#   python -c "from faster_whisper import WhisperModel; WhisperModel('small')"
+# HEAR-139: upgraded default DE model to TheChola-german-turbo.
+# HEAR-190: bundle DE + EN model paths into installer/runtime.
 $WhisperModelName   = 'TheChola/whisper-large-v3-turbo-german-faster-whisper'
 $WhisperStagingDir  = 'config\models\whisper\TheChola-german-turbo'
 $HfCacheRoot        = "$env:USERPROFILE\.cache\huggingface\hub"
 $HfModelDir         = Join-Path $HfCacheRoot 'models--TheChola--whisper-large-v3-turbo-german-faster-whisper'
+
+$WhisperEnModelName  = 'small'
+$WhisperEnStagingDir = 'config\models\whisper\small'
+$HfEnModelDir        = Join-Path $HfCacheRoot 'models--Systran--faster-whisper-small'
 
 if (-not (Test-Path (Join-Path $WhisperStagingDir 'model.bin'))) {
     if (Test-Path $HfModelDir) {
@@ -121,6 +127,48 @@ if (-not (Test-Path (Join-Path $WhisperStagingDir 'model.bin'))) {
     Write-Host "[model] Whisper 'TheChola/whisper-large-v3-turbo-german-faster-whisper' already staged ($modelSize MB)  OK"
 }
 
+if (-not (Test-Path (Join-Path $WhisperEnStagingDir 'model.bin'))) {
+    if (Test-Path $HfEnModelDir) {
+        $snapshotRoot = Join-Path $HfEnModelDir 'snapshots'
+        $snapshots = Get-ChildItem $snapshotRoot -Directory -ErrorAction SilentlyContinue
+        if ($snapshots) {
+            $latestSnap = ($snapshots | Sort-Object LastWriteTime -Descending | Select-Object -First 1).FullName
+            Write-Host "[model] Staging Whisper '$WhisperEnModelName' from $latestSnap ..."
+            if (-not (Test-Path $WhisperEnStagingDir)) {
+                New-Item -ItemType Directory -Path $WhisperEnStagingDir -Force | Out-Null
+            }
+            foreach ($fname in @('config.json', 'model.bin', 'tokenizer.json', 'vocabulary.txt')) {
+                $src = Join-Path $latestSnap $fname
+                $dst = Join-Path $WhisperEnStagingDir $fname
+                if (Test-Path $src) {
+                    $resolved = (Get-Item $src -Force).Target
+                    if ($resolved) {
+                        $blobPath = Join-Path (Join-Path $HfEnModelDir 'blobs') (Split-Path $resolved -Leaf)
+                        if (-not (Test-Path $blobPath)) { $blobPath = $resolved }
+                        Copy-Item -Path $blobPath -Destination $dst -Force
+                    } else {
+                        Copy-Item -Path $src -Destination $dst -Force
+                    }
+                    $sizeMB = [math]::Round((Get-Item $dst).Length / 1MB, 1)
+                    Write-Host "        $fname  ($sizeMB MB)"
+                } else {
+                    Write-Warning "        $fname not found in snapshot — skipping"
+                }
+            }
+            Write-Host "[model] Whisper model staged to $WhisperEnStagingDir  OK"
+        } else {
+            Write-Warning "[model] No snapshot found in $snapshotRoot — EN Whisper model will not be bundled."
+            Write-Warning "        Run: python -c 'from faster_whisper import WhisperModel; WhisperModel(""small"")' to pre-download."
+        }
+    } else {
+        Write-Warning "[model] HuggingFace cache not found at $HfEnModelDir — EN Whisper model will not be bundled."
+        Write-Warning "        Run: python -c 'from faster_whisper import WhisperModel; WhisperModel(""small"")' to pre-download."
+    }
+} else {
+    $enModelSize = [math]::Round((Get-Item (Join-Path $WhisperEnStagingDir 'model.bin')).Length / 1MB, 1)
+    Write-Host "[model] Whisper '$WhisperEnModelName' already staged ($enModelSize MB)  OK"
+}
+
 # ─── PyInstaller spec ─────────────────────────────────────────────────────────
 if (-not (Test-Path "build")) { New-Item -ItemType Directory -Path "build" | Out-Null }
 $specPath = "build\aye-hear.spec"
@@ -131,8 +179,13 @@ if (-not (Test-Path $specPath)) {
 # -*- mode: python ; coding: utf-8 -*-
 import os as _os
 block_cipher = None
-_whisper_model_dir = _os.path.join(_os.path.dirname(_os.path.abspath(SPEC)), '..', 'config', 'models', 'whisper', 'base')
-_whisper_datas = [(_whisper_model_dir, 'models/whisper/base')] if _os.path.isfile(_os.path.join(_whisper_model_dir, 'model.bin')) else []
+_whisper_de_model_dir = _os.path.join(_os.path.dirname(_os.path.abspath(SPEC)), '..', 'config', 'models', 'whisper', 'TheChola-german-turbo')
+_whisper_en_model_dir = _os.path.join(_os.path.dirname(_os.path.abspath(SPEC)), '..', 'config', 'models', 'whisper', 'small')
+_whisper_datas = []
+if _os.path.isfile(_os.path.join(_whisper_de_model_dir, 'model.bin')):
+    _whisper_datas.append((_whisper_de_model_dir, 'models/whisper/TheChola/whisper-large-v3-turbo-german-faster-whisper'))
+if _os.path.isfile(_os.path.join(_whisper_en_model_dir, 'model.bin')):
+    _whisper_datas.append((_whisper_en_model_dir, 'models/whisper/small'))
 a = Analysis(
     ['../src/ayehear/__main__.py'],
     pathex=['../src'],
@@ -144,7 +197,7 @@ a = Analysis(
     ] + _whisper_datas,
     # NOTE: faster_whisper Python code is auto-detected via PYZ.
     # ctranslate2 DLLs and tokenizers are included via their PyInstaller hooks.
-    # Whisper model files are staged via Build-WindowsPackage.ps1 (HEAR-062).
+    # Whisper model files are staged via Build-WindowsPackage.ps1 (HEAR-062/HEAR-190).
     hiddenimports=[
         'ayehear.storage',
         'ayehear.storage.orm',

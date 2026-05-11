@@ -1,0 +1,9 @@
+G:\Repo\aye-hear\dist\AyeHear\_internal\models\whisper\small\config.json
+G:\Repo\aye-hear\dist\AyeHear\_internal\models\whisper\small\model.bin
+G:\Repo\aye-hear\dist\AyeHear\_internal\models\whisper\small\tokenizer.json
+G:\Repo\aye-hear\dist\AyeHear\_internal\models\whisper\small\vocabulary.txt
+G:\Repo\aye-hear\dist\AyeHear\_internal\models\whisper\TheChola\whisper-large-v3-turbo-german-faster-whisper\config.json
+G:\Repo\aye-hear\dist\AyeHear\_internal\models\whisper\TheChola\whisper-large-v3-turbo-german-faster-whisper\model.bin
+G:\Repo\aye-hear\dist\AyeHear\_internal\models\whisper\TheChola\whisper-large-v3-turbo-german-faster-whisper\preprocessor_config.json
+G:\Repo\aye-hear\dist\AyeHear\_internal\models\whisper\TheChola\whisper-large-v3-turbo-german-faster-whisper\tokenizer.json
+G:\Repo\aye-hear\dist\AyeHear\_internal\models\whisper\TheChola\whisper-large-v3-turbo-german-faster-whisper\vocabulary.json

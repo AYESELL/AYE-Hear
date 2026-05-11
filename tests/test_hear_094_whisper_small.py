@@ -18,6 +18,16 @@ class TestModelSettingsSmall(unittest.TestCase):
         cfg = RuntimeConfig()
         assert cfg.models.whisper_model == THECHOLA_MODEL
 
+    def test_default_language_model_map_contains_de_and_en(self):
+        s = ModelSettings()
+        assert s.whisper_model_by_language["de"] == THECHOLA_MODEL
+        assert s.whisper_model_by_language["en"] == "small"
+
+    def test_runtime_config_default_language_model_map_contains_de_and_en(self):
+        cfg = RuntimeConfig()
+        assert cfg.models.whisper_model_by_language["de"] == THECHOLA_MODEL
+        assert cfg.models.whisper_model_by_language["en"] == "small"
+
     def test_can_override_to_base(self):
         s = ModelSettings(whisper_model="base")
         assert s.whisper_model == "base"
