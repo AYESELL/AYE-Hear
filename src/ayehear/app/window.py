@@ -1763,8 +1763,21 @@ class MainWindow(QMainWindow):
 
         # --- Parse draft sections ---
         action_items_raw: list[str] = []
+        decisions_raw: list[str] = []
         in_action_items = False
+        in_decisions = False
         body_lines: list[str] = []
+
+        # Decision risk scoring (V2-02, HEAR-176)
+        from ayehear.services.decision_risk import (
+            score_decision as _score_decision,
+            get_high_risk_decisions as _get_high_risk_decisions,
+            EMOJI_MAP as _RISK_EMOJI,
+        )
+        # Prefer decisions from structured snapshot_content when available
+        _snapshot_decisions: list[str] = (
+            snapshot_content.get("decisions", []) if snapshot_content else []
+        )
 
         for raw in draft.splitlines():
             stripped = raw.strip()
@@ -1772,10 +1785,43 @@ class MainWindow(QMainWindow):
                 icon_label = _SECTION_MAP[stripped]
                 body_lines.append(f"## {icon_label}")
                 in_action_items = (stripped == "Action Items")
+                in_decisions = (stripped == "Decisions")
             else:
-                body_lines.append(raw)
+                if in_decisions and stripped.startswith("- "):
+                    decision_text = stripped[2:]
+                    decisions_raw.append(decision_text)
+                    assessed = _score_decision(decision_text)
+                    emoji = _RISK_EMOJI[assessed["risk_level"]]
+                    body_lines.append(f"- {decision_text} {emoji}")
+                else:
+                    body_lines.append(raw)
                 if in_action_items and stripped.startswith("- "):
                     action_items_raw.append(stripped[2:])
+
+        # If snapshot_content supplies decisions not in draft, prefer those
+        all_decisions = _snapshot_decisions if _snapshot_decisions else decisions_raw
+        risk_entries = _get_high_risk_decisions(all_decisions)
+
+        # --- Decision Risk section (V2-02, HEAR-176) ---
+        risk_section_lines: list[str] = []
+        if risk_entries:
+            risk_section_lines = [
+                "",
+                "## \u26a0\ufe0f Entscheidungsrisiken",
+                "",
+                "| Entscheidung | Risiko | Indikatoren |",
+                "|---|---|---|",
+            ]
+            from ayehear.services.decision_risk import LABEL_MAP as _RISK_LABEL
+            for entry in risk_entries:
+                emoji = _RISK_EMOJI[entry["risk_level"]]
+                label = _RISK_LABEL[entry["risk_level"]]
+                indicators_str = ", ".join(entry["indicators"]) if entry["indicators"] else "—"
+                short_text = entry["text"][:60] + ("…" if len(entry["text"]) > 60 else "")
+                risk_section_lines.append(
+                    f"| {short_text} | {emoji} {label} | {indicators_str} |"
+                )
+            risk_section_lines += [""]
 
         # --- Aufgabenliste table ---
         table_rows: list[tuple[str, str, str]] = []
@@ -1820,7 +1866,7 @@ class MainWindow(QMainWindow):
             "*Protokoll- und Transkriptqualität kann durch Modell- und Akustikbeschränkungen beeinträchtigt sein. Menschliche Prüfung vor offiziellem Versand erforderlich.*",
         ]
 
-        all_lines = fm_lines + header_lines + score_lines + body_lines + table_lines + footer_lines
+        all_lines = fm_lines + header_lines + score_lines + body_lines + risk_section_lines + table_lines + footer_lines
         return "\n".join(all_lines)
 
     def _do_export_protocol(self) -> None:
