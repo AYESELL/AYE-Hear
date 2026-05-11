@@ -193,7 +193,71 @@ This is the **primary test case** for HEAR-038.
 
 ---
 
-## Part 7: Defect Documentation (As Found)
+## Part 7: Language Toggle Smoke Check (DE default / EN export toggle) (6 minutes)
+
+### Test Case 6: German Default and English Toggle
+
+This test validates the Phase-1 i18n behavior introduced for HEAR-185, HEAR-186, HEAR-187, and HEAR-188.
+
+#### Step 1: Verify German Default on Fresh Start
+1. Start the installed app from the desktop shortcut or `C:\AyeHear\app\AyeHear.exe`
+2. Do not change any settings before checking the UI
+3. Verify the main UI is primarily German
+   - **Expected examples:** "Neues Meeting", "Teilnehmer", "Export", "Systembereitschaft"
+4. **Screenshot:** Main window in default German mode
+
+#### Step 2: Verify Protocol Language Setting
+1. Navigate to the protocol language control / settings path
+2. Verify the current configured language is `de`
+3. Verify supported languages currently include only `de` and `en`
+4. **Screenshot:** Setting/control showing German selected
+
+#### Step 3: Export in German Mode
+1. Create or open a short smoke-test meeting
+2. Generate or refresh the protocol
+3. Export using the standard profile (or Operations profile)
+4. Open the Markdown export and verify the following are German:
+   - Header title (`BESPRECHUNGSPROTOKOLL`)
+   - Section titles (`Zusammenfassung`, `Entscheidungen`, `To-Dos / Aufgaben`, `Offene Punkte`, `Nächste Schritte`)
+   - ROI / risk / footer / disclaimer texts
+5. Confirm no English section headers remain in the same export
+6. **Screenshot:** Export file opened in German
+
+#### Step 4: Switch to English
+1. Change `protocol.language` from `de` to `en`
+2. Re-open the affected screen or restart the app if needed
+3. Verify the main UI is now primarily English
+   - **Expected examples:** "New Meeting", "Participants", "Export", "System Readiness"
+4. **Screenshot:** Main window in English mode
+
+#### Step 5: Export in English Mode
+1. Export the same meeting again after switching to English
+2. Open the Markdown export and verify the following are English:
+   - Header title (`MEETING PROTOCOL` or equivalent English export heading)
+   - Section titles (`Summary`, `Decisions`, `Action Items`, `Open Questions`, `Next Steps`)
+   - ROI / risk / footer / disclaimer texts
+3. Confirm no German section headers remain in the same export
+4. **Screenshot:** Export file opened in English
+
+#### Step 6: Profile Spot Check (DE + EN)
+1. Export once with a compact leadership profile and once with the full operations profile
+2. Verify both profiles remain internally consistent in the selected language
+3. Check especially:
+   - Leadership profile does not reintroduce mixed-language risk labels
+   - Compliance profile localizes disclaimer and offline-attestation text correctly
+4. **Screenshot:** One DE profile export + one EN profile export
+
+**Expected Result:** ✅ German is the default, English can be selected, and UI + export output remain language-consistent without mixed DE/EN core labels.
+
+**Release Blocking Conditions:**
+- [ ] Default startup language is not German
+- [ ] English switch leaves German core labels in MainWindow, Enrollment, or Readiness views
+- [ ] Exported Markdown contains mixed German/English section titles or disclaimers
+- [ ] Export profile labels are not localized consistently
+
+---
+
+## Part 8: Defect Documentation (As Found)
 
 If you find issues, document using this format:
 
@@ -218,7 +282,7 @@ Add to file: [HEAR-038-defect-tracking.md](HEAR-038-defect-tracking.md)
 
 ---
 
-## Final Sign-Off
+## Part 9: Final Sign-Off
 
 After completing all test cases:
 
