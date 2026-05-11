@@ -1569,7 +1569,25 @@ class MainWindow(QMainWindow):
         written: list[_Path] = []
 
         if draft:
-            md_text = self._format_as_markdown(draft, title, meeting_type)
+            participants: list[str] = []
+            if self._session is not None and hasattr(self, "_speakers_list"):
+                for i in range(self._speakers_list.count()):
+                    item = self._speakers_list.item(i)
+                    if item is not None:
+                        participants.append(item.text().split("|")[0].strip())
+            start_time: str | None = None
+            end_time: str | None = None
+            if self._session is not None:
+                if getattr(self._session, "started_at", None) is not None:
+                    start_time = self._session.started_at.strftime("%H:%M")
+                if getattr(self._session, "ended_at", None) is not None:
+                    end_time = self._session.ended_at.strftime("%H:%M")
+            md_text = self._format_as_markdown(
+                draft, title, meeting_type,
+                participants=participants,
+                start_time=start_time,
+                end_time=end_time,
+            )
             # Markdown
             md_path = out_dir / f"{base_name}-protocol.md"
             try:
@@ -1627,28 +1645,145 @@ class MainWindow(QMainWindow):
         return written
 
     @staticmethod
-    def _format_as_markdown(draft: str, title: str, meeting_type: str) -> str:
-        """Convert a plain-text protocol draft to Markdown.
+    def _format_as_markdown(
+        draft: str,
+        title: str,
+        meeting_type: str,
+        participants: list[str] | None = None,
+        start_time: str | None = None,
+        end_time: str | None = None,
+    ) -> str:
+        """Convert a plain-text protocol draft to branded AYE Hear Markdown.
 
-        Known section header names are converted to ``## Header`` lines.
-        All other lines are preserved verbatim.
+        Produces a YAML front-matter block, a formatted header with metadata,
+        icon-prefixed section headers, and an Aufgabenliste table at the end.
+        Backwards-compatible: ``participants``, ``start_time``, ``end_time``
+        are all optional.
         """
         import datetime as _dt
-        _SECTIONS = {"Summary", "Decisions", "Action Items", "Open Questions", "Transcript"}
-        lines = [
-            f"# {title}",
-            "",
-            f"**Type:** {meeting_type}",
-            f"**Date:** {_dt.datetime.now().strftime('%Y-%m-%d %H:%M')}",
+        import re
+
+        now = _dt.datetime.now()
+        date_iso = now.strftime("%Y-%m-%d")
+        date_de = now.strftime("%d.%m.%Y")
+        export_ts = now.isoformat(timespec="seconds")
+        start_str = start_time or ""
+        end_str = end_time or ""
+        time_range = f"{start_str} – {end_str} Uhr" if start_str or end_str else "—"
+        parts = participants or []
+
+        # --- YAML front-matter ---
+        fm_lines = [
+            "---",
+            f"meeting: {title}",
+            f"type: {meeting_type}",
+            f"date: {date_iso}",
+            f"start: {start_str}",
+            f"end: {end_str}",
+            "participants:",
+        ]
+        if parts:
+            for p in parts:
+                fm_lines.append(f"  - {p}")
+        else:
+            fm_lines.append("  - —")
+        fm_lines += [
+            "protokoll_version: Entwurf",
+            f"export: {export_ts}",
+            "# logo: assets/Aye_Hear_Logo.png",
+            "---",
             "",
         ]
+
+        # --- Header ---
+        header_lines = [
+            "# BESPRECHUNGSPROTOKOLL",
+            "",
+            f"**Termin:** {title}  ",
+            f"**Typ:** {meeting_type}  ",
+            f"**Datum:** {date_de}  ",
+            f"**Zeit:** {time_range}  ",
+            "",
+            "**Teilnehmer:**",
+        ]
+        if parts:
+            for p in parts:
+                header_lines.append(f"- {p}")
+        else:
+            header_lines.append("- —")
+        header_lines += ["", "---", ""]
+
+        # --- Section mapping with icons ---
+        _SECTION_MAP: dict[str, str] = {
+            "Summary": "📝 Zusammenfassung",
+            "Decisions": "✅ Entscheidungen",
+            "Action Items": "📌 To-Dos / Aufgaben",
+            "Open Questions": "⚠️ Offene Punkte",
+            "Next Steps": "🔷 Nächste Schritte",
+            "Transcript": "🎙 Transkript",
+        }
+
+        # --- Parse draft sections ---
+        action_items_raw: list[str] = []
+        in_action_items = False
+        body_lines: list[str] = []
+
         for raw in draft.splitlines():
             stripped = raw.strip()
-            if stripped in _SECTIONS:
-                lines.append(f"## {stripped}")
+            if stripped in _SECTION_MAP:
+                icon_label = _SECTION_MAP[stripped]
+                body_lines.append(f"## {icon_label}")
+                in_action_items = (stripped == "Action Items")
             else:
-                lines.append(raw)
-        return "\n".join(lines)
+                body_lines.append(raw)
+                if in_action_items and stripped.startswith("- "):
+                    action_items_raw.append(stripped[2:])
+
+        # --- Aufgabenliste table ---
+        table_rows: list[tuple[str, str, str]] = []
+        date_pattern = re.compile(r"\b(\d{1,2}\.\d{1,2}\.(?:\d{2,4})?)\b")
+        for item in action_items_raw:
+            # Pattern: "Name: task description bis DD.MM."
+            if ":" in item:
+                name, rest = item.split(":", 1)
+                name = name.strip()
+                rest = rest.strip()
+            else:
+                name = "Offen"
+                rest = item
+            m = date_pattern.search(rest)
+            due = m.group(1) if m else "—"
+            # Remove the date expression from task description
+            task_text = date_pattern.sub("", rest).replace("bis", "").strip().rstrip(",").strip()
+            table_rows.append((task_text or rest, name, due))
+
+        if not table_rows:
+            table_rows = [("Keine offenen Aufgaben", "—", "—")]
+
+        table_lines = [
+            "",
+            "---",
+            "",
+            "## Aufgabenliste",
+            "",
+            "| # | Aufgabe | Verantwortlich | Fällig |",
+            "|---|---------|---------------|--------|",
+        ]
+        for idx, (task, responsible, due) in enumerate(table_rows, start=1):
+            table_lines.append(f"| {idx} | {task} | {responsible} | {due} |")
+
+        # --- Footer ---
+        footer_lines = [
+            "",
+            "---",
+            "",
+            "*Dieses Protokoll wurde automatisch mit AYE Hear erstellt · Offline-Verarbeitung bestätigt · Bitte vor offiziellem Versand prüfen.*",
+            "",
+            "*Protokoll- und Transkriptqualität kann durch Modell- und Akustikbeschränkungen beeinträchtigt sein. Menschliche Prüfung vor offiziellem Versand erforderlich.*",
+        ]
+
+        all_lines = fm_lines + header_lines + body_lines + table_lines + footer_lines
+        return "\n".join(all_lines)
 
     def _do_export_protocol(self) -> None:
         """Export the current protocol draft to <install_root>/exports/ as Markdown."""
