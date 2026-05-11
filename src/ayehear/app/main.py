@@ -4,6 +4,7 @@ import logging
 import sys
 from pathlib import Path
 
+from PySide6.QtGui import QFont, QFontDatabase
 from PySide6.QtWidgets import QApplication
 
 from ayehear.app.window import MainWindow
@@ -29,6 +30,31 @@ def main() -> int:
     app = QApplication(sys.argv)
     app.setApplicationName("AYE Hear")
     app.setOrganizationName("AYESELL")
+
+    # Load global QSS theme (HEAR-169)
+    _theme_path = Path(__file__).parent.parent.parent.parent / "assets" / "theme.qss"
+    if getattr(sys, "frozen", False):
+        _theme_path = Path(sys._MEIPASS) / "assets" / "theme.qss"  # type: ignore[attr-defined]
+    if _theme_path.exists():
+        app.setStyleSheet(_theme_path.read_text(encoding="utf-8"))
+
+    # Load Inter font if available, otherwise fall back to modern Windows system font (HEAR-170)
+    _font_dir = Path(__file__).parent.parent.parent.parent / "assets" / "fonts"
+    if getattr(sys, "frozen", False):
+        _font_dir = Path(sys._MEIPASS) / "assets" / "fonts"  # type: ignore[attr-defined]
+    _font_loaded = False
+    for _weight in ["Regular", "Medium", "SemiBold", "Bold"]:
+        _font_file = _font_dir / f"Inter-{_weight}.ttf"
+        if _font_file.exists():
+            QFontDatabase.addApplicationFont(str(_font_file))
+            _font_loaded = True
+    if _font_loaded:
+        app.setFont(QFont("Inter", 10))
+    else:
+        _sys_font = QFont("Segoe UI Variable", 10)
+        if not _sys_font.exactMatch():
+            _sys_font = QFont("Segoe UI", 10)
+        app.setFont(_sys_font)
 
     # Resolve config path relative to sys._MEIPASS when running as a PyInstaller
     # bundle (one-folder mode bundles config/default.yaml into _internal/config/).

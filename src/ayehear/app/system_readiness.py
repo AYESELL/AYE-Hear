@@ -341,10 +341,10 @@ def _aggregate_state(components: list[ComponentStatus]) -> ReadinessState:
 # ---------------------------------------------------------------------------
 
 _STATE_COLORS = {
-    ReadinessState.READY: ("#1a7a1a", "\u2705"),     # green + tick
-    ReadinessState.DEGRADED: ("#b86e00", "\u26a0\ufe0f"),  # amber + warning
-    ReadinessState.BLOCKED: ("#c0392b", "\u274c"),    # red + X
-    ReadinessState.UNKNOWN: ("#666666", "\u23f3"),    # grey + hourglass
+    ReadinessState.READY: ("#16A34A", "\u2705"),     # green + tick
+    ReadinessState.DEGRADED: ("#D97706", "\u26a0\ufe0f"),  # amber + warning
+    ReadinessState.BLOCKED: ("#DC2626", "\u274c"),    # red + X
+    ReadinessState.UNKNOWN: ("#64748B", "\u23f3"),    # grey + hourglass
 }
 
 _AGGREGATE_TEXTS = {

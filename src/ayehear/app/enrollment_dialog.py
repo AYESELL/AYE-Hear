@@ -131,7 +131,7 @@ class EnrollmentDialog(QDialog):
             "laut und deutlich in das Mikrofon (7 Sekunden):"
         ))
         phrase_lbl = QLabel(_ENROLLMENT_PHRASE)
-        phrase_lbl.setStyleSheet("font-style: italic; font-size: 13px; color: #1a4a7a;")
+        phrase_lbl.setStyleSheet("font-style: italic; font-size: 13px; color: #2D6CDF;")
         phrase_lbl.setWordWrap(True)
         instr_layout.addWidget(phrase_lbl)
         layout.addWidget(instr_box)
@@ -160,10 +160,12 @@ class EnrollmentDialog(QDialog):
         btn_row = QHBoxLayout()
         self._record_btn = QPushButton("\u25b6\ufe0f Aufnehmen (7 s)")
         self._record_btn.clicked.connect(self._on_record_clicked)
+        self._record_btn.setProperty("buttonClass", "primary")
         btn_row.addWidget(self._record_btn)
 
         close_btn = QPushButton("Fertig")
         close_btn.clicked.connect(self.accept)
+        close_btn.setProperty("buttonClass", "secondary")
         btn_row.addWidget(close_btn)
         layout.addLayout(btn_row)
 
@@ -320,7 +322,7 @@ class EnrollmentDialog(QDialog):
     # ------------------------------------------------------------------
 
     def _set_status(self, message: str, *, error: bool) -> None:
-        color = "#a00000" if error else "#1a7a1a"
+        color = "#DC2626" if error else "#16A34A"
         self._status_lbl.setStyleSheet(f"font-weight: 600; color: {color};")
         self._status_lbl.setText(message)
 

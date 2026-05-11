@@ -1,0 +1,149 @@
+/*
+ * AYE Hear — Global QSS Theme
+ * HEAR-169: Globales QSS-Theme und Farbsystem
+ *
+ * Color Palette:
+ *   primary:        #2D6CDF
+ *   primary-hover:  #2558B8
+ *   success:        #16A34A
+ *   warning:        #D97706
+ *   danger:         #DC2626
+ *   surface:        #FFFFFF
+ *   surface-alt:    #F8FAFC
+ *   border:         #E2E8F0
+ *   border-focus:   #2D6CDF
+ *   text-primary:   #1E293B
+ *   text-secondary: #64748B
+ */
+
+/* ── Base ── */
+QMainWindow, QWidget {
+    background: #F1F5F9;
+}
+
+/* ── GroupBox (Card-Look) ── */
+QGroupBox {
+    font-weight: 600;
+    font-size: 11px;
+    color: #64748B;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+    margin-top: 8px;
+    padding: 12px 12px 8px 12px;
+    background: #FAFAFA;
+}
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 12px;
+    padding: 0 4px;
+    background: #FAFAFA;
+}
+
+/* ── LineEdit ── */
+QLineEdit {
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    padding: 6px 10px;
+    background: #FFFFFF;
+    color: #1E293B;
+    font-size: 12px;
+}
+QLineEdit:hover { border-color: #94A3B8; }
+QLineEdit:focus { border-color: #2D6CDF; background: #F0F7FF; }
+
+/* ── ComboBox ── */
+QComboBox {
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    padding: 5px 10px;
+    background: #FFFFFF;
+    font-size: 12px;
+}
+QComboBox:hover { border-color: #94A3B8; }
+QComboBox:focus { border-color: #2D6CDF; }
+QComboBox::drop-down { border: none; width: 20px; }
+
+/* ── PushButton (Basisstil — Klassen folgen in HEAR-171) ── */
+QPushButton {
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    padding: 7px 16px;
+    background: #F8FAFC;
+    color: #1E293B;
+    font-size: 12px;
+    font-weight: 500;
+}
+QPushButton:hover { background: #F1F5F9; border-color: #94A3B8; }
+QPushButton:pressed { background: #E2E8F0; }
+QPushButton:disabled { color: #94A3B8; background: #F8FAFC; }
+
+/* ── PlainTextEdit / TextEdit ── */
+QPlainTextEdit, QTextEdit {
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 8px;
+    background: #FFFFFF;
+    font-size: 12px;
+    color: #1E293B;
+}
+
+/* ── ListWidget ── */
+QListWidget {
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    background: #FFFFFF;
+    font-size: 12px;
+}
+QListWidget::item:selected { background: #EFF6FF; color: #1E40AF; }
+QListWidget::item:hover { background: #F8FAFC; }
+
+/* ── SpinBox ── */
+QSpinBox {
+    border: 1px solid #CBD5E1;
+    border-radius: 6px;
+    padding: 5px 8px;
+    background: #FFFFFF;
+    font-size: 12px;
+}
+QSpinBox:focus { border-color: #2D6CDF; }
+
+/* ── Splitter ── */
+QSplitter::handle { background: #E2E8F0; width: 1px; }
+
+/* ── StatusBar ── */
+QStatusBar {
+    background: #F8FAFC;
+    color: #64748B;
+    font-size: 11px;
+    border-top: 1px solid #E2E8F0;
+}
+
+/* ── Button Hierarchy (HEAR-171) ── */
+
+/* Primary: Hauptaktion je Panel */
+QPushButton[buttonClass="primary"] {
+    background: #2D6CDF;
+    color: #FFFFFF;
+    border: none;
+    font-weight: 600;
+}
+QPushButton[buttonClass="primary"]:hover    { background: #2558B8; }
+QPushButton[buttonClass="primary"]:pressed  { background: #1E4799; }
+QPushButton[buttonClass="primary"]:disabled { background: #93B5F0; color: #FFFFFF; }
+
+/* Destructive: Gefährliche Aktionen */
+QPushButton[buttonClass="destructive"] {
+    background: transparent;
+    color: #DC2626;
+    border: 1px solid #DC2626;
+}
+QPushButton[buttonClass="destructive"]:hover   { background: #FEF2F2; border-color: #B91C1C; color: #B91C1C; }
+QPushButton[buttonClass="destructive"]:pressed { background: #FEE2E2; }
+
+/* Secondary: Neutrale Aktionen */
+QPushButton[buttonClass="secondary"] {
+    background: #F8FAFC;
+    color: #1E293B;
+    border: 1px solid #CBD5E1;
+}
+QPushButton[buttonClass="secondary"]:hover { background: #F1F5F9; border-color: #94A3B8; }

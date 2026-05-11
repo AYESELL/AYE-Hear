@@ -25,6 +25,8 @@ a = Analysis(
         ('../config/default.yaml', 'config'),
         ('../config/models/README.md', 'config/models'),
         ('../src/ayehear/storage/migrations/', 'ayehear/storage/migrations'),
+        ('../assets/theme.qss', 'assets'),
+        ('../assets/fonts/', 'assets/fonts'),
     ] + _whisper_datas,
     # NOTE: faster_whisper Python code reaches the bundle via PYZ (auto-detected).
     # ctranslate2 DLLs + tokenizers are included via their PyInstaller hooks.

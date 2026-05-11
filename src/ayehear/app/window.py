@@ -269,12 +269,15 @@ class MainWindow(QMainWindow):
         add_btn = QPushButton("+ Add")
         add_btn.setToolTip("Neuen Sprecher hinzufügen")
         add_btn.clicked.connect(self._add_speaker)
+        add_btn.setProperty("buttonClass", "secondary")
         edit_btn = QPushButton("Edit")
         edit_btn.setToolTip("Ausgewählten Sprecher bearbeiten")
         edit_btn.clicked.connect(self._edit_speaker)
+        edit_btn.setProperty("buttonClass", "secondary")
         remove_btn = QPushButton("Remove")
         remove_btn.setToolTip("Ausgewählten Sprecher entfernen")
         remove_btn.clicked.connect(self._remove_speaker)
+        remove_btn.setProperty("buttonClass", "destructive")
         speaker_btn_row.addWidget(add_btn)
         speaker_btn_row.addWidget(edit_btn)
         speaker_btn_row.addWidget(remove_btn)
@@ -282,15 +285,17 @@ class MainWindow(QMainWindow):
 
         # HEAR-040: visible feedback label for speaker actions
         self._speaker_status = QLabel("")
-        self._speaker_status.setStyleSheet("color: #1a7a1a; font-weight: 600;")
+        self._speaker_status.setStyleSheet("color: #16A34A; font-weight: 600;")
         speakers_layout.addWidget(self._speaker_status)
 
         apply_template_btn = QPushButton("Apply Participant Template")
         apply_template_btn.clicked.connect(self._apply_participant_template)
+        apply_template_btn.setProperty("buttonClass", "primary")
         speakers_layout.addWidget(apply_template_btn)
 
         start_enrollment_btn = QPushButton("Start Enrollment")
         start_enrollment_btn.clicked.connect(self._start_enrollment)
+        start_enrollment_btn.setProperty("buttonClass", "primary")
         speakers_layout.addWidget(start_enrollment_btn)
 
         layout.addWidget(speakers_box)
@@ -302,7 +307,7 @@ class MainWindow(QMainWindow):
 
         # HEAR-041: meeting status indicator
         self._meeting_status_label = QLabel("\u26aa Kein aktives Meeting")
-        self._meeting_status_label.setStyleSheet("font-weight: 600; color: #888;")
+        self._meeting_status_label.setStyleSheet("font-weight: 600; color: #64748B;")
         layout.addWidget(self._meeting_status_label)
         # HEAR-044: live mic state + level meter
         self._mic_level_widget = MicLevelWidget()
@@ -310,11 +315,14 @@ class MainWindow(QMainWindow):
         controls = QHBoxLayout()
         self._start_meeting_btn = QPushButton("Start Meeting")
         self._start_meeting_btn.clicked.connect(self._start_meeting)
+        self._start_meeting_btn.setProperty("buttonClass", "primary")
         self._stop_meeting_btn = QPushButton("Stop Meeting")
         self._stop_meeting_btn.clicked.connect(self._stop_meeting)
         self._stop_meeting_btn.setEnabled(False)
+        self._stop_meeting_btn.setProperty("buttonClass", "destructive")
         show_state_btn = QPushButton("Show Current State")
         show_state_btn.clicked.connect(self._show_current_state)
+        show_state_btn.setProperty("buttonClass", "secondary")
         controls.addWidget(self._start_meeting_btn)
         controls.addWidget(self._stop_meeting_btn)
         controls.addWidget(show_state_btn)
@@ -888,7 +896,7 @@ class MainWindow(QMainWindow):
 
         # HEAR-041: visible session state
         self._meeting_status_label.setText(f"\U0001f7e2 Meeting aktiv: {title}")
-        self._meeting_status_label.setStyleSheet("font-weight: 700; color: #1a7a1a;")
+        self._meeting_status_label.setStyleSheet("font-weight: 700; color: #16A34A;")
         self._start_meeting_btn.setEnabled(False)
         self._stop_meeting_btn.setEnabled(True)
         # HEAR-075: enable export while meeting is active
@@ -931,7 +939,7 @@ class MainWindow(QMainWindow):
         self.stop_active_meeting()
         self._session = None
         self._meeting_status_label.setText("\u26aa Kein aktives Meeting")
-        self._meeting_status_label.setStyleSheet("font-weight: 600; color: #888;")
+        self._meeting_status_label.setStyleSheet("font-weight: 600; color: #64748B;")
         self._start_meeting_btn.setEnabled(True)
         self._stop_meeting_btn.setEnabled(False)
         # HEAR-075: keep export accessible after recording stops
@@ -1200,12 +1208,13 @@ class MainWindow(QMainWindow):
         )
         self._export_btn.clicked.connect(self._do_export_protocol)
         self._export_btn.setEnabled(False)
+        self._export_btn.setProperty("buttonClass", "primary")
         export_row.addWidget(self._export_btn)
         export_row.addStretch(1)
         protocol_layout.addLayout(export_row)
 
         self._export_path_label = QLabel("")
-        self._export_path_label.setStyleSheet("color: #1a4a7a; font-size: 11px;")
+        self._export_path_label.setStyleSheet("color: #2D6CDF; font-size: 11px;")
         self._export_path_label.setWordWrap(True)
         protocol_layout.addWidget(self._export_path_label)
 
@@ -1225,6 +1234,7 @@ class MainWindow(QMainWindow):
 
         correct_btn = QPushButton("Apply Correction")
         correct_btn.clicked.connect(self._apply_speaker_correction)
+        correct_btn.setProperty("buttonClass", "primary")
         quality_layout.addWidget(correct_btn)
 
         layout.addWidget(quality_box)
