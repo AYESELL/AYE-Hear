@@ -158,7 +158,7 @@ class MainWindow(QMainWindow):
         layout.setContentsMargins(16, 16, 16, 16)
         layout.setSpacing(12)
 
-        header = QLabel(f"AYE Hear Workspace  ·  v{__version__}")
+        header = QLabel("AYE Hear Workspace")
         header.setObjectName("pageTitle")
         header.setStyleSheet("font-size: 24px; font-weight: 700;")
         layout.addWidget(header)
