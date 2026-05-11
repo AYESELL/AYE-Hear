@@ -1587,6 +1587,7 @@ class MainWindow(QMainWindow):
                 participants=participants,
                 start_time=start_time,
                 end_time=end_time,
+                snapshot_content=self._resolve_snapshot_content(meeting_id),
             )
             # Markdown
             md_path = out_dir / f"{base_name}-protocol.md"
@@ -1644,6 +1645,20 @@ class MainWindow(QMainWindow):
 
         return written
 
+    def _resolve_snapshot_content(self, meeting_id: str | None) -> "dict | None":
+        """Return snapshot_content dict from the latest protocol snapshot, or None."""
+        if self._snapshot_repo is None or meeting_id is None:
+            return None
+        try:
+            snapshot = self._snapshot_repo.latest(meeting_id)
+            if snapshot is not None and hasattr(snapshot, "snapshot_content"):
+                content = snapshot.snapshot_content
+                if isinstance(content, dict):
+                    return content
+        except Exception:
+            pass
+        return None
+
     @staticmethod
     def _format_as_markdown(
         draft: str,
@@ -1652,13 +1667,16 @@ class MainWindow(QMainWindow):
         participants: list[str] | None = None,
         start_time: str | None = None,
         end_time: str | None = None,
+        snapshot_content: dict | None = None,
     ) -> str:
         """Convert a plain-text protocol draft to branded AYE Hear Markdown.
 
         Produces a YAML front-matter block, a formatted header with metadata,
-        icon-prefixed section headers, and an Aufgabenliste table at the end.
+        an optional Meeting ROI Score block (V2-04, HEAR-175), icon-prefixed
+        section headers, and an Aufgabenliste table at the end.
         Backwards-compatible: ``participants``, ``start_time``, ``end_time``
-        are all optional.
+        and ``snapshot_content`` are all optional.  When ``snapshot_content``
+        is ``None`` the score block is omitted.
         """
         import datetime as _dt
         import re
@@ -1712,6 +1730,26 @@ class MainWindow(QMainWindow):
         else:
             header_lines.append("- —")
         header_lines += ["", "---", ""]
+
+        # --- ROI Score block (V2-04, HEAR-175) ---
+        score_lines: list[str] = []
+        if snapshot_content is not None:
+            from ayehear.services.meeting_score import calculate_roi_score
+            roi = calculate_roi_score(snapshot_content)
+            s = roi["score"]
+            pos = roi["drivers_positive"]
+            neg = roi["drivers_negative"]
+            score_lines = [
+                "## \U0001f4ca Meeting-Effektivit\u00e4t",
+                "",
+                f"**Score: {s} / 100**",
+                "",
+            ]
+            if pos:
+                score_lines.append("\u2705 Positiv: " + " \u00b7 ".join(pos))
+            if neg:
+                score_lines.append("\u26a0\ufe0f  Verbesserungspotenzial: " + " \u00b7 ".join(neg))
+            score_lines += ["", "---", ""]
 
         # --- Section mapping with icons ---
         _SECTION_MAP: dict[str, str] = {
@@ -1782,7 +1820,7 @@ class MainWindow(QMainWindow):
             "*Protokoll- und Transkriptqualität kann durch Modell- und Akustikbeschränkungen beeinträchtigt sein. Menschliche Prüfung vor offiziellem Versand erforderlich.*",
         ]
 
-        all_lines = fm_lines + header_lines + body_lines + table_lines + footer_lines
+        all_lines = fm_lines + header_lines + score_lines + body_lines + table_lines + footer_lines
         return "\n".join(all_lines)
 
     def _do_export_protocol(self) -> None:
