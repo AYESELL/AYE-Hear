@@ -20,6 +20,8 @@ from __future__ import annotations
 
 import re
 
+from ayehear.i18n import resolve_language
+
 RISK_LOW = "low"
 RISK_MEDIUM = "medium"
 RISK_HIGH = "high"
@@ -34,6 +36,19 @@ LABEL_MAP = {
     RISK_LOW: "Niedrig",
     RISK_MEDIUM: "Mittel",
     RISK_HIGH: "Hoch",
+}
+
+LABEL_MAP_BY_LANGUAGE = {
+    "de": {
+        RISK_LOW: "Niedrig",
+        RISK_MEDIUM: "Mittel",
+        RISK_HIGH: "Hoch",
+    },
+    "en": {
+        RISK_LOW: "Low",
+        RISK_MEDIUM: "Medium",
+        RISK_HIGH: "High",
+    },
 }
 
 # Compiled patterns – all case-insensitive
@@ -79,6 +94,51 @@ INDICATOR_LABELS = {
     "dependency": "Abhängigkeit",
     "risk_keyword": "Risikobegriff",
 }
+
+INDICATOR_LABELS_BY_LANGUAGE = {
+    "de": {
+        "no_owner": "Kein Eigentümer",
+        "no_date": "Kein Datum",
+        "dependency": "Abhängigkeit",
+        "risk_keyword": "Risikobegriff",
+    },
+    "en": {
+        "no_owner": "No owner",
+        "no_date": "No date",
+        "dependency": "Dependency",
+        "risk_keyword": "Risk keyword",
+    },
+}
+
+_INDICATOR_KEY_BY_LABEL = {
+    label: key
+    for lang_map in INDICATOR_LABELS_BY_LANGUAGE.values()
+    for key, label in lang_map.items()
+}
+
+
+def get_risk_label_map(language: str | None = None) -> dict[str, str]:
+    """Return a localized risk-label map keyed by risk level."""
+    resolved = resolve_language(language)
+    return LABEL_MAP_BY_LANGUAGE.get(resolved, LABEL_MAP_BY_LANGUAGE["de"])
+
+
+def localize_indicators(indicators: list[str], language: str | None = None) -> list[str]:
+    """Translate indicator labels to the requested language.
+
+    Unknown labels are returned unchanged.
+    """
+    resolved = resolve_language(language)
+    target = INDICATOR_LABELS_BY_LANGUAGE.get(resolved, INDICATOR_LABELS_BY_LANGUAGE["de"])
+
+    translated: list[str] = []
+    for indicator in indicators:
+        key = _INDICATOR_KEY_BY_LABEL.get(indicator)
+        if key is None:
+            translated.append(indicator)
+            continue
+        translated.append(target.get(key, indicator))
+    return translated
 
 
 def score_decision(decision_text: str) -> dict:

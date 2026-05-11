@@ -6,6 +6,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from ayehear.i18n import resolve_language
+
 PROFILE_CEO = "ceo"
 PROFILE_OPS = "ops"
 PROFILE_TEAM = "team"
@@ -17,6 +19,30 @@ PROFILE_LABELS = {
     PROFILE_TEAM: "Team-Protokoll",
     PROFILE_COMPLIANCE: "Compliance-Export",
 }
+
+PROFILE_LABELS_BY_LANGUAGE: dict[str, dict[str, str]] = {
+    "de": {
+        PROFILE_CEO: "Kurzfassung (Führungsebene)",
+        PROFILE_OPS: "Operativ (Vollprotokoll)",
+        PROFILE_TEAM: "Team-Protokoll",
+        PROFILE_COMPLIANCE: "Compliance-Export",
+    },
+    "en": {
+        PROFILE_CEO: "Executive Summary",
+        PROFILE_OPS: "Operations (Full Protocol)",
+        PROFILE_TEAM: "Team Protocol",
+        PROFILE_COMPLIANCE: "Compliance Export",
+    },
+}
+
+
+def get_profile_label(profile_id: str, language: str | None = None) -> str:
+    """Return profile label for a given language. Falls back to German."""
+    resolved = resolve_language(language)
+    labels = PROFILE_LABELS_BY_LANGUAGE.get(resolved, PROFILE_LABELS_BY_LANGUAGE["de"])
+    if profile_id in labels:
+        return labels[profile_id]
+    return PROFILE_LABELS.get(profile_id, profile_id)
 
 
 @dataclass(frozen=True)

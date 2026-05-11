@@ -1483,7 +1483,7 @@ class MainWindow(QMainWindow):
                     lines.append(f"- {item}")
                 lines.append("")
 
-            _section("Summary", content.get("summary", []))
+            _section(self._tr("ui.protocol.section.summary", fallback="Summary"), content.get("summary", []))
 
             # V2-12 / HEAR-117: apply review decisions when queue is active
             if self._review_queue is not None:
@@ -1495,14 +1495,14 @@ class MainWindow(QMainWindow):
                 raw_action_items = content.get("action_items", [])
                 open_questions = content.get("open_questions", [])
 
-            _section("Decisions", decisions)
+            _section(self._tr("ui.protocol.section.decisions", fallback="Decisions"), decisions)
             # V2-01 / HEAR-116: annotate weak action items
             annotated_action_items = self._protocol_engine.annotate_weak_items(
                 raw_action_items,
                 self._protocol_engine.score_action_items(raw_action_items),
             )
-            _section("Action Items", annotated_action_items)
-            _section("Open Questions", open_questions)
+            _section(self._tr("ui.protocol.section.action_items", fallback="Action Items"), annotated_action_items)
+            _section(self._tr("ui.protocol.section.open_questions", fallback="Open Questions"), open_questions)
 
             self._protocol_view.setPlainText("\n".join(lines).strip())
         except Exception as exc:
@@ -1662,6 +1662,7 @@ class MainWindow(QMainWindow):
                 end_time=end_time,
                 snapshot_content=self._resolve_snapshot_content(meeting_id),
                 profile_id=profile_id,
+                language=self._translator.language,
             )
             # Markdown
             md_path = out_dir / f"{base_name}-protocol.md"
@@ -1711,7 +1712,9 @@ class MainWindow(QMainWindow):
         if transcript:
             txt_path = out_dir / f"{base_name}-transcript.txt"
             try:
-                header = f"Meeting Transcript — {title}\nExported: {_dt.datetime.now().isoformat()}\n\n"
+                transcript_title = self._tr("export.transcript.header.title", fallback="Meeting Transcript")
+                exported_label = self._tr("export.transcript.header.exported", fallback="Exported")
+                header = f"{transcript_title} - {title}\n{exported_label}: {_dt.datetime.now().isoformat()}\n\n"
                 txt_path.write_text(header + transcript, encoding="utf-8")
                 written.append(txt_path)
             except OSError as exc:
@@ -1743,6 +1746,8 @@ class MainWindow(QMainWindow):
         end_time: str | None = None,
         snapshot_content: dict | None = None,
         profile_id: str = "ops",
+        language: str = "de",
+        generated_at: datetime | None = None,
     ) -> str:
         """Convert a plain-text protocol draft to branded AYE Hear Markdown.
 
@@ -1761,19 +1766,40 @@ class MainWindow(QMainWindow):
             score_decision as _score_decision,
             get_high_risk_decisions as _get_high_risk_decisions,
             EMOJI_MAP as _RISK_EMOJI,
-            LABEL_MAP as _RISK_LABEL,
+            get_risk_label_map as _get_risk_label_map,
+            localize_indicators as _localize_indicators,
             RISK_HIGH as _RISK_HIGH,
         )
 
-        profile = get_profile(profile_id)
+        resolved_language = resolve_language(language)
+        translator = Translator(resolved_language)
 
-        now = _dt.datetime.now()
+        def _tr(key: str, fallback: str, **kwargs: object) -> str:
+            value = translator.tr(key, **kwargs)
+            if value == key:
+                return fallback.format(**kwargs) if kwargs else fallback
+            return value
+
+        profile = get_profile(profile_id)
+        risk_labels = _get_risk_label_map(resolved_language)
+
+        now = generated_at or _dt.datetime.now()
         date_iso = now.strftime("%Y-%m-%d")
         date_de = now.strftime("%d.%m.%Y")
+        date_display = date_de if resolved_language == "de" else date_iso
         export_ts = now.isoformat(timespec="seconds")
         start_str = start_time or ""
         end_str = end_time or ""
-        time_range = f"{start_str} – {end_str} Uhr" if start_str or end_str else "—"
+        time_range = (
+            _tr(
+                "export.protocol.header.time_range",
+                "{start} – {end}",
+                start=start_str,
+                end=end_str,
+            )
+            if start_str or end_str
+            else "—"
+        )
         parts = participants or []
 
         # --- YAML front-matter ---
@@ -1792,7 +1818,7 @@ class MainWindow(QMainWindow):
         else:
             fm_lines.append("  - —")
         fm_lines += [
-            "protokoll_version: Entwurf",
+            _tr("export.protocol.frontmatter.version", "protocol_version: Draft"),
             f"export: {export_ts}",
             "# logo: assets/Aye_Hear_Logo.png",
             "---",
@@ -1801,14 +1827,14 @@ class MainWindow(QMainWindow):
 
         # --- Header ---
         header_lines = [
-            "# BESPRECHUNGSPROTOKOLL",
+            f"# {_tr('export.protocol.header.title', 'MEETING PROTOCOL')}",
             "",
-            f"**Termin:** {title}  ",
-            f"**Typ:** {meeting_type}  ",
-            f"**Datum:** {date_de}  ",
-            f"**Zeit:** {time_range}  ",
+            f"**{_tr('export.protocol.header.meeting_label', 'Meeting')}:** {title}  ",
+            f"**{_tr('export.protocol.header.type_label', 'Type')}:** {meeting_type}  ",
+            f"**{_tr('export.protocol.header.date_label', 'Date')}:** {date_display}  ",
+            f"**{_tr('export.protocol.header.time_label', 'Time')}:** {time_range}  ",
             "",
-            "**Teilnehmer:**",
+            f"**{_tr('export.protocol.header.participants_label', 'Participants')}:**",
         ]
         if parts:
             for p in parts:
@@ -1826,26 +1852,47 @@ class MainWindow(QMainWindow):
             pos = roi["drivers_positive"]
             neg = roi["drivers_negative"]
             score_lines = [
-                "## \U0001f4ca Meeting-Effektivit\u00e4t",
+                f"## {_tr('export.protocol.score.section_title', '📊 Meeting Effectiveness')}",
                 "",
-                f"**Score: {s} / 100**",
+                f"**{_tr('export.protocol.score.label', 'Score')}: {s} / 100**",
                 "",
             ]
             if pos:
-                score_lines.append("\u2705 Positiv: " + " \u00b7 ".join(pos))
+                score_lines.append(_tr("export.protocol.score.positive", "✅ Positive") + ": " + " \u00b7 ".join(pos))
             if neg:
-                score_lines.append("\u26a0\ufe0f  Verbesserungspotenzial: " + " \u00b7 ".join(neg))
+                score_lines.append(_tr("export.protocol.score.negative", "⚠️ Improvement Potential") + ": " + " \u00b7 ".join(neg))
             score_lines += ["", "---", ""]
 
         # --- Section mapping with icons ---
         _SECTION_MAP: dict[str, str] = {
-            "Summary": "📝 Zusammenfassung",
-            "Decisions": "✅ Entscheidungen",
-            "Action Items": "📌 To-Dos / Aufgaben",
-            "Open Questions": "⚠️ Offene Punkte",
-            "Next Steps": "🔷 Nächste Schritte",
-            "Transcript": "🎙 Transkript",
+            "Summary": _tr("export.protocol.section.summary", "📝 Summary"),
+            "Decisions": _tr("export.protocol.section.decisions", "✅ Decisions"),
+            "Action Items": _tr("export.protocol.section.action_items", "📌 Action Items"),
+            "Open Questions": _tr("export.protocol.section.open_questions", "⚠️ Open Questions"),
+            "Next Steps": _tr("export.protocol.section.next_steps", "🔷 Next Steps"),
+            "Transcript": _tr("export.protocol.section.transcript", "🎙 Transcript"),
         }
+
+        _LEGACY_SECTION_ALIASES: dict[str, tuple[str, ...]] = {
+            "Summary": ("Zusammenfassung",),
+            "Decisions": ("Entscheidungen",),
+            "Action Items": ("Aufgaben", "To-Dos", "To-Dos / Aufgaben"),
+            "Open Questions": ("Offene Fragen", "Offene Punkte"),
+            "Next Steps": ("Nächste Schritte",),
+            "Transcript": ("Transkript",),
+        }
+
+        _section_alias_to_canonical: dict[str, str] = {}
+        for canonical in _SECTION_MAP:
+            _section_alias_to_canonical[canonical] = canonical
+            plain_key = canonical.lower().replace(" ", "_")
+            translated_plain = _tr(
+                f"ui.protocol.section.{plain_key}",
+                canonical,
+            )
+            _section_alias_to_canonical[translated_plain] = canonical
+            for alias in _LEGACY_SECTION_ALIASES.get(canonical, ()):  # backwards compatibility
+                _section_alias_to_canonical[alias] = canonical
 
         include_sections: dict[str, bool] = {
             "Summary": profile.include_summary,
@@ -1872,8 +1919,9 @@ class MainWindow(QMainWindow):
 
         for raw in draft.splitlines():
             stripped = raw.strip()
-            if stripped in _SECTION_MAP:
-                current_section = stripped
+            canonical = _section_alias_to_canonical.get(stripped)
+            if canonical is not None:
+                current_section = canonical
             else:
                 if current_section is None:
                     preamble.append(raw)
@@ -1931,15 +1979,18 @@ class MainWindow(QMainWindow):
         if profile.include_risk_table and risk_entries:
             risk_section_lines = [
                 "",
-                "## \u26a0\ufe0f Entscheidungsrisiken",
+                f"## {_tr('export.protocol.risk.section_title', '⚠️ Decision Risks')}",
                 "",
-                "| Entscheidung | Risiko | Indikatoren |",
+                "| " + _tr("export.protocol.risk.table.decision", "Decision") + " | "
+                + _tr("export.protocol.risk.table.risk", "Risk") + " | "
+                + _tr("export.protocol.risk.table.indicators", "Indicators") + " |",
                 "|---|---|---|",
             ]
             for entry in risk_entries:
                 emoji = _RISK_EMOJI[entry["risk_level"]]
-                label = _RISK_LABEL[entry["risk_level"]]
-                indicators_str = ", ".join(entry["indicators"]) if entry["indicators"] else "—"
+                label = risk_labels[entry["risk_level"]]
+                localized_indicators = _localize_indicators(entry["indicators"], resolved_language)
+                indicators_str = ", ".join(localized_indicators) if localized_indicators else "—"
                 short_text = entry["text"][:60] + ("…" if len(entry["text"]) > 60 else "")
                 risk_section_lines.append(
                     f"| {short_text} | {emoji} {label} | {indicators_str} |"
@@ -1956,26 +2007,33 @@ class MainWindow(QMainWindow):
                 name = name.strip()
                 rest = rest.strip()
             else:
-                name = "Offen"
+                name = _tr("export.protocol.tasks.unassigned", "Open")
                 rest = item
             m = date_pattern.search(rest)
             due = m.group(1) if m else "—"
             # Remove the date expression from task description
-            task_text = date_pattern.sub("", rest).replace("bis", "").strip().rstrip(",").strip()
+            task_text = date_pattern.sub("", rest)
+            if resolved_language == "de":
+                task_text = task_text.replace("bis", "")
+            else:
+                task_text = task_text.replace("by", "")
+            task_text = task_text.strip().rstrip(",").strip()
             table_rows.append((task_text or rest, name, due))
 
         table_lines: list[str] = []
         if profile.include_task_table:
             if not table_rows:
-                table_rows = [("Keine offenen Aufgaben", "—", "—")]
+                table_rows = [(_tr("export.protocol.tasks.none", "No open tasks"), "—", "—")]
 
             table_lines = [
                 "",
                 "---",
                 "",
-                "## Aufgabenliste",
+                f"## {_tr('export.protocol.tasks.section_title', 'Task List')}",
                 "",
-                "| # | Aufgabe | Verantwortlich | Fällig |",
+                "| # | " + _tr("export.protocol.tasks.table.task", "Task") + " | "
+                + _tr("export.protocol.tasks.table.owner", "Responsible") + " | "
+                + _tr("export.protocol.tasks.table.due", "Due") + " |",
                 "|---|---------|---------------|--------|",
             ]
             for idx, (task, responsible, due) in enumerate(table_rows, start=1):
@@ -1985,26 +2043,37 @@ class MainWindow(QMainWindow):
         if profile.include_compliance_note:
             compliance_lines = [
                 "",
-                "## 🔏 Datenschutz & Compliance",
+                f"## {_tr('export.protocol.compliance.section_title', '🔏 Privacy & Compliance')}",
                 "",
-                "Dieses Protokoll wurde ausschließlich lokal verarbeitet. Keine Audio-, Transkript- oder Protokolldaten haben die lokale Systemgrenze verlassen.  ",
-                "Offline-Verarbeitung bestätigt gemäß ADR-0001 (AYE Hear Offline-First Prinzip).",
+                _tr(
+                    "export.protocol.compliance.local_only",
+                    "This protocol was processed strictly locally. No audio, transcript, or protocol data left the local system boundary.",
+                ) + "  ",
+                _tr(
+                    "export.protocol.compliance.offline_attested",
+                    "Offline processing confirmed according to ADR-0001 (AYE Hear Offline-First principle).",
+                ),
                 "",
             ]
 
         # --- Footer ---
         footer_lines: list[str] = []
         if profile.include_ai_disclaimer or profile.include_offline_attestation:
-            attest_parts = ["Dieses Protokoll wurde automatisch mit AYE Hear erstellt"]
+            attest_parts = [_tr("export.protocol.footer.generated", "This protocol was generated automatically with AYE Hear")]
             if profile.include_offline_attestation:
-                attest_parts.append("Offline-Verarbeitung bestätigt")
-            attest_parts.append("Bitte vor offiziellem Versand prüfen")
+                attest_parts.append(_tr("export.protocol.footer.offline", "Offline processing confirmed"))
+            attest_parts.append(_tr("export.protocol.footer.review", "Please review before official distribution"))
             footer_lines.extend(["", "---", "", f"*{' · '.join(attest_parts)}.*"])
             if profile.include_ai_disclaimer:
                 footer_lines.extend(
                     [
                         "",
-                        "*Protokoll- und Transkriptqualität kann durch Modell- und Akustikbeschränkungen beeinträchtigt sein. Menschliche Prüfung vor offiziellem Versand erforderlich.*",
+                        "*"
+                        + _tr(
+                            "export.protocol.footer.disclaimer",
+                            "Protocol and transcript quality can be affected by model and acoustic limitations. Human review is required before official distribution.",
+                        )
+                        + "*",
                     ]
                 )
 
@@ -2020,7 +2089,7 @@ class MainWindow(QMainWindow):
             PROFILE_OPS,
             PROFILE_TEAM,
             PROFILE_COMPLIANCE,
-            PROFILE_LABELS,
+            get_profile_label,
         )
 
         draft = self._protocol_view.toPlainText().strip()
@@ -2044,7 +2113,7 @@ class MainWindow(QMainWindow):
             title = self._session.title or ""
 
         profile_ids = [PROFILE_CEO, PROFILE_OPS, PROFILE_TEAM, PROFILE_COMPLIANCE]
-        profile_labels = [PROFILE_LABELS[pid] for pid in profile_ids]
+        profile_labels = [get_profile_label(pid, self._translator.language) for pid in profile_ids]
         selected_label, ok = QInputDialog.getItem(
             self,
             self._tr("ui.export.profile.title"),
@@ -2057,7 +2126,7 @@ class MainWindow(QMainWindow):
             return
         profile_id = PROFILE_OPS
         for pid in profile_ids:
-            if PROFILE_LABELS[pid] == selected_label:
+            if get_profile_label(pid, self._translator.language) == selected_label:
                 profile_id = pid
                 break
 
@@ -2090,6 +2159,7 @@ class MainWindow(QMainWindow):
                 end_time=end_time,
                 snapshot_content=self._resolve_snapshot_content(self._active_meeting_id),
                 profile_id=profile_id,
+                language=self._translator.language,
             )
             out_path.write_text(md_text, encoding="utf-8")
             self._export_path_label.setText(self._tr("ui.export.path_label", path=out_path))
