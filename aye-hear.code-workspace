@@ -9,5 +9,8 @@
 		{
 			"path": "../aye-know"
 		}
-	]
+	],
+	"settings": {
+		"powershell.cwd": "aye-hear"
+	}
 }

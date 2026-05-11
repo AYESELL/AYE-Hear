@@ -160,6 +160,21 @@ class TestWavPersistence:
         svc._flush_wav()
         assert svc._wav_buffer == []
 
+    def test_stop_flushes_wav_after_stream_finished_callback(self, tmp_path):
+        cfg = WavPersistenceConfig(enabled=True, output_dir=tmp_path / "runtime" / "wav")
+        svc = self._make_service(cfg)
+        svc._meeting_id = "mtg-stop-race"
+        svc._wav_buffer = [_make_segment().samples]
+        # Simulate stream teardown callback arriving before UI stop() call.
+        svc._active = True
+        svc._on_stream_finished()
+
+        svc.stop()
+
+        wav_files = list((tmp_path / "runtime" / "wav").glob("*.wav"))
+        assert len(wav_files) == 1
+        assert svc._wav_buffer == []
+
     def test_silence_segments_not_buffered(self, tmp_path):
         cfg = WavPersistenceConfig(enabled=True, output_dir=tmp_path / "runtime" / "wav")
         svc = self._make_service(cfg)

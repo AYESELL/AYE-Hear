@@ -253,10 +253,20 @@ class AudioCaptureService:
     def stop(self) -> None:
         """Stop capture, flush optional WAV file, and release device resources."""
         with self._lock:
-            if not self._active:
-                return
+            # Stream-finished callbacks can set _active=False before callers invoke
+            # stop(); still close any remaining stream handle and flush buffered WAV.
+            was_active = self._active
+            has_stream = self._stream is not None
             self._active = False
+
+        if has_stream:
             self._close_stream()
+
+        if not was_active and self._wav_config.enabled and self._wav_buffer:
+            logger.debug(
+                "Audio capture stop called after stream-finished callback; flushing buffered WAV."
+            )
+
         self._flush_wav()
         if self._wav_config.enabled and not self._wav_config.delete_on_meeting_end:
             cleanup_expired_wav_files(self._wav_config.output_dir, self._wav_config.retention_days)

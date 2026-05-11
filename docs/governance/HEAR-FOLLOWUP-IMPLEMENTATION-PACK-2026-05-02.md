@@ -1,7 +1,7 @@
 ---
 owner: AYEHEAR_ARCHITECT
 status: active
-updated: 2026-05-02
+updated: 2026-05-04
 category: execution-pack
 ---
 
@@ -57,3 +57,32 @@ This pack defines concrete follow-up execution tasks after critical product-read
 - docs/HEAR-142-security-review.md
 - docs/governance/QUALITY_GATES.md
 - docs/governance/DEFINITIONS_OF_DONE.md
+
+## 2026-05-04 QA Runtime Follow-up (0.6.10)
+
+### Scope
+- Validate whether runtime WAV artifacts were generated for quality optimization.
+- Validate whether meeting, transcript, and protocol data were written consistently to PostgreSQL.
+
+### Findings
+- Runtime configuration in installed package has `privacy.wav_persistence_enabled: true` and `wav_output_dir: runtime/wav`.
+- No WAV artifacts were present in `D:/AYE/AyeHear/runtime/wav` after the test run.
+- Database writes for latest completed meeting were consistent:
+   - meeting persisted and completed,
+   - transcript segments persisted with text and confidence values,
+   - protocol snapshots persisted with non-empty JSONB content.
+
+### Root Cause (WAV Missing)
+- `AudioCaptureService._on_stream_finished()` can set `_active=False` before UI/service calls `stop()`.
+- Previous `stop()` implementation returned early when `_active` was already false.
+- Result: `_flush_wav()` could be skipped even with buffered non-silence frames.
+
+### Implemented Fix
+- Updated `AudioCaptureService.stop()` to always attempt stream cleanup and WAV flush, even when `_active` is already false.
+- Added regression test for the stream-finished-before-stop sequence:
+   - `test_stop_flushes_wav_after_stream_finished_callback`.
+
+### Evidence Targets
+- Code: `src/ayehear/services/audio_capture.py`
+- Test: `tests/test_hear_141_async_pipeline.py`
+- Runtime log used for diagnosis: `D:/AYE/AyeHear/logs/ayehear.log`

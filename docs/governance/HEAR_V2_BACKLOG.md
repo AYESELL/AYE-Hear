@@ -1,9 +1,9 @@
 ---
 owner: AYEHEAR_ARCHITECT
 status: active
-updated: 2026-04-19
+updated: 2026-05-11
 category: v2-backlog
-version: 0.3.2
+version: 0.4.0
 ---
 
 # AYE Hear V2 Backlog
@@ -165,21 +165,69 @@ Recommend whether a follow-up meeting is needed.
 - Explanation is explicit and user-readable.
 - Outcome classes: no follow-up, async follow-up, short decision meeting.
 
-### V2-11 Classical German Protocol and AYE Brand Layout (8 SP)
+### V2-11 Classical German Protocol and AYE Brand Layout (13 SP)
 
 **Goal**
-Deliver protocol exports in AYE visual style while following a classical German meeting-minutes structure.
+Deliver professional, branded protocol exports that follow classical German meeting-minutes structure (Briefkopf, TOPs, Aufgabenliste) with full AYE visual identity across all export formats (MD, DOCX, PDF).
+
+**Background / Design Decisions (2026-05-11)**
+Three concrete design patterns are combined for this item based on architect review:
+
+1. **Branded Briefkopf (Mandatory)** — Two-column header table on every export:
+   - Left: AYE Hear logo, document title "BESPRECHUNGSPROTOKOLL", protocol number (year + sequential)
+   - Right: meeting title, type (Intern/Extern), date, start time / end time (from session metadata), participant list with roles, export/version marker
+   - Implemented as: `reportlab.platypus.Table` (PDF), `python-docx` header table (DOCX), YAML front-matter block (Markdown)
+
+2. **Farbcodierte Abschnitte (Mandatory)** — Each protocol section carries a left-border color bar (4 px) and a tinted section heading:
+   - Zusammenfassung: AYE-Dunkelblau `#1A3A7A`
+   - Entscheidungen: Dunkelgrün `#1D5C2A` + icon ✅
+   - To-Dos / Aufgaben: AYE-Orange `#C86A0A` + icon 📌
+   - Offene Punkte: Bernstein `#B8860B` + icon ⚠️
+   - Nächste Schritte: AYE-Blau `#1A3A7A` + icon 🔷
+   - In Markdown: bold section headers with icon prefix; no color (compatible with plain viewers)
+
+3. **Separate Aufgabenliste als letzter Abschnitt (Mandatory)** — Standalone task table appended after the main protocol body:
+   - Columns: #, Aufgabe, Person, Fälligkeitsdatum
+   - Populated from `action_items` in snapshot_content
+   - Designed to be forwarded stand-alone (detach from full protocol)
 
 **Acceptance Criteria**
-- Output header includes mandatory metadata fields: meeting title, short summary, location, meeting date/time, participant list.
-- Output includes protocol metadata: protocol version and protocol creation date.
-- Output body keeps structured sections for results, decisions, protocol notes, tasks and open items.
-- Layout, typography and colors follow AYE design tokens and export style rules (ADR-0014 alignment).
-- Generated protocol template is consistent across Markdown, DOCX and PDF exports.
-- Protocol footer contains product branding statement: "This protocol was automatically created with help from AYE Hear." (localized DE/EN/FR).
-- Protocol includes mandatory AI-assistance disclaimer stating that transcript/protocol quality can be affected by model limitations and acoustic issues, and that human review is required before official use.
-- Protocol may include a compliance statement for GDPR and EU AI Act alignment only when release evidence and active runtime configuration support that claim.
-- Compliance statement must include offline-processing attestation that no protocol/transcript content left the local application boundary during the recorded session.
+
+*Header / Briefkopf:*
+- AC1: PDF and DOCX export include a two-column Briefkopf table with AYE logo (assets/Aye_Hear_Logo.png) in top-left.
+- AC2: Header contains: meeting title, meeting type, date, session start time, session end time, participant list (names as stored in session), protocol version ("Entwurf" until approved), export timestamp.
+- AC3: Protocol number is generated as `YYYY-NNN` (calendar year + sequential counter persisted in local DB or file) and shown in the header.
+- AC4: Markdown export represents the same metadata as a YAML front-matter block and a human-readable text header (no image, logo path noted as comment).
+
+*Color-coded sections:*
+- AC5: PDF export renders each section heading with a 4 px left-border color bar matching the section color table above.
+- AC6: DOCX export uses Word paragraph styles (Heading 2 + custom color) for section headings; color follows the same section color table.
+- AC7: Markdown export uses bold section headers prefixed with the section icon (e.g., `## ✅ Entscheidungen`).
+- AC8: Sections are rendered in fixed order: Zusammenfassung → Entscheidungen → To-Dos → Offene Punkte → Nächste Schritte → Aufgabenliste.
+
+*Aufgabenliste (Task Table):*
+- AC9: A dedicated task table section is appended at the end of every export (even if empty — table shows "Keine offenen Aufgaben").
+- AC10: Table columns are: `#`, `Aufgabe`, `Verantwortlich`, `Fälligkeitsdatum`.
+- AC11: `Verantwortlich` is populated from the assigned speaker/participant name in `action_items` when extractable; falls back to "Offen".
+- AC12: `Fälligkeitsdatum` is populated from extracted date expressions in action item text when available; falls back to "—".
+
+*Footer and compliance:*
+- AC13: Every page footer (PDF/DOCX) contains: "Dieses Protokoll wurde automatisch mit AYE Hear erstellt · Offline-Verarbeitung bestätigt · Bitte vor offiziellem Versand prüfen."
+- AC14: Footer is localized: German (default), English, French — selectable via runtime config `protocol.language`.
+- AC15: AI-assistance disclaimer is printed below the footer: "Protokoll- und Transkriptqualität kann durch Modell- und Akustikbeschränkungen beeinträchtigt sein. Menschliche Prüfung vor offiziellem Versand erforderlich."
+- AC16: GDPR/offline attestation statement is included only if `protocol.include_compliance_statement = true` in runtime config AND offline-first evidence is present (ADR-0001 guard).
+
+*Implementation constraints:*
+- AC17: Logo file is resolved via `ayehear.utils.paths` (install-root-relative `assets/Aye_Hear_Logo.png`); export must not fail if logo file is missing — fallback to text "AYE Hear" in logo position.
+- AC18: All export format changes are covered by tests in `tests/test_hear_v211_protocol_layout.py` (Markdown content, DOCX structure, PDF magic bytes + page count ≥ 1).
+- AC19: Export runtime behavior remains fully offline; no external font or image download.
+- AC20: `_format_as_markdown()` and `_export_as_docx()` / `_export_as_pdf()` in `window.py` are refactored to delegate to a new `ProtocolFormatter` class in `src/ayehear/services/protocol_formatter.py`.
+
+**Out of Scope for V2-11**
+- Interactive "Executive At-a-Glance" summary card (too complex for this item — defer to V2-14)
+- TOP-based (Tagesordnungspunkt) auto-detection from transcript (defer to V2-15)
+- User-configurable color themes (post-V2)
+- Cloud font loading or remote logo URL
 
 ### V2-12 Confidence Review Workflow (8 SP)
 
@@ -222,6 +270,15 @@ Use this checklist on every backlog update:
    - `docs(backlog): add V2-11 compliance assistant epic`
 
 ## Change Log
+
+### 2026-05-11 (v0.4.0)
+
+- V2-11 konkretisiert: SP von 8 auf 13 erhöht (Umfang detaillierter als ursprünglich erwartet).
+- 20 messbare Acceptance Criteria hinzugefügt (Briefkopf, Farbcodierung, Aufgabenliste, Footer, Compliance).
+- Drei Designmuster explizit dokumentiert: Branded Briefkopf, farbcodierte Abschnitte, separate Aufgabenliste.
+- Technische Implementierungshinweise ergänzt: `ProtocolFormatter`-Klasse, Logo-Fallback, Testdatei-Name.
+- Zwei neue deferred Items (V2-14 Executive Summary Card, V2-15 TOP-Erkennung) als Out-of-Scope dokumentiert.
+- Frontmatter version auf 0.4.0 (minor bump wegen Scope-Erweiterung).
 
 ### 2026-04-19 (v0.3.2)
 
