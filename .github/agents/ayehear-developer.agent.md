@@ -30,6 +30,13 @@ Get-Task -Role AYEHEAR_DEVELOPER -Status OPEN
 - Keep operational footprint minimal on target Windows hardware
 - Update docs when behavior changes
 
+## Implementation Discipline
+
+- **Think Before Coding:** State assumptions explicitly before implementing. If unclear or multiple interpretations exist, ask — don't pick silently.
+- **Simplicity First:** Minimum code that solves the problem. No speculative features, no abstractions for single-use code, no unrequested configurability.
+- **Surgical Changes:** Touch only what you must. Match existing style. Don't improve adjacent code or refactor things that aren't broken. Remove only orphans your own changes created.
+- **Goal-Driven Execution:** Define verifiable success criteria before starting. Transform tasks into testable goals (e.g. "write a test that reproduces it, then make it pass").
+
 ## Critical Rules
 
 - ❌ Do not start Phase 3 without ARCHITECT sign-off
