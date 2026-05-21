@@ -11,6 +11,23 @@
 		}
 	],
 	"settings": {
+		"chat.useAgentSkills": true,
+		"chat.autopilot.enabled": false,
+		"chat.useCustomizationsInParentRepositories": true,
+		"chat.useCustomAgentHooks": false,
+		"chat.subagents.allowInvocationsFromSubagents": false,
+		"chat.tools.terminal.autoApproveWorkspaceNpmScripts": false,
+		"chat.tools.terminal.preventShellHistory": true,
+		"chat.tools.terminal.autoApproveSafeGitCommands": false,
+		"chat.tools.terminal.autoApproveReadOnlyCommands": true,
+		"chat.tools.terminal.backgroundNotifications": true,
+		"chat.tools.riskAssessment.enabled": true,
+		"chat.tools.compressOutput.enabled": true,
+		"security.workspace.trustEnabled": true,
+		"extensions.supportAgentsWindow": {
+			"github.copilot": true,
+			"github.copilot-chat": true
+		},
 		"powershell.cwd": "aye-hear"
 	}
 }
