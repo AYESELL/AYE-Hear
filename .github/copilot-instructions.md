@@ -1,7 +1,7 @@
 ---
 owner: AYEHEAR_ARCHITECT
 status: active
-updated: 2026-04-08
+updated: 2026-05-16
 category: agent-configuration
 ---
 
@@ -118,6 +118,20 @@ All primary AYE Hear work happens locally in `AYE-Hear/` repository.
 - Document the decision in ADR, design doc, or task implementation notes.
 - Do not reimplement existing platform service capabilities without documented rationale.
 
+## Memory Routing
+
+- User memory only for durable user preferences, global working rules, and repeatedly useful personal learnings.
+- Session memory only for active work context, intermediate findings, and decisions likely to be reused in the current conversation.
+- Repo memory only for verified repository conventions, stable commands, runbook facts, and confirmed gotchas with reuse value.
+
+## Memory Guardrails
+
+- Do not store anything that is one-off, temporary, or unverified.
+- Check existing memory notes before creating a new one; update instead of duplicating when possible.
+- Create or extend repo memory only when the fact is verified by documentation, tooling, tests, or repeated practice.
+
+At task closure, briefly check whether a verified learning belongs in user, session, or repo memory. If there is no clear reuse value, store nothing.
+
 ---
 
 ## 📚 Getting Started
@@ -183,4 +197,4 @@ Complete-Task -Id HEAR-001
 ---
 
 **Maintained by:** AYEHEAR Team  
-**Updated:** 2026-04-08
+**Updated:** 2026-05-16
