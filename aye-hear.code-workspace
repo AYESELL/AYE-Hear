@@ -23,6 +23,7 @@
 		"chat.tools.terminal.backgroundNotifications": true,
 		"chat.tools.riskAssessment.enabled": true,
 		"chat.tools.compressOutput.enabled": true,
+		"workbench.browser.searchEngine": "google",
 		"security.workspace.trustEnabled": true,
 		"extensions.supportAgentsWindow": {
 			"github.copilot": true,
