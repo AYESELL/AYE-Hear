@@ -1,0 +1,28 @@
+{
+  "version": "1.0",
+  "scopes": [
+    "speaker-id",
+    "audio-processing",
+    "storage",
+    "api",
+    "ui",
+    "governance",
+    "security",
+    "testing",
+    "docs",
+    "ci",
+    "deps"
+  ],
+  "types": [
+    "feat",
+    "fix",
+    "docs",
+    "style",
+    "refactor",
+    "test",
+    "chore",
+    "perf",
+    "build",
+    "ci"
+  ]
+}
