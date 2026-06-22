@@ -78,3 +78,7 @@ Complete-Task -Id HEAR-XXX
 - **Dev Setup:** docs/quick-refs/DEVELOPMENT_SETUP_QUICKREF.md
 - **Local Testing:** docs/quick-refs/LOCAL_TESTING_QUICKREF.md
 - **7-Phase Workflow:** docs/governance/7-PHASE-WORKFLOW.md
+
+Before task closure, checkpoint any reusable implementation finding, failing validation result, or next fix to preserve momentum in the current conversation.
+
+- **Session Memory Harvest Patterns:** ../platform-tools/docs/quick-refs/SESSION_MEMORY_HARVEST_PATTERNS.md

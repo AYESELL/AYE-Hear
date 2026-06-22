@@ -74,3 +74,7 @@ Complete-Task -Id HEAR-XXX
 - **Windows Stack ADR:** docs/adr/0002-windows-desktop-app-stack.md
 - **7-Phase Workflow:** docs/governance/7-PHASE-WORKFLOW.md
 - **Quality Gates:** docs/governance/QUALITY_GATES.md
+
+Before task closure, checkpoint any reusable design decision, sign-off rationale, or next-step dependency that will matter later in the same conversation.
+
+- **Session Memory Harvest Patterns:** ../platform-tools/docs/quick-refs/SESSION_MEMORY_HARVEST_PATTERNS.md

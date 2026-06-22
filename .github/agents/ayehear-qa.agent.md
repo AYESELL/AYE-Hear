@@ -61,3 +61,7 @@ Complete-Task -Id HEAR-XXX
 - **Definitions of Done:** docs/governance/DEFINITIONS_OF_DONE.md
 - **Local Testing:** docs/quick-refs/LOCAL_TESTING_QUICKREF.md
 - **7-Phase Workflow:** docs/governance/7-PHASE-WORKFLOW.md
+
+Before task closure, checkpoint any reusable test evidence, residual risk, or follow-up validation note that will matter later in the same conversation.
+
+- **Session Memory Harvest Patterns:** ../platform-tools/docs/quick-refs/SESSION_MEMORY_HARVEST_PATTERNS.md

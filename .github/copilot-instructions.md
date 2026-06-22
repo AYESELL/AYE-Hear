@@ -130,7 +130,11 @@ All primary AYE Hear work happens locally in `AYE-Hear/` repository.
 - Check existing memory notes before creating a new one; update instead of duplicating when possible.
 - Create or extend repo memory only when the fact is verified by documentation, tooling, tests, or repeated practice.
 
+Before task closure, checkpoint reusable in-session context such as the current local hypothesis, failing validation result, or next step when it is likely to matter later in the same conversation. If the context will not be reused in-session, store nothing.
+
 At task closure, briefly check whether a verified learning belongs in user, session, or repo memory. If there is no clear reuse value, store nothing.
+
+Use `../platform-tools/docs/quick-refs/SESSION_MEMORY_HARVEST_PATTERNS.md` for canonical session-memory harvest patterns.
 
 ---
 
@@ -198,3 +202,81 @@ Complete-Task -Id HEAR-001
 
 **Maintained by:** AYEHEAR Team  
 **Updated:** 2026-05-16
+
+---
+
+## Bootstrap Enforcement (MANDATORY)
+
+### AYEHEAR_ARCHITECT — MEDIUM gate
+
+**🚨 MANDATORY FIRST ACTION — BLOCKING REQUIREMENT**
+
+Du MUSST diese Dateien laden, BEVOR du auf einen Task reagierst:
+- `docs/PRODUCT_FOUNDATION.md`
+- `docs/adr/README.md`
+- `../platform-tools/docs/personas/_FOUNDATION_DOCS.md`
+
+**Dann:** `Get-Task -Role AYEHEAR_ARCHITECT -Status OPEN`
+
+**Gate-Stärke:** MEDIUM
+**Bei fehlendem Checkpoint:** Warnung — Architect-Entscheidungen ohne Foundation-Kontext sind ungültig.
+
+---
+
+### AYEHEAR_DEVELOPER — SOFT gate
+
+**🚨 MANDATORY FIRST ACTION — BLOCKING REQUIREMENT**
+
+Du MUSST diese Dateien laden, BEVOR du auf einen Task reagierst:
+- `docs/PRODUCT_FOUNDATION.md`
+- `../platform-tools/docs/personas/_FOUNDATION_DOCS.md`
+
+**Dann:** `Get-Task -Role AYEHEAR_DEVELOPER -Status OPEN`
+
+**Gate-Stärke:** SOFT
+**Bei fehlendem Checkpoint:** Flag in CI — fehlende Kontext-Dokumentation wird als Review-Finding markiert.
+
+---
+
+### AYEHEAR_SECURITY — HARD gate
+
+**🚨 MANDATORY FIRST ACTION — BLOCKING REQUIREMENT**
+
+Du MUSST diese Dateien laden, BEVOR du auf einen Task reagierst:
+- `docs/PRODUCT_FOUNDATION.md`
+- `docs/adr/README.md`
+
+**Dann:** `Get-Task -Role AYEHEAR_SECURITY -Status OPEN`
+
+**Gate-Stärke:** HARD
+**Bei fehlendem Checkpoint:** Task blockiert — Security-Reviews ohne ADR- und Foundation-Kontext sind unzulässig.
+
+---
+
+### AYEHEAR_QA — SOFT gate
+
+**🚨 MANDATORY FIRST ACTION — BLOCKING REQUIREMENT**
+
+Du MUSST diese Dateien laden, BEVOR du auf einen Task reagierst:
+- `docs/PRODUCT_FOUNDATION.md`
+- `../platform-tools/docs/personas/_FOUNDATION_DOCS.md`
+
+**Dann:** `Get-Task -Role AYEHEAR_QA -Status OPEN`
+
+**Gate-Stärke:** SOFT
+**Bei fehlendem Checkpoint:** Flag in CI — QA-Artefakte ohne Foundation-Kontext werden als unvollständig markiert.
+
+---
+
+### AYEHEAR_DEVOPS — MEDIUM gate
+
+**🚨 MANDATORY FIRST ACTION — BLOCKING REQUIREMENT**
+
+Du MUSST diese Dateien laden, BEVOR du auf einen Task reagierst:
+- `docs/PRODUCT_FOUNDATION.md`
+- `../platform-tools/docs/personas/_FOUNDATION_DOCS.md`
+
+**Dann:** `Get-Task -Role AYEHEAR_DEVOPS -Status OPEN`
+
+**Gate-Stärke:** MEDIUM
+**Bei fehlendem Checkpoint:** Warnung — Deployment-Entscheidungen ohne Foundation-Kontext erfordern manuelle Review-Freigabe.

@@ -51,3 +51,7 @@ Complete-Task -Id HEAR-XXX
 - **Product Foundation:** docs/PRODUCT_FOUNDATION.md
 - **7-Phase Workflow:** docs/governance/7-PHASE-WORKFLOW.md
 - **Quality Gates:** docs/governance/QUALITY_GATES.md
+
+Before task closure, checkpoint any reusable release constraint, deployment outcome, or rollback follow-up that may be needed later in the same conversation.
+
+- **Session Memory Harvest Patterns:** ../platform-tools/docs/quick-refs/SESSION_MEMORY_HARVEST_PATTERNS.md

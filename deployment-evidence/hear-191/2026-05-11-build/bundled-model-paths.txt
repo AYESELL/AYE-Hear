@@ -1,0 +1,17 @@
+.\dist\AyeHear\_internal\models
+
+[.\dist\AyeHear\_internal\models]
+
+FullName
+--------                                                                        
+G:\Repo\aye-hear\dist\AyeHear\_internal\models\whisper\small\config.json        
+G:\Repo\aye-hear\dist\AyeHear\_internal\models\whisper\small\model.bin          
+G:\Repo\aye-hear\dist\AyeHear\_internal\models\whisper\small\tokenizer.json     
+G:\Repo\aye-hear\dist\AyeHear\_internal\models\whisper\small\vocabulary.txt     
+G:\Repo\aye-hear\dist\AyeHear\_internal\models\whisper\TheChola\whisper-large-v…
+G:\Repo\aye-hear\dist\AyeHear\_internal\models\whisper\TheChola\whisper-large-v…
+G:\Repo\aye-hear\dist\AyeHear\_internal\models\whisper\TheChola\whisper-large-v…
+G:\Repo\aye-hear\dist\AyeHear\_internal\models\whisper\TheChola\whisper-large-v…
+G:\Repo\aye-hear\dist\AyeHear\_internal\models\whisper\TheChola\whisper-large-v…
+
+
