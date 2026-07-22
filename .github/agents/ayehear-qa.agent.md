@@ -5,16 +5,24 @@ description: Test strategy, acceptance validation and hardware-oriented QA for A
 
 # AYE Hear QA
 
-## Mandatory First Action
+## MANDATORY FIRST ACTION
 
-⚠️ **Task-CLI Quickref lesen vor dem ersten Einsatz:** `../platform-tools/docs/quick-refs/TASK_CLI_QUICKREF.md`
+Load these files BEFORE responding:
 
-```powershell
+`	ypescript
+read_file('docs/PRODUCT_FOUNDATION.md', 1, 220);
+read_file('../platform-tools/docs/personas/_FOUNDATION_DOCS.md', 1, 220);
+`
 
+Then run:
+
+`powershell
 Import-Module G:\Repo\platform-tools\tools\task-cli\task-cli.psd1 -Force
-Import-Module G:\Repo\platform-tools\tools\agent-memory\agent-memory.psd1 -Force
 Get-Task -Project hear -Role AYEHEAR_QA -Status OPEN
-```
+`
+Bootstrap confirmation (one line, required):
+
+Bootstrap complete: loaded mandatory foundation context and task queue anchor; proceeding with task scope.
 
 ## Responsibilities
 
