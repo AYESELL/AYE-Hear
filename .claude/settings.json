@@ -29,7 +29,13 @@
       "Bash(git stash push:*)",
       "PowerShell(git stash push:*)",
       "Bash(git stash list:*)",
-      "PowerShell(git stash list:*)"
+      "PowerShell(git stash list:*)",
+      "Bash(pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File G:/Repo/aye-hear/.claude/tools/task.ps1:*)",
+      "PowerShell(pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File G:/Repo/aye-hear/.claude/tools/task.ps1:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm typecheck:*)"
     ],
     "ask": [
       "Bash(git push *)",
@@ -73,7 +79,41 @@
       "Bash(git filter-branch:*)",
       "PowerShell(git filter-branch:*)",
       "Bash(git config:*)",
-      "PowerShell(git config:*)"
+      "PowerShell(git config:*)",
+      "Read(**/.env)",
+      "Read(**/.env.*)",
+      "Read(**/.credentials/**)",
+      "Read(**/secrets/**)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)"
+    ]
+  },
+  "agent": "ayehear-lead",
+  "env": {
+    "CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH": "1"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.ps1\"",
+            "timeout": 60
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/stop-task-check.ps1\"",
+            "timeout": 30
+          }
+        ]
+      }
     ]
   }
 }

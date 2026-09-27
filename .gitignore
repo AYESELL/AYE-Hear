@@ -39,3 +39,9 @@ logs/
 
 # Release artifacts (do not commit installer binaries)
 ops-release/**/*.exe
+# Claude-Kit: Sicherungskopien von install.py
+.claude/.kit-backup/
+# Claude Code: lokale, dynamische Rollen-Gedächtnisse
+.claude/agent-memory/
+# Claude Code: Berechtigungsfreigaben pro Rechner
+.claude/settings.local.json
