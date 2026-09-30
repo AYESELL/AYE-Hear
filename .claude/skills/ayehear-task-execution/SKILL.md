@@ -78,6 +78,31 @@ Nie `Set-Task -Status DONE`. Nie `-InteractiveApms`.
 
 **`-SkipReview` und `-Force` bei `Complete-Task`** (umgehen Bestätigung und Review-/Checkpoint-Gates) nie auf eigene Initiative und nie ohne ausdrückliche Freigabe von Sascha. Die Freigabe (wer, wann, Grund) steht vorher in den Implementation Notes. Blockiert ein Gate den Abschluss und fehlt die Freigabe: Task auf `REVIEW` oder `BLOCKED` lassen und im Bericht melden. (`Start-Task … -Force` in Abschnitt 4 ist davon nicht betroffen.)
 
+## 5b. Git: Stand sichern, wiederherstellbar halten (ADR-0100)
+
+Grundsatz: Fertige Arbeit liegt als Commit auf einem Branch, der auf `origin` existiert. Uncommittete Änderungen, Stashes und nur lokale Commits sind Übergangszustände und stehen immer im Task (Git-Stand, Punkt 9).
+
+1. **Vor der ersten Änderung:** `git fetch origin`, `git status --short`, `git stash list`. Aktiver Trunk dieses Repos: `feature/phase-1b-implementation-updates` – nicht automatisch `main`. Fehlt der Trunk auf `origin`, ist ein anderer Remote-Branch deutlich aktiver, oder liegen fremde Änderungen oder unbekannte Stashes vor: nichts davon anfassen, im Bericht melden.
+2. **Branch:** eigene Arbeit auf `<typ>/HEAR-<nr>-<kurzname>` ab `origin/feature/phase-1b-implementation-updates`. Direkt auf dem Trunk nur, wenn der Auftrag es ausdrücklich erlaubt. Arbeitet eine zweite Sitzung im selben Repo oder war das Verzeichnis beim Start nicht sauber: eigener Worktree (`git worktree add ../<repo>-wt-<nr> -b <branch> origin/feature/phase-1b-implementation-updates`) – die Projektleitung gibt das im Auftrag vor.
+3. **Immer mit Pfaden:** `git add <pfade>`, `git stash push -m '<ID>: <grund>' -- <pfade>`, `git checkout HEAD -- <pfade>`. Nie auf das ganze Verzeichnis: `git stash` ohne Pfade, `git add -A`/`.`, `git commit -a`, `git checkout .`, `git restore .`, `git clean`, `-AutoStage`/`-AutoPush`.
+4. **Stash:** lieber ein WIP-Commit auf dem Task-Branch. Eigener Stash nur kurz, mit Task-ID, vor Sitzungsende aufgelöst. Fremde oder unklare Stashes nur lesen (`git stash show -p stash@{n}`); `pop`/`apply`/`drop`/`clear` nur mit Freigabe der Projektleitung. Sichern statt löschen: `git branch rescue/stash-<datum>-<n> stash@{n}` und pushen.
+5. **Aus fremdem Stash/Branch übernehmen:** nur die Differenz (`git diff stash@{n}^1 stash@{n} -- <pfad>`), nie die ganze Datei (`git show stash@{n}:<pfad>` bringt fremden Inhalt mit). Danach `git diff` Hunk für Hunk prüfen.
+6. **Commit** über `git commit`, Task-ID in der Nachricht. Task-Branch spätestens vor `REVIEW` pushen, sofern der Auftrag Commit/Push freigibt (Abschnitt 9).
+7. **Vor jedem Push:** `git fetch origin`, dann `git log --oneline origin/<branch>..<branch>` – existiert `origin/<branch>` noch nicht (erster Push dieses Branches), stattdessen `git log --oneline origin/feature/phase-1b-implementation-updates..<branch>`. Nur pushen, wenn jeder gelistete Commit zum eigenen Task gehört oder freigegeben ist – sonst Stopp. Immer `git push origin <branch>`; kein `--all`, kein `--tags`, nie Force. Zurückgehaltene Commits liegen auf `hold/<ID>-…`, nie auf einem geteilten Branch.
+8. **Statt `git reset --hard`** (gesperrt), nur wenn der lokale Branch inhaltlich gleich `origin/<b>` ist: `git diff --stat HEAD origin/<b>` (muss leer sein) → `git branch backup/<ID>-<datum>` → `git update-ref refs/heads/<b> origin/<b> <alter-sha>` → `git reset` (mixed) → `git status`; nur geprüfte Pfade mit `git checkout HEAD -- <pfade>`. Bei echten Unterschieden: Stopp.
+9. **Git-Stand** vor `REVIEW` in die Implementation Notes und den Übergabebericht: `Git-Stand: <repo> · <branch> · <sha7> · gepusht ja/nein · offen: keine | <pfade/stash + grund>`. Merge in den Trunk macht die Projektleitung nach bestandenem REVIEW; `DONE` erst, wenn der Commit im gepushten Trunk liegt.
+
+## 5c. Rückweisungsregeln
+
+Gilt für jede Rückweisung zur Überarbeitung – im `REVIEW`-Schritt (Abschnitt 5a) ebenso wie bei jeder anderen Übergabe zwischen zwei Rollen.
+
+1. **Konkretes Kriterium + Beleg.** Wer zurückweist, nennt explizit (a) welches dokumentierte Kriterium nicht erfüllt ist (Verweis auf die konkrete Stelle/den konkreten Prüfpunkt), (b) woran das gemessen wurde (Befehl, Zahl, Abschnitt, Quelle). Eine Rückweisung ohne beides ist nicht zulässig. Existiert für den geprüften Schritt kein dokumentiertes Kriterium, darf nicht zurückgewiesen werden – stattdessen Freigabe von Sascha einholen statt eines Freitext-Urteils.
+2. **Höchstens eine Überarbeitungsschleife je Prüfschritt.** Erfüllt die Arbeit nach der ersten Überarbeitung das genannte Kriterium weiterhin nicht: keine zweite Runde mit derselben oder einer weiteren KI-Prüfinstanz. Stattdessen Eskalation an Sascha (oder `ayehear-lead` in seinem Auftrag) mit: ursprünglicher Einreichung, Rückweisungsgrund, Ergebnis der Überarbeitung, offener Lücke.
+3. **Festes Feldformat statt Freitext.** Übergaben zwischen Rollen (Task-Status → `REVIEW`, Review-Ergebnis, Rückweisung) nennen: Kriterium · Befund (erfüllt/nicht erfüllt) · Beleg (Befehl/Zahl/Abschnitt) · bei „nicht erfüllt“: konkrete nächste Aktion. Frei formulierte Zusatzbegründung ist erlaubt, ersetzt aber nicht diese Pflichtfelder.
+4. **Kein zweiter KI-Prüfer als Ersatz für ein fehlendes Kriterium.** Fällt ein Prüfschritt in Kategorie „kein Kriterium“ (kein Test/Build/Contract/Zahlen- oder Quellenabgleich, kein Ja/Nein-Prüfpunkt) und lässt sich kurzfristig kein hartes Kriterium nachrüsten, entscheidet ein Mensch (Sascha), nicht eine weitere Rolle.
+
+Herkunft: Bestandsaufnahme PLAT-3302/PLAT-3304 (platform-tools, Kit-Quelle dieser Regeln).
+
 ## 6. Bei Problemen: Lessons zuerst
 
 Tritt ein Fehler oder ein unerwartetes Verhalten auf, zuerst in `docs/lessons/INDEX.md` nach dem Symptom suchen. Hast du ein nicht-triviales Problem gelöst, das auch andere Rollen treffen kann, ergänze dort eine Zeile (Datum, Bereich, Symptom, Ursache/Lösung, Quelle). Nur für die eigene Rolle Relevantes gehört ins Rollen-Gedächtnis.
@@ -97,7 +122,9 @@ Jede Rolle endet mit diesem Bericht (Deutsch, knapp):
 - **Geänderte Dateien**
 - **Prüfungen:** Befehl → Ergebnis
 - **Offene Fragen an Sascha:** jeweils mit Empfehlung
+- **Rückweisung erhalten oder ausgesprochen (falls zutreffend):** Kriterium · Befund · Beleg · Aktion (Abschnitt 5c)
 - **Neue Lessons:** Zeilen in `docs/lessons/INDEX.md`, falls ergänzt
+- **Git-Stand:** Repo · Branch · Commit · gepusht ja/nein · offen (Abschnitt 5b)
 - **Vorgeschlagene Folge-Tasks:** Titel, Rolle, Ziel, Bezug
 - **Nächste Rolle:** wer übernimmt, Übergabestatus; bei `REVIEW` die vorgeschlagene prüfende Rolle
 

@@ -19,7 +19,7 @@ Ein Arbeitsblock ist eine Gruppe von 3 bis 8 Tasks mit einem gemeinsamen Ziel. E
 
 ## 2. Ausführung (pro Task)
 
-1. Rolle mit Auftrag aufrufen: Task-ID, Ziel, Grenzen, relevante Ergebnisse der Vorrollen, erwartete Rückgabe. Bei Pflicht-REVIEW (Skill `ayehear-task-execution`, Abschnitt 5a) gibst du vor: „Task am Ende auf REVIEW setzen, nicht Complete-Task; kein -SkipReview/-Force.“
+1. Rolle mit Auftrag aufrufen: Task-ID, Ziel, Grenzen, relevante Ergebnisse der Vorrollen, erwartete Rückgabe. Bei Pflicht-REVIEW (Skill `ayehear-task-execution`, Abschnitt 5a) gibst du vor: „Task am Ende auf REVIEW setzen, nicht Complete-Task; kein -SkipReview/-Force.“ Bei Tasks, die Dateien ändern, nennt der Auftrag den Git-Rahmen: Task-Branch (Name), Worktree ja/nein (ja, sobald eine andere Sitzung im selben Repo arbeitet oder das Verzeichnis nicht sauber ist), Commit und Push des Task-Branches freigegeben.
 2. Übergabebericht prüfen: Task-Status in der Task-CLI gesetzt? Prüfnachweis mit Befehl und Ergebnis vorhanden? Berührte ADRs genannt?
 3. Qualitätsstufe auslösen:
    - Code oder Contract geändert → `ayehear-qa`
@@ -27,7 +27,7 @@ Ein Arbeitsblock ist eine Gruppe von 3 bis 8 Tasks mit einem gemeinsamen Ziel. E
    - Architekturfrage offen oder Abweichung von einer ADR → `ayehear-architect`
    - Neue Nachweise oder Entscheidungen → am Blockende `ayehear-architect`
 4. Befunde aus Reviews (QA, Security, Architektur) sortieren – siehe Abschnitt 2a.
-5. Task schließen: Ein Task mit Pflicht-REVIEW bleibt auf `REVIEW`, bis die unabhängige Prüfung in den Implementation Notes dokumentiert ist; erst dann schließt du ihn mit dem Bericht (`Complete-Task`). `-SkipReview`/`-Force` nur mit ausdrücklicher Freigabe von Sascha, vermerkt in den Notes.
+5. Task schließen: Ein Task mit Pflicht-REVIEW bleibt auf `REVIEW`, bis die unabhängige Prüfung in den Implementation Notes dokumentiert ist; erst dann schließt du ihn mit dem Bericht (`Complete-Task`). `-SkipReview`/`-Force` nur mit ausdrücklicher Freigabe von Sascha, vermerkt in den Notes. Vor `Complete-Task` bei dateiändernden Tasks: Task-Branch nach bestandenem REVIEW mit `--no-ff` in den Trunk mergen, Push nach Prüfung laut Skill Abschnitt 5b Punkt 7, `git branch -r --contains <sha>` zeigt `origin/feature/phase-1b-implementation-updates`, Task-Branch und Worktree entfernen. Git-Stand in den Notes nachtragen.
 6. Vorgeschlagene Folge-Tasks prüfen und anlegen (`New-Task -Project hear … -CreatedByRole AYEHEAR_LEAD`, Beschreibung beginnt mit „Angelegt durch Projektleitung“, Bezug auf den auslösenden Task).
 7. Fehlschlag: zweiter Versuch nur mit gezielt geändertem Auftrag. Nach dem zweiten Fehlschlag Stopp.
 
@@ -61,6 +61,7 @@ Entscheidungsvorlage: Situation in zwei Sätzen · Optionen (2–3) mit Folgen �
 ## 5. Abschluss des Blocks
 
 1. Alle Tasks des Blocks sind `DONE` (bei Pflicht-REVIEW erst nach dokumentierter Prüfung), `REVIEW` mit benannter prüfender Rolle oder begründet `BLOCKED`.
+1a. Git-Abgleich je berührtem Repo: `git status --short` sauber, `git stash list` ohne neue Einträge des Blocks, keine ungepushten Commits (`git log origin/feature/phase-1b-implementation-updates..feature/phase-1b-implementation-updates` leer). Abweichungen stehen mit Grund im Abschlussbericht.
 2. `ayehear-architect` zieht Berichte, Index und Lessons nach.
 3. `docs/STATUS.md` aktualisieren: Stand, nächste Schritte, offene Entscheidungen.
 4. Abschlussbericht an Sascha: Ziel erreicht ja/teilweise/nein · erledigte Tasks · offene Punkte · Backlog-Liste (Abschnitt 2a) zur Priorisierung · neue Lessons · Vorschlag für den nächsten Block.
