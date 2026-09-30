@@ -31,11 +31,16 @@
       "Bash(git stash list:*)",
       "PowerShell(git stash list:*)",
       "Bash(pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File G:/Repo/aye-hear/.claude/tools/task.ps1:*)",
-      "PowerShell(pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File G:/Repo/aye-hear/.claude/tools/task.ps1:*)",
       "Bash(pnpm lint:*)",
       "Bash(pnpm test:*)",
       "Bash(pnpm build:*)",
-      "Bash(pnpm typecheck:*)"
+      "Bash(pnpm typecheck:*)",
+      "Bash(pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File g:/Repo/aye-hear/.claude/tools/task.ps1:*)",
+      "Bash(pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File /g/Repo/aye-hear/.claude/tools/task.ps1:*)",
+      "PowerShell(G:/Repo/aye-hear/.claude/tools/task.ps1:*)",
+      "PowerShell(G:\\Repo\\aye-hear\\.claude\\tools\\task.ps1:*)",
+      "Bash(git rev-parse:*)",
+      "PowerShell(git rev-parse:*)"
     ],
     "ask": [
       "Bash(git push *)",
@@ -67,7 +72,11 @@
       "Bash(git merge:*)",
       "PowerShell(git merge:*)",
       "Bash(git pull:*)",
-      "PowerShell(git pull:*)"
+      "PowerShell(git pull:*)",
+      "Bash(*install.py*--unlock*)",
+      "PowerShell(*install.py*--unlock*)",
+      "Bash(*install.py*guard*)",
+      "PowerShell(*install.py*guard*)"
     ],
     "deny": [
       "Bash(git reset --hard *)",
@@ -114,6 +123,21 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/task-call-guard.ps1\"",
+            "timeout": 15
+          }
+        ]
+      }
     ]
+  },
+  "worktree": {
+    "baseRef": "head"
   }
 }
