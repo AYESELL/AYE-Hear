@@ -8,7 +8,10 @@
     aufgerufen werden, und fuehrt den Befehl nicht-interaktiv aus.
 
 .EXAMPLE
-    pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File G:/Repo/aye-hear/.claude/tools/task.ps1 "Get-Task -Project hear -Status OPEN"
+    Bash-Werkzeug: pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File G:/Repo/aye-hear/.claude/tools/task.ps1 "Get-Task -Project hear -Status OPEN"
+
+.EXAMPLE
+    PowerShell-Werkzeug (direkt, ohne pwsh; verschachteltes pwsh fragt dort immer nach): G:/Repo/aye-hear/.claude/tools/task.ps1 "Get-Task -Project hear -Status OPEN"
 
 .NOTES
     Pfad zu platform-tools: $env:PLATFORM_TOOLS_ROOT, sonst ../platform-tools neben dem Repo.
