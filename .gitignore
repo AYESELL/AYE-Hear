@@ -45,3 +45,5 @@ ops-release/**/*.exe
 .claude/agent-memory/
 # Claude Code: Berechtigungsfreigaben pro Rechner
 .claude/settings.local.json
+# Claude Code: Agenten-Worktrees im Repo (ADR-0100 D10)
+.claude/worktrees/
