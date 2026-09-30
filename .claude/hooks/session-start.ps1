@@ -8,7 +8,8 @@ $wrapper = Join-Path $repoRoot '.claude\tools\task.ps1'
 
 Write-Output "## Task-CLI-Kontext (Projekt hear)"
 Write-Output "Task-CLI ist fuehrend. Aufruf nur ueber den Wrapper:"
-Write-Output '  pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File G:/Repo/aye-hear/.claude/tools/task.ps1 "<Befehl>"'
+Write-Output '  Bash-Werkzeug: pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File G:/Repo/aye-hear/.claude/tools/task.ps1 "<Befehl>"'
+Write-Output '  PowerShell-Werkzeug: G:/Repo/aye-hear/.claude/tools/task.ps1 "<Befehl>" (direkt, ohne pwsh)'
 Write-Output "Gemeinsamer Ablauf: Skill ayehear-task-execution."
 $status = Join-Path $repoRoot 'docs\STATUS.md'
 if (Test-Path $status) { Write-Output ""; Get-Content $status -Raw -Encoding utf8 | Write-Output }
