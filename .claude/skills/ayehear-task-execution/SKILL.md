@@ -26,9 +26,47 @@ Diese Datei ist die einzige Quelle für den gemeinsamen Ablauf. Die Rollendateie
 
 - Aufruf der Task-CLI immer über den Wrapper, nur einfache Anführungszeichen im Befehl:
   `pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File G:/Repo/aye-hear/.claude/tools/task.ps1 "Get-Task -Id HEAR-123"`
+- Im PowerShell-Werkzeug wird `pwsh …` (verschachtelter Prozess) immer abgelehnt; dort das Skript direkt aufrufen: `G:/Repo/aye-hear/.claude/tools/task.ps1 "Get-Task -Id HEAR-123"` (Pfad genau so: Großbuchstabe Laufwerk, Schrägstriche). Im Bash-Werkzeug bleibt es beim `pwsh …`-Aufruf oben.
 - Die Beschreibung und die Implementation Notes des Tasks und seiner Vorgänger sind die Übergabe der vorherigen Rolle.
 - Ohne Task-ID im Auftrag: offene Tasks der eigenen Rolle abrufen und im Bericht nachfragen, statt selbst einen zu wählen oder anzulegen.
 - Gehört der Task nicht zur eigenen Rolle: nicht bearbeiten, an die zuständige Rolle verweisen.
+
+## 1a. Werkzeuge und Befehle
+
+Erlaubnisregeln prüfen den Befehlstext genau; zusammengesetzte oder ungewöhnliche Befehle lösen Rückfragen aus. Deshalb:
+
+1. Dateien mit Read, Grep und Glob lesen und durchsuchen, nicht mit PowerShell (`Get-Content`, `Get-ChildItem`, `Select-String`, `Get-Item`) oder `cat`/`grep` im Shell-Werkzeug. Nur die eingebauten Werkzeuge halten die `Read(...)`-Sperren (`.env`, `secrets/`) zuverlässig ein. PowerShell nur für Git, die Task-CLI und Kommandos, die kein eingebautes Werkzeug ersetzt.
+2. Ein einfacher Befehl pro Schritt: keine Semikolon-Ketten, keine Pipes in Filterbefehle (`Select-String`, `Where-Object`), kein `%`/`ForEach-Object` mit Skriptblock, keine `$env:`-Variablen (auch keine `$`-Ausdrücke oder Backticks in doppelten Anführungszeichen). Den Task-Wrapper ohne Pipe und ohne `2>&1` aufrufen und die Ausgabe direkt lesen. Aufrufform je Werkzeug: Bash `pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File G:/Repo/aye-hear/.claude/tools/task.ps1 "<Befehl>"`; PowerShell `G:/Repo/aye-hear/.claude/tools/task.ps1 "<Befehl>"` direkt ohne `pwsh` (verschachteltes `pwsh` fragt dort immer nach).
+3. Im Argument des Task-Wrappers nie `$`, Backtick oder Backslash vor einem Leerzeichen verwenden (umschreiben); das fragt in beiden Werkzeugen immer nach, auch mit passender Regel.
+4. Im PowerShell-Werkzeug den Gesamtbefehl unter etwa 1000 Byte halten (Umlaute zählen doppelt). Lange Argumente (z. B. `-ImplementationNotes`, Beschreibungen) über das Bash-Werkzeug übergeben oder kürzen – oder besser den Text mit dem Write-Werkzeug als UTF-8-Datei ablegen (Scratchpad) und den Datei-Parameter nutzen (Punkt 5).
+   Der Hook `task-call-guard` (PreToolUse) lehnt `task.ps1`-Aufrufe mit Pipe, Semikolon, `foreach`, Statuslisten, falschen Statuswerten und im PowerShell-Werkzeug über 1000 Byte schon vor dem Popup mit dieser Anleitung ab.
+5. `-ImplementationNotes` ersetzt das Feld: vorher mit `Get-Task` lesen und nur anhängen (Abschnitt 4). Ohne Lesen und ohne langes Argument: `Set-Task -ImplementationNotesFile <Datei>` bzw. `Complete-Task -NoteFile <Datei>` hängen den UTF-8-Dateiinhalt an die bestehenden Notes an (Leerzeile dazwischen; über 5000 Zeichen wird nichts geschrieben); Umlaute bleiben erhalten. Gegenstück für Beschreibungen: `New-Task -DescriptionFile`. Achtung: `Complete-Task -Note` ist ein Alias von `-ImplementationNotes` und ersetzt das Feld ebenfalls; `Set-Task -Note` dagegen legt nur einen Verlaufseintrag an.
+6. Pro Schritt ein einfacher Befehl: keine Variablen, `foreach`, Skriptblöcke (`% { }`, `ForEach-Object`) und Semikolon-Ketten; keine Select-String- oder Filterketten hinter dem Wrapper.
+7. Git im Arbeitsverzeichnis ausführen, nicht mit `git -C <Pfad>`; nur so entsprechen `git status`, `git log`, `git add` und `git commit` den Erlaubnisregeln. In einem Worktree (Abschnitt 5b Punkt 2) gilt dasselbe: Git ohne `-C`, der Task-Wrapper nur in der PowerShell-Form (`pwsh` im Bash-Werkzeug wird dort blockiert). Sieht der Auftrag einen Worktree vor und ist der Subagent nicht darin gebunden, stoppt er und meldet; er arbeitet nie im Hauptordner weiter. Die Isolation von Claude Code ist teilweise: Edit und Write auf den Hauptordner werden blockiert, nicht aber Shell-Schreiben dorthin (Umleitung, `Set-Content`); `git -C <Hauptordner>` fragt nur im Manual-Modus, im Auto-Modus kann der Klassifikator genehmigen. Beides unterlässt die Rolle selbst.
+8. Task-Felder mit einem einfachen `Get-Task -Id …` lesen, nicht durch Filterbefehle leiten.
+
+### Kurzreferenz Task-CLI (aus dem Quelltext `tools/task-cli/Public`)
+
+Aufruf immer über den Wrapper (Abschnitt 1): Bash-Werkzeug mit `pwsh -NoProfile … -File`, PowerShell-Werkzeug `G:/Repo/aye-hear/.claude/tools/task.ps1 "<Befehl>"` direkt ohne `pwsh`. `Get-Help` und `Get-Command` lehnt der Wrapper ab; Parameternamen stehen nur hier. Rollen: die Rollen-IDs der Task-CLI dieses Repos in Großbuchstaben (z. B. `AYEHEAR_LEAD`), Prioritäten klein geschrieben, Status groß geschrieben.
+
+**Klarstellung:** Die Tabelle listet alle Werte, die die Task-CLI technisch kennt, nicht was eine Rolle tun darf. Rollen setzen nie `Set-Task -Status DONE`. Ein Abschluss mit `Complete-Task` ist nur nach Abschnitt 5a zulässig, durch die Projektleitung `ayehear-lead` oder die prüfende Rolle nach dem Review; die umsetzende Rolle schließt ihren Task nie selbst. `New-Task` legt nur die Projektleitung an, außer Sascha beauftragt es einer Rolle ausdrücklich; sonst schlagen Rollen Folge-Tasks im Übergabebericht vor (Abschnitt 4, Punkt 5).
+
+| Befehl               | Pflicht                                                                                                   | Wichtige optionale Parameter                                                                                                                                                                                                                                                                                                                            |
+| -------------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `New-Task`           | `-Title` (1–200 Zeichen), `-Role` (nicht `-AssignedRole`), `-Priority` (`critical` `high` `medium` `low`) | `-CreatedByRole` (Standard: Entwicklerrolle des Repos, immer eigene Rolle setzen), `-StoryPoints` (1 2 3 5 8 13), `-Type`, `-Description` (bis 2000 Zeichen) oder `-DescriptionFile`, `-Parent`, `-QualityGateType` (`standard` `ops` `docs`), `-Sprint`, `-DryRun`                                                                                     |
+| `Set-Task`           | `-Id` und mindestens ein zu änderndes Feld                                                                | `-Status` (`DRAFT` `OPEN` `IN_PROGRESS` `BLOCKED` `REVIEW` `DONE` `CANCELLED`), `-Note` (bis 500 Zeichen, angehängt), `-ImplementationNotes` (ersetzt, bis 5000) oder `-ImplementationNotesFile` (UTF-8-Datei, wird angehängt), `-Priority`, `-Type`, `-Title`, `-Description`, `-StoryPoints`, `-AssignedToRole`, `-ChangedByRole`, `-QualityGateType` |
+| `Start-Task`         | `-Id`                                                                                                     | `-ChangedByRole` (Standard: Entwicklerrolle des Repos), `-Force`, `-Note`, `-DryRun`                                                                                                                                                                                                                                                                    |
+| `Complete-Task`      | `-Id`                                                                                                     | `-ChangedByRole`, `-ImplementationNotes`, `-Note` oder `-NoteFile` (UTF-8-Datei, wird an die Notes angehängt); `-SkipReview`, `-Force` nur mit Freigabe (Abschnitt 5a)                                                                                                                                                                                  |
+| `Get-Task`           | keine                                                                                                     | `-Id`, `-Role`, `-Status`, `-Priority`, `-ParentId`, `-Limit`, `-OutputFormat` (`Table` `JSON` `CSV` `Markdown`)                                                                                                                                                                                                                                        |
+| `Add-TaskDependency` | `-Id` und genau eines von `-BlockedBy`, `-Blocks`, `-RelatedTo` (jeweils Task-ID)                         | `-CreatedByRole`                                                                                                                                                                                                                                                                                                                                        |
+| `New-FollowUpTask`   | `-ParentId`, `-Title` (Position 0 und 1)                                                                  | `-Role`, `-Priority` (beide vom Eltern-Task geerbt), `-Type` (`TASK` `FEATURE` `BUG`), `-Description`, `-StoryPoints`, `-CreatedByRole`                                                                                                                                                                                                                 |
+
+- **`-Type` bei `New-Task`:** gültig sind `TASK` (Standard), `FEATURE`, `BUG`; `docs`/`documentation`/`deployment` werden zu `TASK`, `development` zu `FEATURE`, `fix`/`bugfix` zu `BUG`. `EPIC` und `ADR` lehnt `New-Task` ab: erst anlegen, dann `Set-Task -Id HEAR-123 -Type EPIC` (dort gültig: `TASK` `FEATURE` `BUG` `ADR` `EPIC`).
+- **Task mit langer Beschreibung** (ein einfacher Bash-Aufruf, Wrapper in doppelten, alles Innere in einfachen Anführungszeichen; `-DryRun` prüft nur und schreibt nichts, zum Anlegen weglassen):
+
+```
+pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File G:/Repo/aye-hear/.claude/tools/task.ps1 "New-Task -Title 'Kurzreferenz prüfen' -Role <ROLLE> -Priority medium -CreatedByRole <EIGENE_ROLLE> -Type FEATURE -StoryPoints 3 -Description 'Ziel: … Kontext: … Akzeptanz: …' -DryRun"
+```
 
 ## 2. Kontext gezielt laden
 
@@ -44,12 +82,23 @@ Liste für dich die ADRs und Contracts, die der Task berührt, und prüfe, ob de
 
 1. `Start-Task -Id HEAR-123 -ChangedByRole <ROLLE> -Force`
 2. Während der Arbeit: Zwischenstände mit `Set-Task -Id HEAR-123 -Note '…'` (landet im Verlauf des Tasks, höchstens 500 Zeichen, wird angehängt).
-   **Achtung:** `-ImplementationNotes` (bei `Set-Task` und `Complete-Task`) **ersetzt** das Feld vollständig (höchstens 5000 Zeichen). Vor jedem Schreiben das Feld mit `Get-Task -Id HEAR-123` lesen, den bisherigen Inhalt übernehmen und den neuen Eintrag mit Datum und Rolle anhängen; bei Platzmangel ältere Einträge zusammenfassen, nie stillschweigend löschen.
+   **Achtung:** `-ImplementationNotes` (bei `Set-Task` und `Complete-Task`) **ersetzt** das Feld vollständig (höchstens 5000 Zeichen). Vor jedem Schreiben das Feld mit `Get-Task -Id HEAR-123` lesen, den bisherigen Inhalt übernehmen und den neuen Eintrag mit Datum und Rolle anhängen; bei Platzmangel ältere Einträge zusammenfassen, nie stillschweigend löschen. Bequemer und ohne Überschreibrisiko: neuen Eintrag als UTF-8-Datei schreiben und `Set-Task -Id HEAR-123 -ImplementationNotesFile <Datei>` bzw. `Complete-Task -Id HEAR-123 -NoteFile <Datei>` verwenden (hängt an).
 3. Abschluss: Ist `REVIEW` Pflicht (Abschnitt 5a, im Zweifel ja), setzt du `Set-Task -Id HEAR-123 -Status REVIEW -Note '…'` und beendest – kein `Complete-Task`. Nur wenn Abschnitt 5a den Direktabschluss erlaubt: `Complete-Task -Id HEAR-123 -ChangedByRole <ROLLE>`. Nie `-SkipReview` oder `-Force` bei `Complete-Task` (Abschnitt 5a).
 4. Blockiert: `Set-Task -Id HEAR-123 -Status BLOCKED -Note '<Grund>'`.
-5. Folgearbeit: im Übergabebericht als Vorschlag für einen Folge-Task formulieren (Titel, Rolle, Ziel, Bezug). Anlegen tut die Projektleitung (`ayehear-lead`). Selbst anlegen nur, wenn Sascha es ausdrücklich beauftragt.
+5. Folgearbeit: im Übergabebericht als Vorschlag für einen Folge-Task formulieren (Titel, Rolle, Ziel, Bezug, **Story-Points-Vorschlag** nach Abschnitt 4a). Anlegen tut die Projektleitung (`ayehear-lead`). Selbst anlegen nur, wenn Sascha es ausdrücklich beauftragt.
 
 Nie `Set-Task -Status DONE`. Nie `-InteractiveApms`.
+
+## 4a. Story Points (Aufwandsschätzung, Pflicht bei jedem Task)
+
+Jeder Task trägt Story Points (SP). **Zuständig ist der Ersteller des Tasks**: die Projektleitung beim Anlegen, jede andere Rolle mit einem SP-Vorschlag in ihren Folge-Task-Vorschlägen (Abschnitt 4, Punkt 5, und Übergabebericht).
+
+- **Gültige Werte:** 1, 2, 3, 5, 8, 13 (Task-CLI `ValidateSet`). Andere Werte werden abgelehnt.
+- **Faustregel (Aufwand inkl. Prüfung, nicht Zeit):** 1 = triviale Korrektur, eine Stelle · 2 = kleine, klare Änderung · 3 = überschaubar, wenige Dateien · 5 = mittel, mehrere Komponenten oder Abstimmung nötig · 8 = groß, mit Unsicherheit oder Migration · 13 = sehr groß; besser in Tasks schneiden.
+- **Epics:** Ein Task über 13 SP oder mit mehreren Rollen über mehrere Arbeitsblöcke wird ein Epic (`Set-Task -Type EPIC`; `New-Task` akzeptiert nur `TASK`, `FEATURE`, `BUG`) und in Teil-Tasks zerlegt; jeder Teil-Task bekommt eigene SP.
+- **Anlegen:** `New-Task … -StoryPoints <wert>` immer ausdrücklich setzen. Lässt man den Parameter weg, setzt die Task-CLI still einen Typ-Standard (TASK 2, FEATURE 5, BUG 3, ADR 3, EPIC 8), der keine Schätzung ist und nicht als solche gelten darf.
+- **Nachtragen/Korrigieren:** `Set-Task -Id HEAR-123 -StoryPoints <wert>`. Fehlen SP (0/leer), verweigert `Start-Task` den Start mit dieser Meldung; dann Ersteller (Projektleitung) um Schätzung bitten oder, wenn sie im Auftrag fehlt, im Bericht nachfragen.
+- Die ausführende Rolle darf eine erkennbar falsche Schätzung im Bericht anmerken (Ist-Aufwand vs. SP), ändert sie aber nicht eigenmächtig.
 
 ## 5. Nachweis vor Abschluss (blockierend)
 
@@ -83,7 +132,13 @@ Nie `Set-Task -Status DONE`. Nie `-InteractiveApms`.
 Grundsatz: Fertige Arbeit liegt als Commit auf einem Branch, der auf `origin` existiert. Uncommittete Änderungen, Stashes und nur lokale Commits sind Übergangszustände und stehen immer im Task (Git-Stand, Punkt 9).
 
 1. **Vor der ersten Änderung:** `git fetch origin`, `git status --short`, `git stash list`. Aktiver Trunk dieses Repos: `feature/phase-1b-implementation-updates` – nicht automatisch `main`. Fehlt der Trunk auf `origin`, ist ein anderer Remote-Branch deutlich aktiver, oder liegen fremde Änderungen oder unbekannte Stashes vor: nichts davon anfassen, im Bericht melden.
-2. **Branch:** eigene Arbeit auf `<typ>/HEAR-<nr>-<kurzname>` ab `origin/feature/phase-1b-implementation-updates`. Direkt auf dem Trunk nur, wenn der Auftrag es ausdrücklich erlaubt. Arbeitet eine zweite Sitzung im selben Repo oder war das Verzeichnis beim Start nicht sauber: eigener Worktree (`git worktree add ../<repo>-wt-<nr> -b <branch> origin/feature/phase-1b-implementation-updates`) – die Projektleitung gibt das im Auftrag vor.
+2. **Branch und Worktree:** eigene Arbeit auf `<typ>/HEAR-<nr>-<kurzname>`. Basis ist `origin/feature/phase-1b-implementation-updates` (Worktree der Projektleitung) bzw. der lokale `HEAD` des Hauptordners, der der Trunk sein muss (Subagent mit `isolation: worktree` und `worktree.baseRef: "head"`). Direkt auf dem Trunk nur, wenn der Auftrag es ausdrücklich erlaubt. Arbeitet eine zweite Sitzung im selben Repo oder war das Verzeichnis beim Start nicht sauber: eigener Worktree unter `.claude/worktrees/` (Voraussetzung: `.claude/worktrees/` steht in der `.gitignore` des Repos).
+   - **Start als Subagent:** von der Projektleitung mit `isolation: worktree` (Ordner `agent-<id>`, Branch `worktree-agent-<id>`).
+   - **Basisprüfung, erste Aktion vor jeder Änderung:** `git log -1 --oneline`, `git branch --show-current`, `git rev-parse HEAD`. Weiter nur, wenn der Branch `worktree-agent-<id>` heißt und `git rev-parse HEAD` genau dem vollständigen Trunk-SHA aus dem Auftrag entspricht (Gleichheit, nicht nur Abstammung); sonst nichts ändern, Stopp und die drei Werte melden. Danach Git ohne `-C`.
+   - **Umbenennen:** nach dem Commit, vor dem Bericht `git branch -m <typ>/HEAR-<nr>-<kurzname>` (ohne Task-Nummer im Branch kann ein Aufräumschritt den Worktree keinem Task zuordnen).
+   - **Schreiben:** Dateien nur mit Edit/Write im eigenen Worktree; Shell-Befehle schreiben nie außerhalb des Worktrees (außer Scratchpad): keine Umleitung, kein `tee`, `Set-Content`, `Out-File`, `Copy-Item`, `Move-Item` mit Ziel im Hauptordner, kein `git -C` auf den Hauptordner – Claude Code blockiert das bei Subagenten nicht (im Manual-Modus fragt es bei `git -C`; im Auto-Modus kann der Klassifikator genehmigen, Shell-Schreiben in den Hauptordner bleibt immer Rollenregel). Eine Rückfrage zu `git -C` oder einem Pfad außerhalb des Worktrees heißt: Stopp, nicht bestätigen lassen. Task-CLI nur in der PowerShell-Form. `docs/STATUS.md` und `docs/BACKLOG.md` nur im Hauptordner durch die Projektleitung.
+   - **Abhängigkeiten und Hooks:** Abhängigkeiten im Worktree selbst installieren, bevor Build, Typecheck, Lint, Tests oder Commit-Hooks sie brauchen (sonst greifen still die Pakete des Hauptordners); keine Junctions oder Symlinks auf den Hauptordner. Nie `--no-verify`.
+   - **Aufräumen:** Entfernen nur durch die Projektleitung nach dem Merge mit `git worktree remove <pfad>` (nie per Dateimanager, `Remove-Item -Recurse` oder `--force`); vorher `git status --ignored --short` im Worktree prüfen, denn `git worktree remove` löscht ignorierte Dateien ohne Meldung. Ein sauberer, gepushter Worktree kann vor dem Merge von Claude Code entfernt werden; gemergt wird vom Branch. Der Git-Stand nennt Worktree-Ordner und Branch.
 3. **Immer mit Pfaden:** `git add <pfade>`, `git stash push -m '<ID>: <grund>' -- <pfade>`, `git checkout HEAD -- <pfade>`. Nie auf das ganze Verzeichnis: `git stash` ohne Pfade, `git add -A`/`.`, `git commit -a`, `git checkout .`, `git restore .`, `git clean`, `-AutoStage`/`-AutoPush`.
 4. **Stash:** lieber ein WIP-Commit auf dem Task-Branch. Eigener Stash nur kurz, mit Task-ID, vor Sitzungsende aufgelöst. Fremde oder unklare Stashes nur lesen (`git stash show -p stash@{n}`); `pop`/`apply`/`drop`/`clear` nur mit Freigabe der Projektleitung. Sichern statt löschen: `git branch rescue/stash-<datum>-<n> stash@{n}` und pushen.
 5. **Aus fremdem Stash/Branch übernehmen:** nur die Differenz (`git diff stash@{n}^1 stash@{n} -- <pfad>`), nie die ganze Datei (`git show stash@{n}:<pfad>` bringt fremden Inhalt mit). Danach `git diff` Hunk für Hunk prüfen.
@@ -125,7 +180,7 @@ Jede Rolle endet mit diesem Bericht (Deutsch, knapp):
 - **Rückweisung erhalten oder ausgesprochen (falls zutreffend):** Kriterium · Befund · Beleg · Aktion (Abschnitt 5c)
 - **Neue Lessons:** Zeilen in `docs/lessons/INDEX.md`, falls ergänzt
 - **Git-Stand:** Repo · Branch · Commit · gepusht ja/nein · offen (Abschnitt 5b)
-- **Vorgeschlagene Folge-Tasks:** Titel, Rolle, Ziel, Bezug
+- **Vorgeschlagene Folge-Tasks:** Titel, Rolle, Ziel, Bezug, Story Points (Vorschlag, Abschnitt 4a)
 - **Nächste Rolle:** wer übernimmt, Übergabestatus; bei `REVIEW` die vorgeschlagene prüfende Rolle
 
 ## 9. Grenzen, die für alle gelten
@@ -137,3 +192,11 @@ Jede Rolle endet mit diesem Bericht (Deutsch, knapp):
 
 - `.env*`, `.credentials/`, `secrets/`, Schlüssel- und Zertifikatsdateien werden nicht gelesen.
 - Kein Commit, Push oder Merge ohne ausdrücklichen Auftrag.
+  
+## 10. Zusätzliche Stopp-Regeln dieses Repos (anhalten und Sascha fragen)
+
+Zusätzlich zu den Grenzen in Abschnitt 9: Trifft eines davon zu, nicht selbst entscheiden, sondern anhalten, den Task auf `BLOCKED` oder `REVIEW` lassen und im Übergabebericht (Abschnitt 8) unter „Offene Fragen an Sascha“ melden.
+
+- Abweichungen von der Zwei-Zustände-Scope-Trennung (Operations-Handoff vs. Product-Complete, ADR-0010)
+- Jede Änderung, die eine Cloud-Übertragung von Audio- oder Sprecherdaten einführen würde
+
