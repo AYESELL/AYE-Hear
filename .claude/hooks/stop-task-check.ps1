@@ -24,7 +24,7 @@ if ($changed.Count -eq 0) { exit 0 }
 $taskUpd = $content -match 'task\.ps1[^\n]{0,400}(Start-Task|Set-Task|Complete-Task|New-Task|New-FollowUpTask)'
 if (-not $taskUpd) {
     $reason = "Es wurden Dateien geaendert, aber kein Task in der Task-CLI aktualisiert. " +
-              "Bitte per Wrapper nachtragen (Start-Task / Set-Task -ImplementationNotes mit Pruefnachweis / Complete-Task) " +
+              "Bitte per Wrapper nachtragen (Start-Task / Set-Task -ImplementationNotesFile <Datei> (haengt an) mit Pruefnachweis / Complete-Task) " +
               "oder kurz begruenden, warum diese Aenderung keinen Task braucht."
     @{ decision = 'block'; reason = $reason } | ConvertTo-Json -Compress | Write-Output
 }

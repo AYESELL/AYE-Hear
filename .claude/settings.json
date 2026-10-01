@@ -111,6 +111,16 @@
             "timeout": 60
           }
         ]
+      },
+      {
+        "matcher": "compact|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/core-rules.ps1\" || { echo 'core-rules: hook failed, core rules not re-injected' >&2; exit 1; }",
+            "timeout": 15
+          }
+        ]
       }
     ],
     "Stop": [
@@ -126,11 +136,31 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "Bash|PowerShell",
+        "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
             "command": "pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/task-call-guard.ps1\"",
+            "timeout": 15
+          }
+        ]
+      },
+      {
+        "matcher": "PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/powershell-ast-guard.ps1\"; rc=$?; if [ $rc -ne 0 ] && [ $rc -ne 2 ]; then echo 'powershell-ast-guard: hook failed, failing closed' >&2; exit 2; fi; exit $rc",
+            "timeout": 15
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|NotebookEdit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/lead-write-guard.ps1\"; rc=$?; if [ $rc -ne 0 ] && [ $rc -ne 2 ]; then echo 'lead-write-guard: hook failed, failing closed' >&2; exit 2; fi; exit $rc",
             "timeout": 15
           }
         ]

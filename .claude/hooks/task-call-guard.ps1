@@ -7,11 +7,18 @@
       - im PowerShell-Werkzeug: Gesamtbefehl ueber 1000 Byte (UTF-8, Umlaute zaehlen doppelt)
     Ersetzt nicht den Wrapper (Allowlist im Wrapper bleibt). Keine Treffer bei anderen Befehlen, auch wenn
     "task.ps1" nur als Text vorkommt. Bei jedem Fehler im Hook: durchlassen (exit 0).
+    PLAT-3535: Mit -InputJson (vom powershell-ast-guard als zweite Stufe im selben Prozess aufgerufen) wird die
+    Eingabe nicht von stdin gelesen. Ohne Parameter unveraendert.
 #>
+param([string]$InputJson)
 $ErrorActionPreference = 'Stop'
 try {
-    [Console]::InputEncoding = [Text.UTF8Encoding]::new($false)
-    $raw = [Console]::In.ReadToEnd()
+    if ($PSBoundParameters.ContainsKey('InputJson')) {
+        $raw = $InputJson
+    } else {
+        [Console]::InputEncoding = [Text.UTF8Encoding]::new($false)
+        $raw = [Console]::In.ReadToEnd()
+    }
     $data = $raw | ConvertFrom-Json
     $tool = [string]$data.tool_name
     if ($tool -ne 'Bash' -and $tool -ne 'PowerShell') { exit 0 }
