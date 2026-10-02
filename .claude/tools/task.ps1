@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-    Claude-Code-Wrapper fuer Task-CLI und agent-memory (platform-tools).
+    Claude-Code-Wrapper fuer die Task-CLI (platform-tools).
 
 .DESCRIPTION
     Claude Code startet fuer jeden Befehl eine neue Shell. Dieser Wrapper laedt
-    task-cli und agent-memory, prueft, dass nur Befehle dieser beiden Module
+    task-cli, prueft, dass nur Befehle dieses Moduls
     aufgerufen werden, und fuehrt den Befehl nicht-interaktiv aus.
 
 .EXAMPLE
@@ -26,22 +26,17 @@ $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
 $platformRoot = if ($env:PLATFORM_TOOLS_ROOT) { $env:PLATFORM_TOOLS_ROOT } else { Join-Path (Split-Path $repoRoot -Parent) 'platform-tools' }
 
 $taskCli   = Join-Path $platformRoot 'tools\task-cli\task-cli.psd1'
-$agentMem  = Join-Path $platformRoot 'tools\agent-memory\agent-memory.psd1'
 
-foreach ($m in @($taskCli, $agentMem)) {
-    if (-not (Test-Path $m)) {
-        Write-Output "[task.ps1] FEHLER: Modul nicht gefunden: $m (PLATFORM_TOOLS_ROOT setzen?)"
-        exit 2
-    }
+if (-not (Test-Path $taskCli)) {
+    Write-Output "[task.ps1] FEHLER: Modul nicht gefunden: $taskCli (PLATFORM_TOOLS_ROOT setzen?)"
+    exit 2
 }
 
 Import-Module $taskCli -Force -WarningAction SilentlyContinue
-Import-Module $agentMem -Force -WarningAction SilentlyContinue
 
-# Nur exportierte Befehle der beiden Module zulassen (erstes Token jeder Pipeline-Stufe/Anweisung)
+# Nur exportierte Befehle des task-cli-Moduls zulassen (erstes Token jeder Pipeline-Stufe/Anweisung)
 $allowed = @()
 $allowed += (Get-Module task-cli).ExportedCommands.Keys
-$allowed += (Get-Module agent-memory).ExportedCommands.Keys
 # PLAT-3277: ForEach-Object entfernt - erlaubt "-MemberName"/positional Member-Aufruf
 # (z. B. "$x | ForEach-Object InvokeScript") ohne dass dabei ein InvokeMemberExpressionAst
 # entsteht (der Aufruf laeuft ueber Reflection im Cmdlet, nicht im Parser sichtbar).
@@ -57,7 +52,7 @@ $cmds = $ast.FindAll({ param($n) $n -is [System.Management.Automation.Language.C
 foreach ($c in $cmds) {
     $name = $c.GetCommandName()
     if (-not $name -or (($allowed -notcontains $name) -and ($allowedHelpers -notcontains $name))) {
-        Write-Output "[task.ps1] ABGELEHNT: '$name' ist kein Task-CLI/agent-memory-Befehl."
+        Write-Output "[task.ps1] ABGELEHNT: '$name' ist kein Task-CLI-Befehl."
         Write-Output "Erlaubt: $((($allowed | Sort-Object) -join ', '))"
         exit 2
     }
@@ -109,7 +104,7 @@ foreach ($node in $ast.FindAll({ $true }, $true)) {
     }
     if (-not $isAllowed) {
         Write-Output "[task.ps1] ABGELEHNT: Ausdruck '$($node.Extent.Text)' ($($node.GetType().Name)) ist nicht erlaubt."
-        Write-Output "Erlaubt sind nur Task-CLI/agent-memory-Aufrufe mit Konstanten, Variablen und einfachen Property-Zugriffen (z. B. `$_.status)."
+        Write-Output "Erlaubt sind nur Task-CLI-Aufrufe mit Konstanten, Variablen und einfachen Property-Zugriffen (z. B. `$_.status)."
         exit 2
     }
 }
@@ -122,7 +117,7 @@ try {
 catch {
     Write-Output "[task.ps1] FEHLER: $($_.Exception.Message)"
     if ($_.Exception.Message -match 'Read-Host|NonInteractive|interactive') {
-        Write-Output "Hinweis: Befehl wollte interaktiv nachfragen. -Force verwenden bzw. -InteractiveApms weglassen."
+        Write-Output "Hinweis: Befehl wollte interaktiv nachfragen. -Force verwenden."
     }
     exit 1
 }

@@ -86,7 +86,7 @@ Liste für dich die ADRs und Contracts, die der Task berührt, und prüfe, ob de
 4. Blockiert: `Set-Task -Id HEAR-123 -Status BLOCKED -Note '<Grund>'`.
 5. Folgearbeit: im Übergabebericht als Vorschlag für einen Folge-Task formulieren (Titel, Rolle, Ziel, Bezug, **Story-Points-Vorschlag** nach Abschnitt 4a). Anlegen tut die Projektleitung (`ayehear-lead`). Selbst anlegen nur, wenn Sascha es ausdrücklich beauftragt.
 
-Nie `Set-Task -Status DONE`. Nie `-InteractiveApms`.
+Nie `Set-Task -Status DONE`.
 
 ## 4a. Story Points (Aufwandsschätzung, Pflicht bei jedem Task)
 
@@ -164,6 +164,14 @@ Herkunft: Bestandsaufnahme PLAT-3302/PLAT-3304 (platform-tools, Kit-Quelle diese
 3. **Review-Budget:** je Task eine Review-Runde plus eine Korrekturrunde. Re-Review prüft nur den Diff und nur die bisherigen blockierenden Auflagen; redaktionelle Reste ohne Re-Review (Abschnitt 5c.2, Skill `ayehear-arbeitsblock` 2a).
 4. **Hook-Overrides:** `SKIP_*`, `--no-verify`, `git push --force` sowie `-Force` und `-SkipReview` bei `Complete-Task` nie ohne Freigabe von Sascha (`Start-Task -Force` aus Abschnitt 4 ist ausgenommen); die Freigabe (wer, wann, Grund) steht vor der Nutzung in den Implementation Notes.
 5. **Entscheidungen:** Offene Fragen an Sascha höchstens eine echte Entscheidung je Bericht, mit Standardempfehlung; Zustimmung gilt nur bei ausdrücklicher Aussage, der Vermerk steht wörtlich in den Notes.
+
+## 5e. Codex als optionale Zweitprüfung (nur Ergänzung)
+
+1. **Wann sinnvoll:** bei Architektur-, Security-, Hook- und Kit-Änderungen und bei ADR-Entwürfen, wenn eine zweite, unabhängige Modellsicht Mehrwert bringt. Nie Ersatz für `ayehear-qa` oder `ayehear-security` (Abschnitt 5a), nur Ergänzung; sie ersetzt keine Freigabe.
+2. **Aufruf:** über die Befehle `review` bzw. `adversarial-review` des installierten Codex-Plugins (Einrichtung und Prüfung: Skill `codex:setup`), nie über einen fest verdrahteten Plugin-Pfad. Immer im Task-Worktree (Abschnitt 5b) mit `--base <Basis-SHA des Task-Branches> --scope branch`, nicht auf dem gemeinsamen Trunk, sonst prüft Codex fremde Commits. Der Lauf dauert mehrere Minuten (`--wait`) und kostet API-Geld (eigener Schlüssel).
+3. **Grenzen:** nur `review` und `adversarial-review` (lesend). `task` und `rescue` (Arbeit an Codex abgeben) nie ohne ausdrückliche Freigabe von Sascha. Keine Secrets, Kennwörter oder Zugangsdaten im Fokus-Text oder in den geprüften Dateien.
+4. **Ergebnis:** als Befund nach Abschnitt 5d.2 einordnen (ID · Schweregrad · Kriterium · Beleg · blockiert ja/nein · Vorschlag); ohne verletztes Akzeptanzkriterium ist er „nein“.
+5. **Gate aus:** Das Review-Gate des Plugins (Prüfung bei jedem Stopp) bleibt ausgeschaltet (Kosten und Zeit je Antwort); Codex wird nur gezielt aufgerufen, nie als Pflichtschritt eingebaut.
 
 ## 6. Bei Problemen: Lessons zuerst
 
