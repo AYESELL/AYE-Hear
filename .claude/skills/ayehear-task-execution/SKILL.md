@@ -160,7 +160,7 @@ Herkunft: Bestandsaufnahme PLAT-3302/PLAT-3304 (platform-tools, Kit-Quelle diese
 ## 5d. Scope-Disziplin für Aufträge, Befunde und Overrides
 
 1. **Auftrag:** Er nennt **Phase** (Konzept, Code, Härtung), Akzeptanzkriterien und **Nicht-Ziele**. Fehlt etwas davon, nachfragen statt raten. Nie über Phase und Nicht-Ziele hinaus arbeiten; Neues steht als **Vorschlag im Übergabebericht**, nicht im Code.
-2. **Befundformat (Reviewer):** ID · Schweregrad (hoch/mittel/niedrig) · verletztes Akzeptanzkriterium · Beleg · **blockiert aktuelles Ziel: ja/nein** · Vorschlag. „ja“ ist zulässig bei verletztem Akzeptanzkriterium oder bei konkretem Risiko für Produktion, Daten oder Secrets (stehendes Kriterium „Risiko Produktion/Daten/Secrets“, Skill `ayehear-arbeitsblock` 2a; wird immer behoben, nie ins Backlog verschoben, von der Phase ausgenommen; nach der Korrekturrunde Eskalation nach 5c.2). Geprüft wird sonst nur gegen die Akzeptanzkriterien; alles, was das Ziel nicht bricht, ist „nein“ und geht gebündelt in `docs/BACKLOG.md` (Entscheidung der Projektleitung).
+2. **Befundformat (Reviewer):** ID · Schweregrad (hoch/mittel/niedrig) · verletztes Akzeptanzkriterium · Beleg · **blockiert aktuelles Ziel: ja/nein** · Vorschlag. „ja“ ist zulässig bei verletztem Akzeptanzkriterium oder bei konkretem Risiko für Produktion, Daten oder Secrets (stehendes Kriterium „Risiko Produktion/Daten/Secrets“, Skill `ayehear-arbeitsblock` 2a; wird immer behoben, nie ins Backlog verschoben, von der Phase ausgenommen; nach der Korrekturrunde Eskalation nach 5c.2). Geprüft wird sonst nur gegen die Akzeptanzkriterien; alles, was das Ziel nicht bricht, ist „nein“ und geht gebündelt in `docs/BACKLOG.md` (Entscheidung der Projektleitung). Ist im Bericht eine Erkenntnis angegeben (Abschnitt 8), bewertet die prüfende Rolle sie als Ja/Nein-Punkt (Kriterien und Ablage nach Abschnitt 7 erfüllt); „nein“ ist ein Hinweis ohne eigene Rückweisungsrunde.
 3. **Review-Budget:** je Task eine Review-Runde plus eine Korrekturrunde. Re-Review prüft nur den Diff und nur die bisherigen blockierenden Auflagen; redaktionelle Reste ohne Re-Review (Abschnitt 5c.2, Skill `ayehear-arbeitsblock` 2a).
 4. **Hook-Overrides:** `SKIP_*`, `--no-verify`, `git push --force` sowie `-Force` und `-SkipReview` bei `Complete-Task` nie ohne Freigabe von Sascha (`Start-Task -Force` aus Abschnitt 4 ist ausgenommen); die Freigabe (wer, wann, Grund) steht vor der Nutzung in den Implementation Notes.
 5. **Entscheidungen:** Offene Fragen an Sascha höchstens eine echte Entscheidung je Bericht, mit Standardempfehlung; Zustimmung gilt nur bei ausdrücklicher Aussage, der Vermerk steht wörtlich in den Notes.
@@ -181,6 +181,8 @@ Tritt ein Fehler oder ein unerwartetes Verhalten auf, zuerst in `docs/lessons/IN
 
 Halte im eigenen Gedächtnis nur dauerhafte, überprüfte Erfahrungen fest, die künftigen Aufträgen dieser Rolle helfen: Stolperfallen, bewährte Befehle, wiederkehrende Fehlerbilder, Konventionen. Kein Task-Stand (der gehört in die Task-CLI), keine Secrets, keine Rohdaten. Kurz halten; Veraltetes entfernen.
 
+**Erkenntnis ablegen (nach Geltung):** Eine Erkenntnis aus dem Task wird nur festgehalten, wenn sie nicht aus Code, git oder CLAUDE.md ableitbar, übertragbar und kein Task-Stand ist; keine Kopie der Implementation Notes. Ablage durch die umsetzende Rolle: **Rolle** → Rollen-Gedächtnis mit Zeile in dessen `MEMORY.md`; **Projekt** → eine Zeile in `docs/lessons/INDEX.md` (Abschnitt 6); **alle Repos** → nur als Vorschlag an die Projektleitung im Übergabebericht, nie direkt ins Kit.
+
 ## 8. Übergabebericht an die Hauptsession
 
 Jede Rolle endet mit diesem Bericht (Deutsch, knapp):
@@ -194,6 +196,7 @@ Jede Rolle endet mit diesem Bericht (Deutsch, knapp):
 - **Offene Fragen an Sascha:** jeweils mit Empfehlung
 - **Rückweisung erhalten oder ausgesprochen (falls zutreffend):** Kriterium · Befund · Beleg · Aktion (Abschnitt 5c)
 - **Neue Lessons:** Zeilen in `docs/lessons/INDEX.md`, falls ergänzt
+- **Erkenntnis (optional):** gelernt · nicht wiederholen · Geltung (Rolle | Projekt | alle Repos) – oder „keine“; „keine“ ist ausdrücklich gültig, das Feld ist kein Pflichtfeld (Ablage nach Abschnitt 7)
 - **Git-Stand:** Repo · Branch · Commit · gepusht ja/nein · offen (Abschnitt 5b)
 - **Vorgeschlagene Folge-Tasks:** Titel, Rolle, Ziel, Bezug, Story Points (Vorschlag, Abschnitt 4a)
 - **Nächste Rolle:** wer übernimmt, Übergabestatus; bei `REVIEW` die vorgeschlagene prüfende Rolle
