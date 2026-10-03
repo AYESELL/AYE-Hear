@@ -94,7 +94,32 @@
       "Read(**/.credentials/**)",
       "Read(**/secrets/**)",
       "Read(**/*.pem)",
-      "Read(**/*.key)"
+      "Read(**/*.key)",
+      "Read(**/.env.local)",
+      "Read(**/.env.*.local)",
+      "Read(**/.env.development)",
+      "Read(**/.env.dev)",
+      "Read(**/.env.test)",
+      "Read(**/.env.staging)",
+      "Read(**/.env.production)",
+      "Read(**/.env.prod)",
+      "Read(**/.env.vault)",
+      "Read(**/.env.vault.test)",
+      "Read(**/.env.devtest)",
+      "Read(**/.env.synology)",
+      "Read(**/.env.docker)",
+      "Read(**/.env.demo)",
+      "Read(**/.env.new*)",
+      "Read(**/.env.mariadb*)",
+      "Read(**/.env.*backup*)",
+      "Read(**/.env.*bak*)",
+      "Read(**/.env.*template)",
+      "Read(**/.env.local.tunnel)",
+      "Read(**/.env-*)",
+      "Read(**/.envrc)",
+      "Read(**/.env-*/**)",
+      "Edit(//g/Repo/platform-tools/tools/ai-usage/**)",
+      "Edit(//**/.claude/agent-roles.json)"
     ]
   },
   "agent": "ayehear-lead",
@@ -132,6 +157,15 @@
             "timeout": 30
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"G:/Repo/platform-tools/tools/ai-usage/Invoke-AiUsageHook.ps1\" -ConfigPath \"$CLAUDE_PROJECT_DIR/.claude/agent-roles.json\"",
+            "timeout": 15
+          }
+        ]
       }
     ],
     "PreToolUse": [
@@ -156,11 +190,44 @@
         ]
       },
       {
+        "matcher": "Read|Edit|Write|NotebookEdit|MultiEdit|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/env-guard.ps1\"; rc=$?; if [ $rc -ne 0 ] && [ $rc -ne 2 ]; then echo 'env-guard: hook failed, failing closed' >&2; exit 2; fi; exit $rc",
+            "timeout": 15
+          }
+        ]
+      },
+      {
         "matcher": "Edit|Write|NotebookEdit|MultiEdit",
         "hooks": [
           {
             "type": "command",
             "command": "pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/lead-write-guard.ps1\"; rc=$?; if [ $rc -ne 0 ] && [ $rc -ne 2 ]; then echo 'lead-write-guard: hook failed, failing closed' >&2; exit 2; fi; exit $rc",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|PowerShell|mcp__aye-task__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"G:/Repo/platform-tools/tools/ai-usage/Invoke-AiUsageHook.ps1\" -ConfigPath \"$CLAUDE_PROJECT_DIR/.claude/agent-roles.json\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"G:/Repo/platform-tools/tools/ai-usage/Invoke-AiUsageHook.ps1\" -ConfigPath \"$CLAUDE_PROJECT_DIR/.claude/agent-roles.json\"",
             "timeout": 15
           }
         ]

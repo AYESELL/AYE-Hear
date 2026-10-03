@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "project": "hear",
+  "main_agent_type": "ayehear-lead",
+  "task_prefixes": {
+    "HEAR": "hear"
+  },
+  "role_map": {
+    "ayehear-architect": "AYEHEAR_ARCHITECT",
+    "ayehear-developer": "AYEHEAR_DEVELOPER",
+    "ayehear-devops": "AYEHEAR_DEVOPS",
+    "ayehear-lead": "AYEHEAR_LEAD",
+    "ayehear-qa": "AYEHEAR_QA",
+    "ayehear-security": "AYEHEAR_SECURITY"
+  }
+}

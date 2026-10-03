@@ -16,7 +16,8 @@ $subDir = Join-Path ([IO.Path]::ChangeExtension($transcript, $null).TrimEnd('.')
 if (Test-Path $subDir) { $files += (Get-ChildItem $subDir -Filter *.jsonl -Recurse | ForEach-Object FullName) }
 $content = ($files | ForEach-Object { Get-Content $_ -Raw }) -join "`n"
 
-# Aenderungen ausser am Rollen-Gedaechtnis
+# Aenderungen ausser am Rollen-Gedaechtnis. 'agent-memory' meint das Verzeichnis .claude/agent-memory
+# (Rollen-Gedaechtnis, Skill task-execution Abschnitt 7), nicht das entfernte APMS (PLAT-3620/3624).
 $edits = [regex]::Matches($content, '"name"\s*:\s*"(Edit|Write|MultiEdit|NotebookEdit)"[^\n]{0,600}?"file_path"\s*:\s*"([^"]+)"')
 $changed = @($edits | ForEach-Object { $_.Groups[2].Value } | Where-Object { $_ -notmatch 'agent-memory' })
 if ($changed.Count -eq 0) { exit 0 }
