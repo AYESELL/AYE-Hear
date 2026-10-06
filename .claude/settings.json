@@ -169,7 +169,9 @@
       "Read(**/.envrc)",
       "Read(**/.env-*/**)",
       "Edit(//g/Repo/platform-tools/tools/ai-usage/**)",
-      "Edit(//**/.claude/agent-roles.json)"
+      "Edit(//**/.claude/agent-roles.json)",
+      "Read(//c/Users/*/.aye/**)",
+      "Read(//c/Users/*/AppData/Local/aye/**)"
     ]
   },
   "agent": "ayehear-lead",
