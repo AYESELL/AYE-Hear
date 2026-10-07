@@ -78,6 +78,8 @@ Liste für dich die ADRs und Contracts, die der Task berührt, und prüfe, ob de
 
 ## 4. Lebenszyklus in der Task-CLI
 
+Ist der MCP-Server `aye-task` (Hauptsession: `aye-task-lead`) in deiner Werkzeugliste, sind die MCP-Werkzeuge der Standard-Schreibweg: `task_append_note` (Notes), `task_comment`, `task_start`, `task_set_status` (`in-progress`, `blocked`, `review`; `review` mit `evidence`). Die Task-CLI bleibt für `Complete-Task` und Fälle ohne MCP-Ersatz. Ohne MCP-Werkzeuge gilt der CLI-Ablauf unten unverändert.
+
 1. `Start-Task -Id HEAR-123 -ChangedByRole <ROLLE> -Force`
 2. Während der Arbeit: Zwischenstände mit `Set-Task -Id HEAR-123 -Note '…' -ChangedByRole <ROLLE>` (landet im Verlauf des Tasks, höchstens 500 Zeichen, wird angehängt).
    **Achtung:** Notes werden angehängt. Nur den neuen Eintrag übergeben, nie den Altinhalt mitschicken (sonst steht er doppelt); keine eigene Kopfzeile, die Task-CLI setzt `[Datum ROLLE]` aus `-ChangedByRole`. Empfohlen: neuen Eintrag als UTF-8-Datei schreiben und `Set-Task -Id HEAR-123 -ImplementationNotesFile <Datei> -ChangedByRole <ROLLE>` bzw. `Complete-Task -Id HEAR-123 -NoteFile <Datei> -ChangedByRole <ROLLE>` verwenden. Das Limit liegt bei 8192 Zeichen je Eintrag und 32000 Zeichen gesamt; wird es überschritten, schreibt die Task-CLI nichts. `Set-Task -ImplementationNotes` lehnt bei vorhandenen Notes ab. Ersetzen nur mit `-ReplaceNotes` und Freigabe, vorher mit `Get-Task -Id HEAR-123` lesen; ältere Einträge zusammenfassen, nie stillschweigend löschen.

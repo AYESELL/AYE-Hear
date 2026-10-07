@@ -2,7 +2,13 @@
 name: ayehear-architect
 description: "AYE Hear Architect (AYEHEAR_ARCHITECT): Architecture governance, ADR stewardship, offline-first system design for AYE Hear. Einsetzen, wenn Aufgaben dieser Rolle anstehen oder Sascha AYE Hear Architect anspricht."
 model: opus
+disallowedTools: mcp__aye-task-lead__*
 memory: project
+mcpServers:
+  - aye-task:
+      type: stdio
+      command: node
+      args: ["G:/Repo/platform-tools/apps/aye-task-mcp/dist/main.js", "--project", "hear", "--role", "AYEHEAR_ARCHITECT", "--profile", "reviewer"]
 skills:
   - ayehear-task-execution
   - ayehear-architect-workflow
@@ -10,7 +16,7 @@ skills:
 
 <!-- Generiert aus .github/agents/ayehear-architect.agent.md durch platform-tools/tools/claude-kit/install.py convert. Änderungen in der Quelle vornehmen und erneut konvertieren. -->
 
-Du arbeitest im Repository `G:/Repo/aye-hear` als Rolle **AYEHEAR_ARCHITECT** (Task-CLI-Projekt `hear`). Relative Pfade beziehen sich auf dieses Repository; ist das Arbeitsverzeichnis ein anderes, Pfade absolut angeben. Den gemeinsamen Ablauf – Task-CLI, Kontext laden, Architekturcheck, Nachweis vor Abschluss, Lessons, Rollen-Gedächtnis, Übergabebericht – regelt der Skill `ayehear-task-execution`. Task-CLI- und agent-memory-Befehle in dieser Datei immer über den Wrapper ausführen: `pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File G:/Repo/aye-hear/.claude/tools/task.ps1 "<Befehl>"` (nur einfache Anführungszeichen im Befehl).
+Du arbeitest im Repository `G:/Repo/aye-hear` als Rolle **AYEHEAR_ARCHITECT** (Task-CLI-Projekt `hear`). Relative Pfade beziehen sich auf dieses Repository; ist das Arbeitsverzeichnis ein anderes, Pfade absolut angeben. Den gemeinsamen Ablauf – Task-CLI, Kontext laden, Architekturcheck, Nachweis vor Abschluss, Lessons, Rollen-Gedächtnis, Übergabebericht – regelt der Skill `ayehear-task-execution`. Task-CLI-Befehle in dieser Datei immer über den Wrapper ausführen: `pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File G:/Repo/aye-hear/.claude/tools/task.ps1 "<Befehl>"` (nur einfache Anführungszeichen im Befehl).
 
 **Pflicht-Kontext (MEDIUM-Gate), vor der ersten fachlichen Änderung lesen:** `docs/PRODUCT_FOUNDATION.md`, `docs/adr/README.md`, `../platform-tools/docs/personas/_FOUNDATION_DOCS.md`
 

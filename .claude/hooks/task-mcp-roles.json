@@ -1,0 +1,77 @@
+{
+  "schema": 1,
+  "project": "hear",
+  "lead_agent_type": "ayehear-lead",
+  "fallback": "pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File G:/Repo/aye-hear/.claude/tools/task.ps1",
+  "agents": {
+    "ayehear-architect": {
+      "role": "AYEHEAR_ARCHITECT",
+      "profile": "reviewer"
+    },
+    "ayehear-developer": {
+      "role": "AYEHEAR_DEVELOPER",
+      "profile": "implementer"
+    },
+    "ayehear-devops": {
+      "role": "AYEHEAR_DEVOPS",
+      "profile": "implementer"
+    },
+    "ayehear-lead": {
+      "role": "AYEHEAR_LEAD",
+      "profile": "lead"
+    },
+    "ayehear-qa": {
+      "role": "AYEHEAR_QA",
+      "profile": "reviewer"
+    },
+    "ayehear-security": {
+      "role": "AYEHEAR_SECURITY",
+      "profile": "reviewer"
+    }
+  },
+  "profile_tools": {
+    "implementer": [
+      "task_append_note",
+      "task_children",
+      "task_comment",
+      "task_get",
+      "task_history",
+      "task_list",
+      "task_set_status",
+      "task_start"
+    ],
+    "reviewer": [
+      "task_append_note",
+      "task_children",
+      "task_comment",
+      "task_complete",
+      "task_get",
+      "task_history",
+      "task_list",
+      "task_record_review",
+      "task_set_status",
+      "task_start"
+    ],
+    "lead": [
+      "task_add_dependency",
+      "task_append_note",
+      "task_cancel",
+      "task_children",
+      "task_comment",
+      "task_complete",
+      "task_create",
+      "task_get",
+      "task_history",
+      "task_list",
+      "task_replace_notes",
+      "task_set_status",
+      "task_start",
+      "task_update_fields"
+    ]
+  },
+  "settable_status": [
+    "in-progress",
+    "blocked",
+    "review"
+  ]
+}

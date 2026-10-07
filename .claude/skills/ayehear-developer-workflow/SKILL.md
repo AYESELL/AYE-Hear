@@ -3,6 +3,8 @@ name: ayehear-developer-workflow
 description: Feature implementation workflow for AYE Hear desktop development
 ---
 
+<!-- Generiert aus .github/skills/ayehear-developer-workflow/SKILL.md durch platform-tools/tools/claude-kit/install.py convert. Änderungen in der Quelle vornehmen und erneut konvertieren. -->
+
 # AYE Hear Developer Workflow
 
 Use for local implementation tasks across desktop UI, audio pipeline integration and protocol engine scaffolding.
