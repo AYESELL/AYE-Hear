@@ -78,7 +78,7 @@ Liste für dich die ADRs und Contracts, die der Task berührt, und prüfe, ob de
 
 ## 4. Lebenszyklus in der Task-CLI
 
-Ist der MCP-Server `aye-task` (Hauptsession: `aye-task-lead`) in deiner Werkzeugliste, sind die MCP-Werkzeuge der Standard-Schreibweg: `task_append_note` (Notes), `task_comment`, `task_start`, `task_set_status` (`in-progress`, `blocked`, `review`; `review` mit `evidence`). Die Task-CLI bleibt für `Complete-Task` und Fälle ohne MCP-Ersatz. Ohne MCP-Werkzeuge gilt der CLI-Ablauf unten unverändert.
+Ist der MCP-Server `aye-task` (Hauptsession: `aye-task-lead`) in deiner Werkzeugliste, sind die MCP-Werkzeuge der Standard-Schreibweg: `task_append_note` (Notes), `task_comment`, `task_start`, `task_set_status` (`in-progress`, `blocked`, `review`; `review` mit `evidence`). Die Task-CLI bleibt für `Complete-Task` und Fälle ohne MCP-Ersatz. `task_replace_notes` ersetzt Notes und wird nur ausnahmsweise genutzt; den Grund vorher im Text nennen, damit Sascha die Rückfrage beurteilen kann. Ohne MCP-Werkzeuge gilt der CLI-Ablauf unten unverändert.
 
 1. `Start-Task -Id HEAR-123 -ChangedByRole <ROLLE> -Force`
 2. Während der Arbeit: Zwischenstände mit `Set-Task -Id HEAR-123 -Note '…' -ChangedByRole <ROLLE>` (landet im Verlauf des Tasks, höchstens 500 Zeichen, wird angehängt).

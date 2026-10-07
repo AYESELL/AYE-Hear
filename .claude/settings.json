@@ -58,7 +58,8 @@
       "mcp__aye-task-lead__task_set_status",
       "mcp__aye-task-lead__task_start",
       "mcp__aye-task-lead__task_create",
-      "mcp__aye-task-lead__task_add_dependency"
+      "mcp__aye-task-lead__task_add_dependency",
+      "mcp__aye-task-lead__task_update_fields"
     ],
     "ask": [
       "Bash(git push *)",
