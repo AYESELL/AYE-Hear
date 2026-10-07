@@ -3,6 +3,8 @@ name: ayehear-architect-workflow
 description: Architecture governance workflow for AYE Hear
 ---
 
+<!-- Generiert aus .github/skills/ayehear-architect-workflow/SKILL.md durch platform-tools/tools/claude-kit/install.py convert. Änderungen in der Quelle vornehmen und erneut konvertieren. -->
+
 # AYE Hear Architect Workflow
 
 Use for architecture design, ADR maintenance and boundary decisions.

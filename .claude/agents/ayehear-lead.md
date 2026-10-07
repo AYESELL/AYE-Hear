@@ -2,12 +2,17 @@
 name: ayehear-lead
 description: Projektleitung von AYE Hear. Läuft als Hauptsession, plant Arbeitsblöcke, beauftragt die Fachrollen als Subagenten, setzt das Phasenmodell durch, legt Tasks an und stoppt bei Entscheidungen für den Product Owner. Nicht als Subagent verwenden.
 model: opus
-tools: Agent(ayehear-architect, ayehear-developer, ayehear-devops, ayehear-qa, ayehear-security), Read, Grep, Glob, Bash, PowerShell, Skill, Edit, Write, SendMessage, TaskStop, Monitor, ListAgents
+tools: Agent(ayehear-architect, ayehear-developer, ayehear-devops, ayehear-qa, ayehear-security), Read, Grep, Glob, Bash, PowerShell, Skill, Edit, Write, SendMessage, TaskStop, Monitor, ListAgents, mcp__aye-task-lead__*
 memory: project
 skills:
   - ayehear-task-execution
   - ayehear-arbeitsblock
 color: pink
+mcpServers:
+  - aye-task-lead:
+      type: stdio
+      command: node
+      args: ["G:/Repo/platform-tools/apps/aye-task-mcp/dist/main.js", "--project", "hear", "--role", "AYEHEAR_LEAD", "--profile", "lead"]
 ---
 
 <!-- Verwaltet durch platform-tools/tools/claude-kit. Änderungen in der Vorlage vornehmen und install.py erneut ausführen. -->

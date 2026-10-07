@@ -40,7 +40,26 @@
       "PowerShell(G:/Repo/aye-hear/.claude/tools/task.ps1:*)",
       "PowerShell(G:\\Repo\\aye-hear\\.claude\\tools\\task.ps1:*)",
       "Bash(git rev-parse:*)",
-      "PowerShell(git rev-parse:*)"
+      "PowerShell(git rev-parse:*)",
+      "mcp__aye-task__task_get",
+      "mcp__aye-task__task_list",
+      "mcp__aye-task__task_children",
+      "mcp__aye-task__task_history",
+      "mcp__aye-task__task_append_note",
+      "mcp__aye-task__task_comment",
+      "mcp__aye-task__task_set_status",
+      "mcp__aye-task__task_start",
+      "mcp__aye-task-lead__task_get",
+      "mcp__aye-task-lead__task_list",
+      "mcp__aye-task-lead__task_children",
+      "mcp__aye-task-lead__task_history",
+      "mcp__aye-task-lead__task_append_note",
+      "mcp__aye-task-lead__task_comment",
+      "mcp__aye-task-lead__task_set_status",
+      "mcp__aye-task-lead__task_start",
+      "mcp__aye-task-lead__task_create",
+      "mcp__aye-task-lead__task_add_dependency",
+      "mcp__aye-task-lead__task_update_fields"
     ],
     "ask": [
       "Bash(git push *)",
@@ -126,7 +145,12 @@
       "PowerShell(pwsh */g/Repo/platform-tools/.claude/worktrees/*/scripts/deploy-services-with-vault.ps1*)",
       "PowerShell(powershell */g/Repo/platform-tools/.claude/worktrees/*/scripts/deploy-services-with-vault.ps1*)",
       "PowerShell(pwsh *G:\\Repo\\platform-tools\\.claude\\worktrees\\*\\scripts\\deploy-services-with-vault.ps1*)",
-      "PowerShell(powershell *G:\\Repo\\platform-tools\\.claude\\worktrees\\*\\scripts\\deploy-services-with-vault.ps1*)"
+      "PowerShell(powershell *G:\\Repo\\platform-tools\\.claude\\worktrees\\*\\scripts\\deploy-services-with-vault.ps1*)",
+      "mcp__aye-task-lead__task_cancel",
+      "mcp__aye-task-lead__task_replace_notes",
+      "mcp__aye-task__task_cancel",
+      "mcp__aye-task__task_replace_notes",
+      "mcp__aye-task__task_update_fields"
     ],
     "deny": [
       "Bash(git reset --hard *)",
@@ -260,11 +284,21 @@
             "timeout": 15
           }
         ]
+      },
+      {
+        "matcher": "mcp__aye-task(-lead)?__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/task-mcp-role-guard.ps1\"; rc=$?; if [ $rc -ne 0 ] && [ $rc -ne 2 ]; then echo 'task-mcp-role-guard: hook failed, failing closed' >&2; exit 2; fi; exit $rc",
+            "timeout": 15
+          }
+        ]
       }
     ],
     "PostToolUse": [
       {
-        "matcher": "Bash|PowerShell|mcp__aye-task__.*",
+        "matcher": "Bash|PowerShell|mcp__aye-task(-lead)?__.*",
         "hooks": [
           {
             "type": "command",
