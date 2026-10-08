@@ -21,7 +21,11 @@
       - a subagent calls a tool of the lead server mcp__aye-task-lead__* (lead-server-in-subagent, PLAT-3715),
       - agent_type is not in the mapping, i.e. unknown or without a profile (unknown-agent-type, N7),
       - the tool is not in the profile of the expected role (tool-not-in-profile, wrong role),
-      - task_set_status carries a status outside the settable list (status-not-settable, W-2 content check).
+      - task_set_status carries a status outside the settable list (status-not-settable, W-2 content check),
+      - tool_input carries a key override_reason at any depth (override-reason, PLAT-3738 / Security S-3 part 1; all callers
+        including the main session; the Task-CLI counterpart is task-call-guard).
+    Changes to task_mcp.capabilities in tools/claude-kit/repos/<repo>.json move implement/review rights and need a
+    security review (PLAT-3738).
     agent_type is compared ordinal and case-sensitive. Allow: exit 0 without output.
 
     Fail closed: any internal error (invalid JSON, wrong field types, missing or invalid mapping) is exit 2.
@@ -36,10 +40,27 @@ function Stop-Hook([string]$Code, [string]$Detail) {
     $fb = if ($script:Fallback) { " Bis dahin: Task-CLI ueber den Wrapper ($script:Fallback `"<Befehl>`")." } else { '' }
     $msg = "[task-mcp-role-guard] Abgelehnt ($Code): $Detail " +
         "Regel (Leitplanke gegen Fehlbedienung, keine Sicherheitsgrenze): mcp__aye-task__* nutzt jede Rolle nur ueber den Server in ihrer eigenen Agentendefinition, mcp__aye-task-lead__* nur die Hauptsession; " +
-        "Lead-Werkzeuge (task_create, task_update_fields, task_add_dependency, task_cancel, task_replace_notes) gehoeren nur der Projektleitung (Hauptsession). " +
+        "Lead-Werkzeuge (task_create, task_update_fields, task_add_dependency, task_add_evidence, task_cancel, task_replace_notes) gehoeren nur der Projektleitung (Hauptsession). " +
         "Richtiger Weg: Aenderungen ausserhalb deines Profils als Vorschlag im Uebergabebericht an die Projektleitung melden; fehlt der Server oder die Rolle ist unbekannt, die Kit-Konfiguration (task_mcp) pruefen lassen.$fb"
     [Console]::Error.WriteLine($msg)
     exit 2
+}
+
+# PLAT-3738 (Security S-3 part 1, ADR-0112): override_reason is the human path of the service (stored and counted); an
+# agent call never carries it. The tool schemas have no such field (additionalProperties false), the hook names the rule
+# before the service answers with a generic validation error. Keys only (any depth, case-insensitive, '-' or '_'),
+# never values: notes may mention the word. Too deep nesting is treated as a hit (fail closed).
+function Test-OverrideKey([object]$Node, [int]$Depth) {
+    if ($Depth -gt 8) { return $true }
+    if ($Node -is [System.Management.Automation.PSCustomObject]) {
+        foreach ($p in $Node.PSObject.Properties) {
+            if ($p.Name -match '(?i)^override[_-]?reason$') { return $true }
+            if (Test-OverrideKey $p.Value ($Depth + 1)) { return $true }
+        }
+    } elseif ($Node -is [System.Collections.IEnumerable] -and $Node -isnot [string]) {
+        foreach ($item in $Node) { if (Test-OverrideKey $item ($Depth + 1)) { return $true } }
+    }
+    return $false
 }
 
 function Get-Short([object]$Value) {
@@ -64,6 +85,10 @@ try {
         $short = $tool.Substring($ToolPrefix.Length)
     } else {
         exit 0
+    }
+
+    if (Test-OverrideKey $data.tool_input 0) {
+        Stop-Hook 'override-reason' "Das Feld override_reason gehoert dem menschlichen Weg des Services (Task-CLI oder REST durch Sascha) und kommt in keinem Agent-Aufruf vor. Tool: $short. Stattdessen den Fehlertext des Services befolgen, den richtigen Weg gehen oder die Entscheidung an Sascha melden."
     }
 
     $mapPath = Join-Path $PSScriptRoot 'task-mcp-roles.json'

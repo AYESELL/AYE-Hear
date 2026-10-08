@@ -4,6 +4,7 @@
     Abgelehnt werden (nur wenn der Befehl ein task.ps1-Aufruf ist):
       - Pipe, Semikolon, &&, Zeilenumbruch, Skriptblock-Klammern (foreach) ausserhalb von Anfuehrungszeichen
       - Get-Task -Status mit Liste oder unzulaessigem Wert; Set-Task -Status ausserhalb des ValidateSet
+      - override_reason / -OverrideReason irgendwo im Aufruf (PLAT-3738, Security S-3 Teil 1; menschlicher Weg des Services)
       - im PowerShell-Werkzeug: Gesamtbefehl ueber 1000 Byte (UTF-8, Umlaute zaehlen doppelt)
     Ersetzt nicht den Wrapper (Allowlist im Wrapper bleibt). Keine Treffer bei anderen Befehlen, auch wenn
     "task.ps1" nur als Text vorkommt. Bei jedem Fehler im Hook: durchlassen (exit 0).
@@ -107,6 +108,15 @@ try {
                 $problems.Add("Unzulaessiger Statuswert '$val' bei $verb -Status (Variablen sind nicht erlaubt, Werte wie 'Complete' gibt es nicht). $hint")
             }
         }
+    }
+
+    # PLAT-3738 (Security S-3 part 1, ADR-0112): override_reason / -OverrideReason is the human path of the Change Service
+    # (stored and counted). An agent call through the wrapper never carries it. Deliberately strict: the word anywhere in
+    # a task.ps1 call is rejected, also inside a quoted note (write such a note with -ImplementationNotesFile / -NoteFile).
+    if ($cmd -match '(?i)override[_-]?reason') {
+        $problems.Add("Der Aufruf enthaelt override_reason (-OverrideReason). Das ist der Weg fuer Menschen (Sascha) und kommt in keinem Agent-Aufruf vor, " +
+            "auch nicht als Text in einer Note. Stattdessen den Fehlertext des Services befolgen und den richtigen Weg gehen; " +
+            "braucht es wirklich eine Ausnahme, im Bericht an Sascha melden. Notes, die das Wort nennen, ueber -ImplementationNotesFile bzw. -NoteFile schreiben.")
     }
 
     if ($tool -eq 'PowerShell') {
