@@ -29,6 +29,7 @@
       "profile": "reviewer"
     }
   },
+  "roles": {},
   "profile_tools": {
     "implementer": [
       "task_append_note",
@@ -37,6 +38,7 @@
       "task_get",
       "task_history",
       "task_list",
+      "task_record_review",
       "task_set_status",
       "task_start"
     ],
@@ -54,6 +56,7 @@
     ],
     "lead": [
       "task_add_dependency",
+      "task_add_evidence",
       "task_append_note",
       "task_cancel",
       "task_children",
@@ -63,6 +66,7 @@
       "task_get",
       "task_history",
       "task_list",
+      "task_record_review",
       "task_replace_notes",
       "task_set_status",
       "task_start",

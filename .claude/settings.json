@@ -59,7 +59,12 @@
       "mcp__aye-task-lead__task_start",
       "mcp__aye-task-lead__task_create",
       "mcp__aye-task-lead__task_add_dependency",
-      "mcp__aye-task-lead__task_update_fields"
+      "mcp__aye-task-lead__task_update_fields",
+      "mcp__aye-task__task_record_review",
+      "mcp__aye-task__task_complete",
+      "mcp__aye-task-lead__task_record_review",
+      "mcp__aye-task-lead__task_complete",
+      "mcp__aye-task-lead__task_add_evidence"
     ],
     "ask": [
       "Bash(git push *)",
@@ -309,6 +314,15 @@
       }
     ],
     "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pwsh -NoProfile -NonInteractive -ExecutionPolicy Bypass -File \"$CLAUDE_PROJECT_DIR/.claude/hooks/memory-sync.ps1\"",
+            "timeout": 30
+          }
+        ]
+      },
       {
         "hooks": [
           {
