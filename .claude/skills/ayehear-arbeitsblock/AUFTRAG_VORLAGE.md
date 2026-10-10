@@ -20,7 +20,7 @@ Rolle: <Fachrolle>
 **Blockschnitt:** <Auftrag in Blöcke geschnitten, die in ein Turn-Limit passen; nach jedem Block Zwischen-Commit auf dem Task-Branch>
 **Git-Rahmen:** Task-Branch <typ>/<ID>-<kurzname>; Worktree ja/nein; Basis <Trunk-SHA>; Commit/Push freigegeben ja/nein
 **Gate:** <Konzept-Gate des PO nötig? ja (Architekturrelevanz oder Konzept und Code im Block) / nein>; bei Code nach Konzept: Freigabe von Sascha (Datum, Wortlaut) steht im Task
-**Vorgaben:** Task am Ende auf REVIEW setzen, nicht Complete-Task; kein -SkipReview/-Force; keine Hook-Overrides (SKIP_*, --no-verify, git push --force; Start-Task -Force ausgenommen) ohne Freigabe von Sascha im Task
+**Vorgaben:** Task mit task_start (MCP aye-task) starten; am Ende auf REVIEW setzen (MCP task_set_status mit Nachweisen), nicht complete; kein -SkipReview/-Force; keine Hook-Overrides (SKIP_*, --no-verify, git push --force; Start-Task -Force ausgenommen) ohne Freigabe von Sascha im Task
 **Ergebnisse der Vorrollen:** <knapp, mit Quelle>
 **Rückgabe:** Übergabebericht nach task-execution Abschnitt 8; Befunde im Befundformat (Abschnitt 5d)
 ```

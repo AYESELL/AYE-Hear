@@ -29,7 +29,14 @@
       "profile": "reviewer"
     }
   },
-  "roles": {},
+  "roles": {
+    "AYEHEAR_ARCHITECT": "architecture",
+    "AYEHEAR_DEVELOPER": "implementation",
+    "AYEHEAR_DEVOPS": "ops",
+    "AYEHEAR_LEAD": "lead",
+    "AYEHEAR_QA": "qa",
+    "AYEHEAR_SECURITY": "security"
+  },
   "profile_tools": {
     "implementer": [
       "task_append_note",
